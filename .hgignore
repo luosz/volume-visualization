@@ -1,0 +1,8 @@
+\.ncb$
+\.user$
+\.sdf$
+^Debug/
+^Release/
+^ipch/
+/Debug/
+/Release/
