@@ -19,15 +19,15 @@
     <Filter Include="kmlocal">
       <UniqueIdentifier>{602eb9a7-35a1-469a-b1c2-11b9a4551252}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Ben">
+      <UniqueIdentifier>{779f5ec5-441a-4afd-ba6f-4c430744a507}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="textfile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="volume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="kmpp\KmTree.cpp">
@@ -69,6 +69,9 @@
     <ClCompile Include="kmpp\KMeansPP.cpp">
       <Filter>kmpp</Filter>
     </ClCompile>
+    <ClCompile Include="Ben\volume.cpp">
+      <Filter>Ben</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="textfile.h">
@@ -78,9 +81,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="reader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="volume.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VolumeReader.h">
@@ -143,17 +143,26 @@
     <ClInclude Include="K_Means_DIY.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Ben\color.h">
+      <Filter>Ben</Filter>
+    </ClInclude>
+    <ClInclude Include="Ben\volume.h">
+      <Filter>Ben</Filter>
+    </ClInclude>
+    <ClInclude Include="Ben_imported.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ray_casting.frag" />
-    <None Include="simple_fragment.frag" />
-    <None Include="simple_vertex.vert" />
-    <None Include="my_raycasting.frag" />
     <None Include="kmlocal\ReadMe.txt">
       <Filter>kmlocal</Filter>
     </None>
     <None Include="kmpp\README.txt">
       <Filter>kmpp</Filter>
     </None>
+    <None Include="ray_casting.frag.backup" />
+    <None Include="simple_fragment.frag.backup" />
+    <None Include="my_raycasting.frag.cc" />
+    <None Include="simple_vertex.vert.cc" />
   </ItemGroup>
 </Project>

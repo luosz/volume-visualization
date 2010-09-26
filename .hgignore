@@ -1,6 +1,7 @@
 \.ncb$
 \.user$
 \.sdf$
+\.ipch$
 ^Debug/
 ^Release/
 ^ipch/

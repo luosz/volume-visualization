@@ -5,7 +5,7 @@
 #include <cstring>
 using namespace std;
 
-#include "volume.h"
+#include "Ben\volume.h"
 #include "reader.h"
 
 #define STR_BUFFER_SIZE 320
@@ -23,7 +23,7 @@ public:
 	}
 
 	// utilize readVolFile and readData
-	void readVolume_original(char* filename = NULL)
+	void readVolume_Ben(char* filename = NULL)
 	{
 		readVolFile(filename);
 		char str[STR_BUFFER_SIZE];
@@ -42,7 +42,7 @@ public:
 	}
 
 	// read volume data from file using readData in reader.h
-	void readVolume_new(char* filename)
+	void readVolume_reader(char* filename)
 	{
 		using namespace reader;
 

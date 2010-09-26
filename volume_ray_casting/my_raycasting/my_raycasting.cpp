@@ -24,7 +24,7 @@ using namespace std;
 
 #include "textfile.h"
 #include "reader.h"
-#include "VolumeReader.h"
+#include "Ben_imported.h"
 #include "calculation.h"
 #include "volume_filename.h"
 using namespace reader;
@@ -53,6 +53,9 @@ GLuint cluster_texture;
 GLuint loc_cluster_texture;
 float cluster_limit = 8;
 GLuint loc_cluster_limit;
+// for layer peeling
+float peeling_layer = 0;
+GLuint loc_peeling_layer;
 // the parameter k for k-means
 float cluster_quantity = 8;
 int cluster_quantity_int = -1; // to be initialized
@@ -125,6 +128,7 @@ enum PeelingOption
 	PEELING_THRESHOLD,
 	PEELING_CLUSTER_CLIP,
 	PEELING_CLUSTER_SPECIFIC,
+	PEELING_CLASSIFICATION,
 	PEELING_COUNT
 };
 int peeling_option = 0;
@@ -172,8 +176,8 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Threshold peeling", "Cluster clip", "Cluster specific"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "3D (BenBen)", "Gradients as colors", "2nd derivative weaken", "2nd derivative strengthen", "K-means"};
+	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Threshold peeling", "Cluster clip", "Cluster specific", "Classification peeling"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative weaken", "2nd derivative strengthen", "K-means"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -188,7 +192,7 @@ void doUI()
 		ui.doCheckButton(none, "Auto rotate", &button_auto_rotate);
 		ui.doButton(none, "Generate histogram", &button_generate_histogram);
 		ui.doButton(none, "Cluster", &button_cluster);
-		ui.doButton(none, "Generate 3D transfer function", &button_generate_3D_transfer_function);
+		ui.doButton(none, "Generate Ben transfer function", &button_generate_3D_transfer_function);
 		ui.endGroup();
 
 		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
@@ -219,6 +223,18 @@ void doUI()
 				sprintf(str, "cluster_limit: %f", cluster_limit);
 				ui.doLabel(none, str);
 				ui.doHorizontalSlider(rect_slider, 0, 100, &cluster_limit);
+			}else
+			{
+				if (peeling_option == PEELING_CLASSIFICATION)
+				{
+					sprintf(str, "cluster_limit: %f", cluster_limit);
+					ui.doLabel(none, str);
+					ui.doHorizontalSlider(rect_slider, 0, 100, &cluster_limit);
+
+					sprintf(str, "peeling_layer: %f", peeling_layer);
+					ui.doLabel(none, str);
+					ui.doHorizontalSlider(rect_slider, 0, 100, &peeling_layer);
+				}
 			}
 		}
 
@@ -340,8 +356,8 @@ void set_shaders() {
 	v = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 
-	vs = textFileRead("simple_vertex.vert");
-	fs = textFileRead("my_raycasting.frag");
+	vs = textFileRead("simple_vertex.vert.cc");
+	fs = textFileRead("my_raycasting.frag.cc");
 
 	const char * vv = vs;
 	const char * ff = fs;
@@ -375,6 +391,7 @@ void set_shaders() {
 	loc_clip = glGetUniformLocation(p, "clip");
 	loc_cluster_limit = glGetUniformLocation(p, "cluster_limit");
 	loc_cluster_interval = glGetUniformLocation(p, "cluster_interval");
+	loc_peeling_layer = glGetUniformLocation(p, "peeling_layer");
 
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
@@ -489,7 +506,7 @@ void draw_quads(float x, float y, float z)
 }
 
 // create a test volume texture, here you could load your own volume
-void create_volumetexture()
+void create_volumetexture_a_cube()
 {
 	int size = VOLUME_TEX_SIZE*VOLUME_TEX_SIZE*VOLUME_TEX_SIZE* 4;
 	GLubyte *data = new GLubyte[size];
@@ -562,45 +579,21 @@ void create_volumetexture()
 	cout << "volume texture created" << endl;
 }
 
-void create_transferfunc()
+void create_transferfunc_Ben()
 {
 	VolumeReader Volume;
-	Volume.readVolume_new(volume_filename);
+	Volume.readVolume_Ben(volume_filename);
 	Volume.calHistogram();
-	Volume.calGradient();
+	Volume.calGrad_ex();
 	Volume.calDf2();
 	Volume.calDf3();
+	Volume.statistics();
 
-	unsigned int x, y, z, index;
 	unsigned int dim_x = Volume.getX();
 	unsigned int dim_y = Volume.getY();
 	unsigned int dim_z = Volume.getZ();
-
-	typedef struct  
-	{	
-		unsigned char r;
-		unsigned char g;
-		unsigned char b;
-		unsigned char a;
-	}color_opacity;
 	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	if(tf == NULL)
-	{
-		fprintf(stderr, "Not enough space for tf");
-	}
-
-	for(z = 0; z < dim_z; ++z)
-		for(y = 0;y < dim_y; ++y)
-			for(x = 0; x < dim_x; ++x)
-			{
-				index = Volume.getIndex(x, y, z);
-				tf[index].r = (unsigned char)(((float)Volume.getData(x, y, z)) / Volume.getMax() * 256);
-				tf[index].g = (unsigned char)(((float)Volume.getGradient(x, y, z)) / Volume.getMaxGrad() * 256);
-				tf[index].b = (unsigned char)(((float)Volume.getDf2(x, y ,z)) / Volume.getMaxDf2() * 256);
-				tf[index].a = (unsigned char)(((float)Volume.getDf3(x, y, z)) / Volume.getMaxDf3() * 256);
-				//tf[index].a = tf[index].g;
-				//	cout<<(int)tf[index].r<<"\t"<<(int)tf[index].g<<"\t"<<(int)tf[index].b<<"\t"<<(int)tf[index].a<<endl;
-			}
+	setTransferfunc(tf, Volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -801,8 +794,12 @@ void initialize()
 	}
 
 	glEnable(GL_CULL_FACE);
+
+	// black or white background
 	glClearColor(0, 0, 0, 0);
-	create_volumetexture();
+	//glClearColor(1, 1, 1, 1);
+
+	create_volumetexture_a_cube();
 
 	// Create the to FBO's one for the backside of the volumecube and one for the finalimage rendering
 	glGenFramebuffersEXT(1, &framebuffer);
@@ -1117,6 +1114,9 @@ void raycasting_pass()
 
 	int cluster_limit_int = static_cast<int>(cluster_limit);
 	cluster_limit = cluster_limit_int;
+	int peeling_layer_int = static_cast<int>(peeling_layer);
+	peeling_layer = peeling_layer_int;
+
 	int k = static_cast<int>(cluster_quantity);
 	cluster_quantity = k;
 	if (cluster_quantity_int != k)
@@ -1139,11 +1139,12 @@ void raycasting_pass()
 	glUniform1i(loc_peeling_option, peeling_option);
 	glUniform1i(loc_transfer_function_option, transfer_function_option);
 	glUniform1i(loc_cluster_limit, cluster_limit_int);
+	glUniform1i(loc_peeling_layer, peeling_layer_int);
 
 	if(button_generate_3D_transfer_function)
 	{
 		button_generate_3D_transfer_function = false;
-		create_transferfunc();
+		create_transferfunc_Ben();
 		set_texture_uniform(loc_transfer_texture, p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
 	}
 

@@ -72,9 +72,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ben\volume.cpp" />
     <ClCompile Include="kmlocal\KCtree.cpp" />
     <ClCompile Include="kmlocal\KCutil.cpp" />
     <ClCompile Include="kmlocal\KMcenters.cpp" />
@@ -90,9 +92,11 @@
     <ClCompile Include="kmpp\KmUtils.cpp" />
     <ClCompile Include="my_raycasting.cpp" />
     <ClCompile Include="textfile.cpp" />
-    <ClCompile Include="volume.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ben\color.h" />
+    <ClInclude Include="Ben\volume.h" />
+    <ClInclude Include="Ben_imported.h" />
     <ClInclude Include="calculation.h" />
     <ClInclude Include="K_Means_Local.h" />
     <ClInclude Include="kmlocal\KCtree.h" />
@@ -114,17 +118,16 @@
     <ClInclude Include="reader.h" />
     <ClInclude Include="sysconf.h" />
     <ClInclude Include="textfile.h" />
-    <ClInclude Include="volume.h" />
     <ClInclude Include="VolumeReader.h" />
     <ClInclude Include="volume_filename.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="kmlocal\ReadMe.txt" />
     <None Include="kmpp\README.txt" />
-    <None Include="my_raycasting.frag" />
-    <None Include="ray_casting.frag" />
-    <None Include="simple_fragment.frag" />
-    <None Include="simple_vertex.vert" />
+    <None Include="my_raycasting.frag.cc" />
+    <None Include="ray_casting.frag.backup" />
+    <None Include="simple_fragment.frag.backup" />
+    <None Include="simple_vertex.vert.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
