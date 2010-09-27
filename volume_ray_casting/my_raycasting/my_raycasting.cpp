@@ -261,7 +261,7 @@ void doUI()
 		}
 		ui.endGroup();
 	}
-	
+
 	// Pass non-ui mouse events to the manipulator
 	if (!ui.isOnFocus()) {
 		const nv::ButtonState &lbState = ui.getMouseState(0);
@@ -905,8 +905,8 @@ void process_keys()
 		if (!gKeys[i])  { continue; }
 		switch (i)
 		{
-		//case ' ':
-		//	break;
+			//case ' ':
+			//	break;
 		case 'w':
 			stepsize = increase(stepsize, STEPSIZE_INC, STEPSIZE_MAX);
 			break;
@@ -947,21 +947,23 @@ void key_release(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 27 :
-		{
-			exit(0);
-			break; 
-		}
-	case 'r':
-		// change render option
+		// escape to exit
+		exit(0);
+		break; 
+	case 'i':
+		// image to render
 		render_option = (render_option + 1) % RENDER_COUNT;
 		break;
 	case 'u':
+		// turn UI on/off
 		ui_on = !ui_on;
 		break;
 	case 't':
+		// transfer function
 		transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
 		break;
 	case 'p':
+		// peeling
 		peeling_option = (peeling_option + 1) % PEELING_COUNT;
 		break;
 	}
@@ -1032,7 +1034,7 @@ void render_buffer_to_screen()
 	default:
 		throw std::exception("Unknown Render Option!");
 	}
-	
+
 	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); // set projection mode to Ortho 2D
 	draw_fullscreen_quad(); // draw a full screen quadrangle to show the content in the texture buffer
 	glDisable(GL_TEXTURE_2D);
@@ -1188,7 +1190,7 @@ void display()
 		else
 			render_histograms<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number);
 	}
-	
+
 	// cluster
 	if (data_ptr && button_cluster)
 	{
