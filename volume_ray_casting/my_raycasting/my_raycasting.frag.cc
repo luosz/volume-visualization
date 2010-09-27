@@ -160,14 +160,14 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			//////////////////////////////////////////////////////////////////////////
 
 			//////////////////////////////////////////////////////////////////////////
-			// version 2, the effect is the same as version 1
+			// version 2, behave the same as version 1, but uses fewer variables
 			//color_sample.a = color_sample.a * stepsize;
 			//col_acc.a += color_sample.a;
 			//col_acc.rgb += (1.0 - col_acc.a) * color_sample.rgb * color_sample.a * luminance;
 			//////////////////////////////////////////////////////////////////////////
 
 			//////////////////////////////////////////////////////////////////////////
-			// version 3
+			// version 3, uses mix() in GLSL to interpolate the colors
 			// Accumulate RGB : acc.rgb = voxelColor.rgb*voxelColor.a + (1.0 - voxelColor.a)*acc.rgb;
 			//acc.rgb = mix(acc.rgb, voxelColor.rgb, voxelColor.a)*LightIntensity;
 			// Accumulate Opacity: acc.a = acc.a + (1.0 - acc.a)*voxelColor.a;
