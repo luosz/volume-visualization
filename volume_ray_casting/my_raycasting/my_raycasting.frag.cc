@@ -45,10 +45,10 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	vec3 delta_dir = norm_dir * stepsize;
 	float delta_dir_len = length(delta_dir);
 	vec3 ray = frontPos;
-	float alpha_acc = 0.;
+	//float alpha_acc = 0.;
 	float length_acc = 0.;
 	vec4 color_sample;
-	float alpha_sample;
+	//float alpha_sample;
 
 	// black or white background
 	vec4 col_acc = vec4(0,0,0,0);
@@ -64,8 +64,8 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	float second_derivative_magnitude;
 
 	// for culstering peeling
-	int cluster_number = -1, cluster_number_new, cluster_count = 0;
-	bool cluster_limit_reached = false;
+	//int cluster_number = -1, cluster_number_new, cluster_count = 0;
+	//bool cluster_limit_reached = false;
 	int peeling_counter = 0;
 
 	for(int i = 0; i < sample_number; i++)
@@ -148,23 +148,45 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				}
 			}
 
-			alpha_sample = color_sample.a * stepsize;
-			alpha_acc += alpha_sample;
-			//col_acc += (1.0 - alpha_acc) * color_sample * stepsize;
+			//////////////////////////////////////////////////////////////////////////
+			// version 1
+			//alpha_sample = color_sample.a * stepsize;
+			//alpha_acc += alpha_sample;
+			////col_acc += (1.0 - alpha_acc) * color_sample * stepsize;
 
 			// black or white background
-			col_acc += (1.0 - alpha_acc) * color_sample * alpha_sample * luminance;
-			//col_acc -= (1.0 - alpha_acc) * color_sample * alpha_sample * luminance;
+			//col_acc += (1.0 - alpha_acc) * color_sample * alpha_sample * luminance;
+			////col_acc -= (1.0 - alpha_acc) * color_sample * alpha_sample * luminance;
+			//////////////////////////////////////////////////////////////////////////
+
+			//////////////////////////////////////////////////////////////////////////
+			// version 2, the effect is the same as version 1
+			//color_sample.a = color_sample.a * stepsize;
+			//col_acc.a += color_sample.a;
+			//col_acc.rgb += (1.0 - col_acc.a) * color_sample.rgb * color_sample.a * luminance;
+			//////////////////////////////////////////////////////////////////////////
+
+			//////////////////////////////////////////////////////////////////////////
+			// version 3
+			// Accumulate RGB : acc.rgb = voxelColor.rgb*voxelColor.a + (1.0 - voxelColor.a)*acc.rgb;
+			//acc.rgb = mix(acc.rgb, voxelColor.rgb, voxelColor.a)*LightIntensity;
+			// Accumulate Opacity: acc.a = acc.a + (1.0 - acc.a)*voxelColor.a;
+			//acc.a = mix(voxelColor.a, 1.0, acc.a);
+
+			color_sample.a = color_sample.a * stepsize;
+			col_acc.rgb = mix(col_acc.rgb, color_sample.rgb, color_sample.a);
+			col_acc.a = mix(color_sample.a, 1.0, col_acc.a);
+			//////////////////////////////////////////////////////////////////////////
 		}
 
 		ray += delta_dir;
 
 		if(peeling_option == 1)
 		{
-			// opacity peeling threshold
+			// opacity peeling
 			//if(!threshold_reached && isReacheThreshold(col_acc, color_sample))
 				//threshold_reached = true;
-			if(isReacheThreshold(col_acc, color_sample))
+			if(average(col_acc) > threshold_high && average(color_sample) < threshold_low)
 			{
 				if (peeling_counter == peeling_layer)
 				{
@@ -172,7 +194,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				}else
 				{
 					col_acc = vec4(0,0,0,0);
-					alpha_acc = 0;
+					//alpha_acc = 0;
 					peeling_counter++;
 				}
 			}
@@ -180,52 +202,55 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		{
 			if(peeling_option == 2)
 			{
-				// show specific cluster
-				c = texture3D(cluster_texture, ray);
-				cluster_number_new = to_cluster_number(c.x);
-				if(cluster_number == -1)
-				{
-					cluster_number = cluster_number_new;
-				}else
-				{
-					if(cluster_number != cluster_number_new)
-					{
-						cluster_number = cluster_number_new;
-						cluster_count++;
-						if(!cluster_limit_reached && cluster_count >= cluster_limit)
-						{
-							col_acc = vec4(0,0,0,0);
-							alpha_acc = 0;
-							cluster_limit_reached = true;
-						}
-					}
-				}
+				// feature peeling
+				//c = texture3D(cluster_texture, ray);
+				//cluster_number_new = to_cluster_number(c.x);
+				//if(cluster_number == -1)
+				//{
+				//	cluster_number = cluster_number_new;
+				//}else
+				//{
+				//	if(cluster_number != cluster_number_new)
+				//	{
+				//		cluster_number = cluster_number_new;
+				//		cluster_count++;
+				//		if(!cluster_limit_reached && cluster_count >= cluster_limit)
+				//		{
+				//			col_acc = vec4(0,0,0,0);
+				//			alpha_acc = 0;
+				//			cluster_limit_reached = true;
+				//		}
+				//	}
+				//}
 			}else
 			{
 				if(peeling_option == 3)
 				{
-					c = texture3D(cluster_texture, ray);
-					cluster_number_new = to_cluster_number(c.x);
-					if(!cluster_limit_reached && cluster_number_new == cluster_limit)
+					// peel the back
+					if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
+						- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
 					{
-						col_acc = vec4(0,0,0,0);
-						alpha_acc = 0;
-						cluster_limit_reached = true;
+						if (peeling_counter < peeling_layer)
+						{
+							peeling_counter++;
+						}else
+						{
+							break;
+						}
 					}
 				}else
 				{
 					if(peeling_option == 4)
 					{
-						// classification peeling
-						if(1 <= length(texture3D(cluster_texture, ray + delta_dir) - texture3D(cluster_texture, ray - delta_dir)))
+						// peel the front
+						// classification peeling, peel cluster layers
+						if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
+							- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
 						{
-							if (peeling_counter == peeling_layer)
-							{
-								break;
-							}else
+							if (peeling_counter < peeling_layer)
 							{
 								col_acc = vec4(0,0,0,0);
-								alpha_acc = 0;
+								//alpha_acc = 0;
 								peeling_counter++;
 							}
 						}
@@ -234,10 +259,11 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			}
 		}
 
-		if(length_acc >= len || alpha_acc > 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
+		if(length_acc >= len || col_acc.a >= 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
 	}
 
-	col_acc.a = alpha_acc;
+	//col_acc.a = alpha_acc;
+	col_acc.rgb *= luminance;
 	return col_acc;
 }
 

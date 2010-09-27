@@ -15,7 +15,6 @@
 #include <iostream>
 #include <vector>
 #include <limits>
-
 using namespace std;
 
 // NVIDIA OpenGL SDK
@@ -56,12 +55,14 @@ GLuint loc_cluster_limit;
 // for layer peeling
 float peeling_layer = 0;
 GLuint loc_peeling_layer;
+const float LAYER_MAX = 100;
+const float LAYER_MIN = 0;
+const float LAYER_INC = 1;
 // the parameter k for k-means
 float cluster_quantity = 8;
 int cluster_quantity_int = -1; // to be initialized
 float cluster_interval;
 GLuint loc_cluster_interval;
-
 
 // for shaders
 const float STEPSIZE_MAX = 1.0/4.0;
@@ -72,10 +73,10 @@ GLuint v,f,p;//,f2 // the OpenGL shaders
 GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture;
-const float LUMINANCE_MAX = 500;
+const float LUMINANCE_MAX = 100;
 const float LUMINANCE_MIN = 1;
-const float LUMINANCE_INC = LUMINANCE_MIN;
-float luminance = 3;
+const float LUMINANCE_INC = 1;
+float luminance = 1;
 GLuint loc_luminance;
 GLuint loc_sizes;
 const float CLIP_MAX = 1.732;
@@ -83,7 +84,6 @@ const float CLIP_MIN = 0;
 const float CLIP_INC = 0.01;
 float clip = 0;
 GLuint loc_clip;
-
 
 // for UI
 bool ui_on = true;
@@ -107,7 +107,8 @@ bool button_show_generated_cube_backup = false;
 bool button_auto_rotate = false;
 bool button_generate_histogram = false;
 bool button_cluster = false;
-bool button_generate_3D_transfer_function = false;
+bool button_generate_Ben_transfer_function = false;
+bool button_all = false;
 
 enum RenderOption
 {
@@ -125,10 +126,10 @@ int render_option = RENDER_FINAL_IMAGE;
 enum PeelingOption
 {
 	PEELING_NONE,
-	PEELING_THRESHOLD,
-	PEELING_CLUSTER_CLIP,
-	PEELING_CLUSTER_SPECIFIC,
-	PEELING_CLASSIFICATION,
+	PEELING_OPACITY,
+	PEELING_FEATURE,
+	PEELING_BACK,
+	PEELING_FRONT,
 	PEELING_COUNT
 };
 int peeling_option = 0;
@@ -176,7 +177,7 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Threshold peeling", "Cluster clip", "Cluster specific", "Classification peeling"};
+	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front"};
 	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative weaken", "2nd derivative strengthen", "K-means"};
 
 	glDisable(GL_CULL_FACE);
@@ -192,7 +193,8 @@ void doUI()
 		ui.doCheckButton(none, "Auto rotate", &button_auto_rotate);
 		ui.doButton(none, "Generate histogram", &button_generate_histogram);
 		ui.doButton(none, "Cluster", &button_cluster);
-		ui.doButton(none, "Generate Ben transfer function", &button_generate_3D_transfer_function);
+		ui.doButton(none, "Generate Ben transfer function", &button_generate_Ben_transfer_function);
+		ui.doButton(none, "Do it all", &button_all);
 		ui.endGroup();
 
 		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
@@ -209,31 +211,27 @@ void doUI()
 		nv::Rect rect_slider(0,0,600,0);
 		ui.doHorizontalSlider(rect_slider, STEPSIZE_MIN, STEPSIZE_MAX, &stepsize);
 
-		if (peeling_option == PEELING_THRESHOLD)
+		if (peeling_option == PEELING_OPACITY)
 		{
-			// if(accumulated>high && sampled>low)
-			sprintf(str, "peeling condition: if(accumulated>high && sampled>low)    threshold low: %f threshold high: %f", threshold_low, threshold_high);
+			// if(accumulated>high && sampled<low)
+			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, 0.00001, 1.0, &threshold_low);
 			ui.doHorizontalSlider(rect_slider, 0.00001, 1.0, &threshold_high);
 		}else
 		{
-			if (peeling_option == PEELING_CLUSTER_CLIP || peeling_option == PEELING_CLUSTER_SPECIFIC)
+			if (peeling_option == PEELING_FEATURE)
 			{
 				sprintf(str, "cluster_limit: %f", cluster_limit);
 				ui.doLabel(none, str);
 				ui.doHorizontalSlider(rect_slider, 0, 100, &cluster_limit);
 			}else
 			{
-				if (peeling_option == PEELING_CLASSIFICATION)
+				if (peeling_option == PEELING_BACK || peeling_option == PEELING_FRONT)
 				{
-					sprintf(str, "cluster_limit: %f", cluster_limit);
-					ui.doLabel(none, str);
-					ui.doHorizontalSlider(rect_slider, 0, 100, &cluster_limit);
-
 					sprintf(str, "peeling_layer: %f", peeling_layer);
 					ui.doLabel(none, str);
-					ui.doHorizontalSlider(rect_slider, 0, 100, &peeling_layer);
+					ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
 				}
 			}
 		}
@@ -635,10 +633,10 @@ void resize(int w, int h)
 
 // cluster the volume data
 template <class T, int TYPE_SIZE>
-void cluster(const T *data, const unsigned int count, const unsigned int components)
+void cluster(const T *data, const unsigned int count)
 {
 	unsigned char *label_ptr = new unsigned char[count];
-	calculation::k_means<T, TYPE_SIZE>(data, count, components, static_cast<int>(cluster_quantity), label_ptr);
+	calculation::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, static_cast<int>(cluster_quantity), label_ptr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &cluster_texture);
@@ -886,6 +884,18 @@ void initialize()
 	set_shaders();
 }
 
+inline float increase(const float value, const float inc, const float max)
+{
+	float temp = value + inc;
+	return temp>max ? max : temp;
+}
+
+inline float decrease(const float value, const float dec, const float min)
+{
+	float temp = value - dec;
+	return temp<min ? min : temp;
+}
+
 // for contiunes keypresses
 void process_keys()
 {
@@ -898,67 +908,49 @@ void process_keys()
 		//case ' ':
 		//	break;
 		case 'w':
-			stepsize += STEPSIZE_INC;
-			if (stepsize > STEPSIZE_MAX)
-			{
-				stepsize = STEPSIZE_MAX;
-			}
+			stepsize = increase(stepsize, STEPSIZE_INC, STEPSIZE_MAX);
 			break;
 		case 's':
-			stepsize -= STEPSIZE_INC;
-			if (stepsize < STEPSIZE_MIN)
-			{
-				stepsize = STEPSIZE_MIN;
-			}
+			stepsize = decrease(stepsize, STEPSIZE_INC, STEPSIZE_MIN);
 			break;
 		case 'd':
-			luminance += LUMINANCE_INC;
-			if (luminance > LUMINANCE_MAX)
-			{
-				luminance = LUMINANCE_MAX;
-			}
+			luminance = increase(luminance, LUMINANCE_INC, LUMINANCE_MAX);
 			break;
 		case 'a':
-			luminance -= LUMINANCE_INC;
-			if (luminance < LUMINANCE_MIN)
-			{
-				luminance = LUMINANCE_MIN;
-			}
+			luminance = decrease(luminance, LUMINANCE_INC, LUMINANCE_MIN);
 			break;
 		case 'c':
-			clip += CLIP_INC;
-			if (clip > CLIP_MAX)
-			{
-				clip = CLIP_MAX;
-			}
+			clip = increase(clip, CLIP_INC, CLIP_MAX);
 			break;
 		case 'x':
-			clip -= CLIP_INC;
-			if (clip < CLIP_MIN)
-			{
-				clip = CLIP_MIN;
-			}
+			clip = decrease(clip, CLIP_INC, CLIP_MIN);
+			break;
+		case 'l':
+			peeling_layer = increase(peeling_layer, LAYER_INC, LAYER_MAX);
+			break;
+		case 'k':
+			peeling_layer = decrease(peeling_layer, LAYER_INC, LAYER_MIN);
 			break;
 		}
 	}
 }
 
-void key(unsigned char k, int x, int y)
+void key_press(unsigned char k, int x, int y)
 {
 	gKeys[k] = true;
 }
 
-void KeyboardUpCallback(unsigned char key, int x, int y)
+void key_release(unsigned char key, int x, int y)
 {
 	gKeys[key] = false;
 
 	switch (key)
 	{
-	//case 27 :
-	//	{
-	//		exit(0);
-	//		break; 
-	//	}
+	case 27 :
+		{
+			exit(0);
+			break; 
+		}
 	case 'r':
 		// change render option
 		render_option = (render_option + 1) % RENDER_COUNT;
@@ -1141,9 +1133,9 @@ void raycasting_pass()
 	glUniform1i(loc_cluster_limit, cluster_limit_int);
 	glUniform1i(loc_peeling_layer, peeling_layer_int);
 
-	if(button_generate_3D_transfer_function)
+	if(button_generate_Ben_transfer_function)
 	{
-		button_generate_3D_transfer_function = false;
+		button_generate_Ben_transfer_function = false;
 		create_transferfunc_Ben();
 		set_texture_uniform(loc_transfer_texture, p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
 	}
@@ -1177,6 +1169,15 @@ void display()
 	enable_renderbuffers();
 	render_transfer_function_2D();
 
+	// do it all
+	if(data_ptr && button_all)
+	{
+		button_all = false;
+		button_generate_histogram = true;
+		button_cluster = true;
+		button_generate_Ben_transfer_function = true;
+	}
+
 	// render the histogram
 	if(data_ptr && button_generate_histogram)
 	{
@@ -1194,9 +1195,9 @@ void display()
 		button_cluster = false;
 		unsigned int count = sizes[0]*sizes[1]*sizes[2];
 		if (gl_type == GL_UNSIGNED_SHORT)
-			cluster<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_omponent_number);
+			cluster<unsigned short, 65536>((unsigned short*)*data_ptr, count);
 		else
-			cluster<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number);
+			cluster<unsigned char, 256>((unsigned char*)*data_ptr, count);
 	}
 
 	glLoadIdentity();
@@ -1226,8 +1227,8 @@ int main(int argc, char* argv[])
 	glutReshapeWindow(WINDOW_SIZE,WINDOW_SIZE);
 
 	// keyboard
-	glutKeyboardFunc(key);
-	glutKeyboardUpFunc(KeyboardUpCallback);
+	glutKeyboardFunc(key_press);
+	glutKeyboardUpFunc(key_release);
 	glutSpecialFunc(special);
 
 	// mouse

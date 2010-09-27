@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef VolumeReader_h
+#define VolumeReader_h
+
 #include <cstdio>
 #include <cctype>
 #include <cstring>
@@ -29,7 +32,7 @@ public:
 		char str[STR_BUFFER_SIZE];
 		strcpy(str, filename);
 		int length = strlen(str);
-		if (length > 3 && tolower(str[length - 3])=='d' && tolower(str[length - 2])=='a' && tolower(str[length - 1])=='t')
+		if (length > 4 && tolower(str[length - 4])=='.' && tolower(str[length - 3])=='d' && tolower(str[length - 2])=='a' && tolower(str[length - 1])=='t')
 		{
 			str[length - 3] = 'r';
 			str[length - 2] = 'a';
@@ -82,3 +85,5 @@ public:
 		data_ptr = NULL;
 	}
 };
+
+#endif // VolumeReader_h

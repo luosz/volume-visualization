@@ -365,12 +365,12 @@ void process_keys()
 
 }
 
-void key(unsigned char k, int x, int y)
+void key_press(unsigned char k, int x, int y)
 {
 	gKeys[k] = true;
 }
 
-void KeyboardUpCallback(unsigned char key, int x, int y)
+void key_release(unsigned char key, int x, int y)
 {
 	gKeys[key] = false;
 
@@ -507,8 +507,8 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutCreateWindow("GPU raycasting tutorial");
 	glutReshapeWindow(WINDOW_SIZE,WINDOW_SIZE);
-	glutKeyboardFunc(key);
-	glutKeyboardUpFunc(KeyboardUpCallback);
+	glutKeyboardFunc(key_press);
+	glutKeyboardUpFunc(key_release);
 	
 	glutDisplayFunc(display);
 	glutIdleFunc(idle_func);
