@@ -7,6 +7,8 @@
 #define STR_BUFFER_SIZE 320
 #endif
 
+// filename can be set in command arguments
+// in Visual Studio, it is in project Properties->Debugging->Command Arguments
 char volume_filename[STR_BUFFER_SIZE] = "data\\nucleon.dat";
 
 /************************************************************************
