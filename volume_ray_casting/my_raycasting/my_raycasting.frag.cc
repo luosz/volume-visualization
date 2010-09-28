@@ -37,6 +37,85 @@ bool isReacheThreshold(vec4 col_acc, vec4 color_sample)
 	return average(col_acc) > threshold_high && average(color_sample) > threshold_low;
 }
 
+//bool multi_sample_boundary_detection(vec3 v1, vec3 position, vec3 delta_dir)
+//{
+//	vec3 v2 = vec3(0,0,0);
+//	const int size = 3;
+//	int count = 0;
+//	// how many non-zero components there are
+//	for (int i=0; i<size; i++)
+//	{
+//		if (v1[i] != 0)
+//		{
+//			count++;
+//		}
+//	}
+//
+//	int index = -1;
+//	// get a vector v2 that is vertical to v1
+//	switch(count)
+//	{
+//	case 0: return false;
+//	case 1:
+//		for (int i=0; i<size; i++)
+//		{
+//			if (v1[i] != 0)
+//			{
+//				v2[(i+1) % size] = v1[i];
+//				break;
+//			}
+//		}
+//		break;
+//	case 2:
+//		for (int i=0; i<size; i++)
+//		{
+//			if (v1[i] != 0)
+//			{
+//				if (index == -1)
+//				{
+//					index = i;
+//				}else
+//				{
+//					v2[i] = -v1[index];
+//					v2[index] = v1[i];
+//					break;
+//				}
+//			}
+//		}
+//		break;
+//	default:
+//		v2.x = v2.y = v1.z;
+//		v2.z = - v1.x - v1.y;
+//	}
+//
+//	v2 = normalize(v2);
+//	vec3 v3 = normalize(cross(v1, v2));
+//	vec3 delta2 = v2 * stepsize;
+//	vec3 delta3 = v3 * stepsize;
+//	vec3 p1 = position + v2 * stepsize;
+//	vec3 p2 = position - v2 * stepsize;
+//	vec3 p3 = position + v3 * stepsize;
+//	vec3 p4 = position - v3 * stepsize;
+//
+//	count = 0;
+//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, position + delta_dir).x)
+//		- to_cluster_number(texture3D(cluster_texture, position - delta_dir).x)))
+//		count++;
+//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p1 + delta_dir).x)
+//		- to_cluster_number(texture3D(cluster_texture, p1 - delta_dir).x)))
+//		count++;
+//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p2 + delta_dir).x)
+//		- to_cluster_number(texture3D(cluster_texture, p2 - delta_dir).x)))
+//		count++;
+//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p3 + delta_dir).x)
+//		- to_cluster_number(texture3D(cluster_texture, p3 - delta_dir).x)))
+//		count++;
+//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p4 + delta_dir).x)
+//		- to_cluster_number(texture3D(cluster_texture, p4 - delta_dir).x)))
+//		count++;
+//	return count > 2;
+//}
+
 bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 {
 	vec3 v2 = vec3(0,0,0);
@@ -46,7 +125,8 @@ bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 	// how many non-zero components there are
 	for (int i=0; i<size; i++)
 	{
-		if (abs(v1[i]) < 1e-6)
+		//if (abs(v1[i]) < 1e-4)
+		if (v1[i] != 0)
 		{
 			count++;
 			if (index1 == -1)
@@ -69,8 +149,8 @@ bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 		v2[index2] = v1[index1];
 		break;
 	case 2:
-		v2[index1] = v1[index2];
 		v2[index2] = -v1[index1];
+		v2[index1] = v1[index2];
 		break;
 	default:
 		v2.x = v2.y = v1.z;
@@ -115,7 +195,8 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 position, vec3 delta_v1)
 	// how many non-zero components there are
 	for (int i=0; i<size; i++)
 	{
-		if (abs(v1[i]) < 1e-6)
+		//if (abs(v1[i]) < 1e-4)
+		if (v1[i] != 0)
 		{
 			count++;
 			if (index1 == -1)
@@ -138,8 +219,8 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 position, vec3 delta_v1)
 		v2[index2] = v1[index1];
 		break;
 	case 2:
-		v2[index1] = v1[index2];
 		v2[index2] = -v1[index1];
+		v2[index1] = v1[index2];
 		break;
 	default:
 		v2.x = v2.y = v1.z;
@@ -147,7 +228,7 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 position, vec3 delta_v1)
 	}
 
 	// get a vector v3 that is vertical to both v1 and v2, and then normalize v2 and v3
-	// get nine positions that are adjacent to the original position
+	// get four positions that are adjacent to the original position
 	v2 = normalize(v2);
 	vec3 v3 = normalize(cross(v1, v2));
 	vec3 delta_v2 = v2 * stepsize;
@@ -379,7 +460,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					// peel the back
 					//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
 					//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
-					if(detect_boundary_multisample_5(norm_dir, ray, delta_dir))
+					if(detect_boundary_multisample_9(norm_dir, ray, delta_dir))
 					{
 						if (peeling_counter < peeling_layer)
 						{
@@ -397,7 +478,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						// classification peeling, peel cluster layers
 						//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
 						//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
-						if(detect_boundary_multisample_5(norm_dir, ray, delta_dir))
+						if(detect_boundary_multisample_9(norm_dir, ray, delta_dir))
 						{
 							if (peeling_counter < peeling_layer)
 							{
