@@ -118,6 +118,7 @@ bool isReacheThreshold(vec4 col_acc, vec4 color_sample)
 
 bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 {
+	const float epsilon = 1e-5;
 	vec3 v2 = vec3(0,0,0);
 	const int size = 3;
 	int count = 0, index1 = -1, index2 = -1;
@@ -125,8 +126,7 @@ bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 	// how many non-zero components there are
 	for (int i=0; i<size; i++)
 	{
-		//if (abs(v1[i]) < 1e-4)
-		if (v1[i] != 0)
+		if (abs(v1[i]) > epsilon)
 		{
 			count++;
 			if (index1 == -1)
@@ -159,6 +159,7 @@ bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 
 	// get a vector v3 that is vertical to both v1 and v2, and then normalize v2 and v3
 	// get four positions that are adjacent to the original position
+	const float one = 1 - epsilon;
 	v2 = normalize(v2);
 	vec3 v3 = normalize(cross(v1, v2));
 	vec3 delta_v2 = v2 * stepsize;
@@ -169,17 +170,16 @@ bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 	vec3 p4 = position - delta_v3;
 
 	// how many pairs belong to different clusters
-	const float epsilon = 0.9;
 	count = 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, position + delta_v1).x) 
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, position + delta_v1).x) 
 		- to_cluster_number(texture3D(cluster_texture, position - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p1 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p1 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p1- delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p2 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p2 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p2 - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p3 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p3 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p3 - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p4 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p4 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p4 - delta_v1).x)))) ? 1 : 0;
 
 	// It is a boundary if more than a half pairs belong to different clusters
@@ -188,6 +188,7 @@ bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 
 bool detect_boundary_multisample_9(vec3 v1, vec3 position, vec3 delta_v1)
 {
+	const float epsilon = 1e-5;
 	vec3 v2 = vec3(0,0,0);
 	const int size = 3;
 	int count = 0, index1 = -1, index2 = -1;
@@ -195,8 +196,7 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 position, vec3 delta_v1)
 	// how many non-zero components there are
 	for (int i=0; i<size; i++)
 	{
-		//if (abs(v1[i]) < 1e-4)
-		if (v1[i] != 0)
+		if (abs(v1[i]) > epsilon)
 		{
 			count++;
 			if (index1 == -1)
@@ -229,6 +229,7 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 position, vec3 delta_v1)
 
 	// get a vector v3 that is vertical to both v1 and v2, and then normalize v2 and v3
 	// get four positions that are adjacent to the original position
+	const float one = 1 - epsilon;
 	v2 = normalize(v2);
 	vec3 v3 = normalize(cross(v1, v2));
 	vec3 delta_v2 = v2 * stepsize;
@@ -243,25 +244,24 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 position, vec3 delta_v1)
 	vec3 p8 = position - delta_v2 + delta_v3;
 
 	// how many pairs belong to different clusters
-	const float epsilon = 0.9;
 	count = 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, position + delta_v1).x) 
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, position + delta_v1).x) 
 		- to_cluster_number(texture3D(cluster_texture, position - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p1 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p1 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p1- delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p2 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p2 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p2 - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p3 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p3 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p3 - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p4 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p4 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p4 - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p5 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p5 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p5 - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p6 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p6 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p6 - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p7 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p7 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p7 - delta_v1).x)))) ? 1 : 0;
-	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p8 + delta_v1).x)
+	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p8 + delta_v1).x)
 		- to_cluster_number(texture3D(cluster_texture, p8 - delta_v1).x)))) ? 1 : 0;
 
 	// It is a boundary if more than a half pairs belong to different clusters
