@@ -6,12 +6,9 @@
 #include <cstdio>
 #include <cctype>
 #include <cstring>
-using namespace std;
 
 #include "Ben\volume.h"
 #include "reader.h"
-
-#define STR_BUFFER_SIZE 320
 
 class VolumeReader : public volume
 {
@@ -40,7 +37,7 @@ public:
 			readData(str);
 		}else
 		{
-			throw std::exception(filename);
+			std::cerr<<"Errors in reading .dat file: "<<filename<<" and .raw file: "<<str<<std::endl;
 		}
 	}
 
@@ -75,9 +72,7 @@ public:
 			range = 65536;
 			break;
 		default:
-			char str[STR_BUFFER_SIZE];
-			sprintf(str, "Unsupported data type in %s!", filename);
-			throw std::exception(str);
+			std::cerr<<"Unsupported data type in "<<filename<<std::endl;
 		}
 
 		data = *data_ptr;

@@ -15,17 +15,16 @@
 #include <iostream>
 #include <vector>
 #include <limits>
-using namespace std;
 
 // NVIDIA OpenGL SDK
 #include <nvGlutManipulators.h>
 #include <nvGlutWidgets.h>
 
+#include "volume_filename.h"
 #include "textfile.h"
 #include "reader.h"
-#include "Ben_imported.h"
+#include "Ben_import.h"
 #include "calculation.h"
-#include "volume_filename.h"
 using namespace reader;
 
 // call finailize() to free the memory before exit
@@ -740,9 +739,7 @@ void read_volume_file(char* filename)
 		gl_type = GL_UNSIGNED_SHORT;
 		break;
 	default:
-		char str[STR_BUFFER_SIZE];
-		sprintf(str, "Unsupported data type in %s!", filename);
-		throw std::exception(str);
+		std::cerr<<"Unsupported data type in "<<filename<<endl;
 	}
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1032,7 +1029,7 @@ void render_buffer_to_screen()
 		glBindTexture(GL_TEXTURE_2D, histogram_gradient_buffer);
 		break;
 	default:
-		throw std::exception("Unknown Render Option!");
+		std::cerr<<"Unknown Render Option!"<<endl;
 	}
 
 	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); // set projection mode to Ortho 2D
@@ -1223,6 +1220,15 @@ int main(int argc, char* argv[])
 {
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+
+	print_about(argc, argv);
+
+	// read filename from arguments if available
+	if (argc > 1)
+	{
+		strcpy(volume_filename, argv[1]);
+	}
+
 	char str[STR_BUFFER_SIZE];
 	sprintf(str, "GPU raycasting    file: %s", volume_filename);
 	glutCreateWindow(str);

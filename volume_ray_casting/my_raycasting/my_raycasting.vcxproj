@@ -96,7 +96,7 @@
   <ItemGroup>
     <ClInclude Include="Ben\color.h" />
     <ClInclude Include="Ben\volume.h" />
-    <ClInclude Include="Ben_imported.h" />
+    <ClInclude Include="Ben_import.h" />
     <ClInclude Include="calculation.h" />
     <ClInclude Include="K_Means_Local.h" />
     <ClInclude Include="kmlocal\KCtree.h" />

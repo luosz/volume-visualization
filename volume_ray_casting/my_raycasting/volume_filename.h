@@ -1,7 +1,13 @@
 #ifndef volume_filename_h
 #define volume_filename_h
 
-char *volume_filename = "D:\\_data\\data\\nucleon.dat";
+#ifdef MAX_PATH
+#define STR_BUFFER_SIZE MAX_PATH
+#else
+#define STR_BUFFER_SIZE 320
+#endif
+
+char volume_filename[STR_BUFFER_SIZE] = "data\\nucleon.dat";
 
 /************************************************************************
 Common volume data: Tooth Engine foot head256 VisMale CT_Head_small CT_Head_large lobster
@@ -67,5 +73,24 @@ stent16.raw	"89,088 KB"
 Bunny.raw	"184,832 KB"
 XMasTree.raw	"255,488 KB"
 ************************************************************************/
+
+void print_about(int argc, char* argv[])
+{
+	char about[STR_BUFFER_SIZE * 4] = 
+"//////////////////////////////////////////////////////////////////////////\n\
+GPU raycasting demo \n\
+Copyright (c) 2010 Luo Shengzhou, Shenzhen Institute of Advanced Technology, Chinese Academy of Sciences. \n\
+\n\
+Usage: \n\
+%s [source] \n\
+source - File to load. \n\
+//////////////////////////////////////////////////////////////////////////\n\n";
+	char *p = strrchr(argv[0], '\\');
+	if (NULL == p)
+	{
+		p = strrchr(argv[0], '/');
+	}
+	printf(about, p + 1);
+}
 
 #endif // volume_filename_h

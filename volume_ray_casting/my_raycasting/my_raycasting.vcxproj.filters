@@ -149,7 +149,7 @@
     <ClInclude Include="Ben\volume.h">
       <Filter>Ben</Filter>
     </ClInclude>
-    <ClInclude Include="Ben_imported.h">
+    <ClInclude Include="Ben_import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
