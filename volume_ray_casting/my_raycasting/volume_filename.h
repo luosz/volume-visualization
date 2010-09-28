@@ -1,7 +1,7 @@
 #ifndef volume_filename_h
 #define volume_filename_h
 
-char *volume_filename = "D:\\_data\\data\\Bonsai.dat";
+char *volume_filename = "D:\\_data\\data\\nucleon.dat";
 
 /************************************************************************
 Common volume data: Tooth Engine foot head256 VisMale CT_Head_small CT_Head_large lobster

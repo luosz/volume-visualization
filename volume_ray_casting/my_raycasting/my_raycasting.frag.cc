@@ -19,7 +19,7 @@ uniform int peeling_layer;
 
 int to_cluster_number(float position)
 {
-	return (int)(position / cluster_interval + 0.5);
+	return int(position / cluster_interval + 0.5);
 }
 
 float multiply(vec4 c)
@@ -37,132 +37,154 @@ bool isReacheThreshold(vec4 col_acc, vec4 color_sample)
 	return average(col_acc) > threshold_high && average(color_sample) > threshold_low;
 }
 
-bool multi_sample_boundary_detection(vec3 v1, vec3 position, vec3 delta_dir)
+bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 {
 	vec3 v2 = vec3(0,0,0);
 	const int size = 3;
-	int count = 0;
+	int count = 0, index1 = -1, index2 = -1;
+
 	// how many non-zero components there are
 	for (int i=0; i<size; i++)
 	{
-		if (v1[i] != 0)
+		if (abs(v1[i]) < 1e-6)
 		{
 			count++;
+			if (index1 == -1)
+			{
+				index1 = i;
+			}else
+			{
+				index2 = i;
+			}
 		}
 	}
 
-	int index = -1;
 	// get a vector v2 that is vertical to v1
 	switch(count)
 	{
 	case 0: return false;
 	case 1:
-		for (int i=0; i<size; i++)
-		{
-			if (v1[i] != 0)
-			{
-				v2[(i+1) % size] = v1[i];
-				break;
-			}
-		}
+		index2 = index1 + 1;
+		index2 = (index2 >= size) ? (index2 - size) : index2;
+		v2[index2] = v1[index1];
 		break;
 	case 2:
-		for (int i=0; i<size; i++)
-		{
-			if (v1[i] != 0)
-			{
-				if (index == -1)
-				{
-					index = i;
-				}else
-				{
-					v2[i] = v1[index];
-					v2[index] = v1[i];
-					break;
-				}
-			}
-		}
+		v2[index1] = v1[index2];
+		v2[index2] = -v1[index1];
 		break;
 	default:
 		v2.x = v2.y = v1.z;
 		v2.z = - v1.x - v1.y;
 	}
 
-	//if (count == 0)
-	//{
-	//	return false;
-	//}
-	//else
-	//{
-	//	if (count == 1)
-	//	{
-	//		for (int i=0; i<size; i++)
-	//		{
-	//			if (v1[i] != 0)
-	//			{
-	//				v2[(i+1) % size] = v1[i];
-	//				break;
-	//			}
-	//		}
-	//	}
-	//	else
-	//	{
-	//		if (count == 2)
-	//		{
-	//			int index = -1;
-	//			for (int i=0; i<size; i++)
-	//			{
-	//				if (v1[i] != 0)
-	//				{
-	//					if (index == -1)
-	//					{
-	//						index = i;
-	//					}else
-	//					{
-	//						v2[i] = v1[index];
-	//						v2[index] = v1[i];
-	//						break;
-	//					}
-	//				}
-	//			}
-	//		} 
-	//		else
-	//		{
-	//			v2.x = v2.y = v1.z;
-	//			v2.z = - v1.x - v1.y;
-	//		}
-	//	}
-	//}
-
-	// get a vector v3 that is vertical to both v1 and v2
-	// normalize v2 and v3
+	// get a vector v3 that is vertical to both v1 and v2, and then normalize v2 and v3
 	// get four positions that are adjacent to the original position
 	v2 = normalize(v2);
 	vec3 v3 = normalize(cross(v1, v2));
-	vec3 delta2 = v2 * stepsize;
-	vec3 delta3 = v3 * stepsize;
-	vec3 p1 = position + v2 * stepsize;
-	vec3 p2 = position - v2 * stepsize;
-	vec3 p3 = position + v3 * stepsize;
-	vec3 p4 = position - v3 * stepsize;
+	vec3 delta_v2 = v2 * stepsize;
+	vec3 delta_v3 = v3 * stepsize;
+	vec3 p1 = position + delta_v2;
+	vec3 p2 = position - delta_v2;
+	vec3 p3 = position + delta_v3;
+	vec3 p4 = position - delta_v3;
 
+	// how many pairs belong to different clusters
+	const float epsilon = 0.9;
 	count = 0;
-	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, position + delta_dir).x)
-		- to_cluster_number(texture3D(cluster_texture, position - delta_dir).x)))
-		count++;
-	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p1 + delta_dir).x)
-		- to_cluster_number(texture3D(cluster_texture, p1 - delta_dir).x)))
-		count++;
-	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p2 + delta_dir).x)
-		- to_cluster_number(texture3D(cluster_texture, p2 - delta_dir).x)))
-		count++;
-	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p3 + delta_dir).x)
-		- to_cluster_number(texture3D(cluster_texture, p3 - delta_dir).x)))
-		count++;
-	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p4 + delta_dir).x)
-		- to_cluster_number(texture3D(cluster_texture, p4 - delta_dir).x)))
-		count++;
-	return count > 2;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, position + delta_v1).x) 
+		- to_cluster_number(texture3D(cluster_texture, position - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p1 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p1- delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p2 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p2 - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p3 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p3 - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p4 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p4 - delta_v1).x)))) ? 1 : 0;
+
+	// It is a boundary if more than a half pairs belong to different clusters
+	return count >= 3;
+}
+
+bool detect_boundary_multisample_9(vec3 v1, vec3 position, vec3 delta_v1)
+{
+	vec3 v2 = vec3(0,0,0);
+	const int size = 3;
+	int count = 0, index1 = -1, index2 = -1;
+
+	// how many non-zero components there are
+	for (int i=0; i<size; i++)
+	{
+		if (abs(v1[i]) < 1e-6)
+		{
+			count++;
+			if (index1 == -1)
+			{
+				index1 = i;
+			}else
+			{
+				index2 = i;
+			}
+		}
+	}
+
+	// get a vector v2 that is vertical to v1
+	switch(count)
+	{
+	case 0: return false;
+	case 1:
+		index2 = index1 + 1;
+		index2 = (index2 >= size) ? (index2 - size) : index2;
+		v2[index2] = v1[index1];
+		break;
+	case 2:
+		v2[index1] = v1[index2];
+		v2[index2] = -v1[index1];
+		break;
+	default:
+		v2.x = v2.y = v1.z;
+		v2.z = - v1.x - v1.y;
+	}
+
+	// get a vector v3 that is vertical to both v1 and v2, and then normalize v2 and v3
+	// get nine positions that are adjacent to the original position
+	v2 = normalize(v2);
+	vec3 v3 = normalize(cross(v1, v2));
+	vec3 delta_v2 = v2 * stepsize;
+	vec3 delta_v3 = v3 * stepsize;
+	vec3 p1 = position + delta_v2;
+	vec3 p2 = position - delta_v2;
+	vec3 p3 = position + delta_v3;
+	vec3 p4 = position - delta_v3;
+	vec3 p5 = position + delta_v2 + delta_v3;
+	vec3 p6 = position - delta_v2 - delta_v3;
+	vec3 p7 = position + delta_v2 - delta_v3;
+	vec3 p8 = position - delta_v2 + delta_v3;
+
+	// how many pairs belong to different clusters
+	const float epsilon = 0.9;
+	count = 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, position + delta_v1).x) 
+		- to_cluster_number(texture3D(cluster_texture, position - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p1 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p1- delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p2 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p2 - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p3 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p3 - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p4 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p4 - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p5 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p5 - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p6 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p6 - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p7 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p7 - delta_v1).x)))) ? 1 : 0;
+	count += (epsilon < abs(float(to_cluster_number(texture3D(cluster_texture, p8 + delta_v1).x)
+		- to_cluster_number(texture3D(cluster_texture, p8 - delta_v1).x)))) ? 1 : 0;
+
+	// It is a boundary if more than a half pairs belong to different clusters
+	return count >= 5;
 }
 
 vec4 directRendering(vec3 frontPos, vec3 backPos)
@@ -228,11 +250,11 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						if(transfer_function_option == 4)
 						{
 							c = texture3D(volume, ray);
-							c2 = c * 2;
+							c2 = c * 2.0;
 							second_derivative
-								= mask.xyyy * abs(texture3D(volume, ray+2*d.xww) - c2 + texture3D(volume, ray-2*d.xww))
-								+ mask.yxyy * abs(texture3D(volume, ray+2*d.wyw) - c2 + texture3D(volume, ray-2*d.wyw))
-								+ mask.yyxy * abs(texture3D(volume, ray+2*d.wwz) - c2 + texture3D(volume, ray-2*d.wwz));
+								= mask.xyyy * abs(texture3D(volume, ray+2.0*d.xww) - c2 + texture3D(volume, ray-2.0*d.xww))
+								+ mask.yxyy * abs(texture3D(volume, ray+2.0*d.wyw) - c2 + texture3D(volume, ray-2.0*d.wyw))
+								+ mask.yyxy * abs(texture3D(volume, ray+2.0*d.wwz) - c2 + texture3D(volume, ray-2.0*d.wwz));
 							color_sample
 								= mask.xyyy * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
 								+ mask.yxyy * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
@@ -243,11 +265,11 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 							if(transfer_function_option == 5)
 							{
 								c = texture3D(volume, ray);
-								c2 = c * 2;
+								c2 = c * 2.0;
 								second_derivative
-									= mask.xyyy * abs(texture3D(volume, ray+2*d.xww) - c2 + texture3D(volume, ray-2*d.xww))
-									+ mask.yxyy * abs(texture3D(volume, ray+2*d.wyw) - c2 + texture3D(volume, ray-2*d.wyw))
-									+ mask.yyxy * abs(texture3D(volume, ray+2*d.wwz) - c2 + texture3D(volume, ray-2*d.wwz));
+									= mask.xyyy * abs(texture3D(volume, ray+2.0*d.xww) - c2 + texture3D(volume, ray-2.0*d.xww))
+									+ mask.yxyy * abs(texture3D(volume, ray+2.0*d.wyw) - c2 + texture3D(volume, ray-2.0*d.wyw))
+									+ mask.yyxy * abs(texture3D(volume, ray+2.0*d.wwz) - c2 + texture3D(volume, ray-2.0*d.wwz));
 								second_derivative_magnitude = max(length(second_derivative), 1e-9);
 								color_sample
 									= mask.xyyy * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
@@ -357,7 +379,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					// peel the back
 					//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
 					//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
-					if(multi_sample_boundary_detection(norm_dir, ray, delta_dir))
+					if(detect_boundary_multisample_5(norm_dir, ray, delta_dir))
 					{
 						if (peeling_counter < peeling_layer)
 						{
@@ -375,7 +397,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						// classification peeling, peel cluster layers
 						//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
 						//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
-						if(multi_sample_boundary_detection(norm_dir, ray, delta_dir))
+						if(detect_boundary_multisample_5(norm_dir, ray, delta_dir))
 						{
 							if (peeling_counter < peeling_layer)
 							{
