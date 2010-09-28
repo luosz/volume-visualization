@@ -408,83 +408,83 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			col_acc.rgb = mix(col_acc.rgb, color_sample.rgb, color_sample.a);
 			col_acc.a = mix(color_sample.a, 1.0, col_acc.a);
 			//////////////////////////////////////////////////////////////////////////
-		}
 
-		ray += delta_dir;
-
-		if(peeling_option == 1)
-		{
-			// opacity peeling
-			//if(!threshold_reached && isReacheThreshold(col_acc, color_sample))
+			//////////////////////////////////////////////////////////////////////////
+			// peeling
+			if(peeling_option == 1)
+			{
+				// opacity peeling
+				//if(!threshold_reached && isReacheThreshold(col_acc, color_sample))
 				//threshold_reached = true;
-			if(average(col_acc) > threshold_high && average(color_sample) < threshold_low)
-			{
-				if (peeling_counter == peeling_layer)
+				if(average(col_acc) > threshold_high && average(color_sample) < threshold_low)
 				{
-					break;
-				}else
-				{
-					col_acc = vec4(0,0,0,0);
-					//alpha_acc = 0;
-					peeling_counter++;
+					if (peeling_counter == peeling_layer)
+					{
+						break;
+					}else
+					{
+						col_acc = vec4(0,0,0,0);
+						//alpha_acc = 0;
+						peeling_counter++;
+					}
 				}
-			}
-		}else
-		{
-			if(peeling_option == 2)
-			{
-				// feature peeling
-				//c = texture3D(cluster_texture, ray);
-				//cluster_number_new = to_cluster_number(c.x);
-				//if(cluster_number == -1)
-				//{
-				//	cluster_number = cluster_number_new;
-				//}else
-				//{
-				//	if(cluster_number != cluster_number_new)
-				//	{
-				//		cluster_number = cluster_number_new;
-				//		cluster_count++;
-				//		if(!cluster_limit_reached && cluster_count >= cluster_limit)
-				//		{
-				//			col_acc = vec4(0,0,0,0);
-				//			alpha_acc = 0;
-				//			cluster_limit_reached = true;
-				//		}
-				//	}
-				//}
 			}else
 			{
-				if(peeling_option == 3)
+				if(peeling_option == 2)
 				{
-					// peel the back
-					//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
-					//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
-					if(detect_boundary_multisample_9(norm_dir, ray, delta_dir))
-					{
-						if (peeling_counter < peeling_layer)
-						{
-							peeling_counter++;
-						}else
-						{
-							break;
-						}
-					}
+					// feature peeling
+					//c = texture3D(cluster_texture, ray);
+					//cluster_number_new = to_cluster_number(c.x);
+					//if(cluster_number == -1)
+					//{
+					//	cluster_number = cluster_number_new;
+					//}else
+					//{
+					//	if(cluster_number != cluster_number_new)
+					//	{
+					//		cluster_number = cluster_number_new;
+					//		cluster_count++;
+					//		if(!cluster_limit_reached && cluster_count >= cluster_limit)
+					//		{
+					//			col_acc = vec4(0,0,0,0);
+					//			alpha_acc = 0;
+					//			cluster_limit_reached = true;
+					//		}
+					//	}
+					//}
 				}else
 				{
-					if(peeling_option == 4)
+					if(peeling_option == 3)
 					{
-						// peel the front
-						// classification peeling, peel cluster layers
+						// peel the back
 						//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
 						//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
 						if(detect_boundary_multisample_9(norm_dir, ray, delta_dir))
 						{
 							if (peeling_counter < peeling_layer)
 							{
-								col_acc = vec4(0,0,0,0);
-								//alpha_acc = 0;
 								peeling_counter++;
+							}else
+							{
+								break;
+							}
+						}
+					}else
+					{
+						if(peeling_option == 4)
+						{
+							// peel the front
+							// classification peeling, peel cluster layers
+							//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
+							//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
+							if(detect_boundary_multisample_9(norm_dir, ray, delta_dir))
+							{
+								if (peeling_counter < peeling_layer)
+								{
+									col_acc = vec4(0,0,0,0);
+									//alpha_acc = 0;
+									peeling_counter++;
+								}
 							}
 						}
 					}
@@ -492,6 +492,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			}
 		}
 
+		ray += delta_dir;
 		if(length_acc >= len || col_acc.a >= 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
 	}
 
