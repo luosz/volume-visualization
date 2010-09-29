@@ -22,10 +22,15 @@ int to_cluster_number(float position)
 	return int(position / cluster_interval + 0.5);
 }
 
-float multiply(vec4 c)
+float sum3(vec4 c)
 {
-	return c.x * c.y * c.z;
+	return c.x + c.y + c.z;
 }
+
+//float multiply3(vec4 c)
+//{
+//	return c.x * c.y * c.z;
+//}
 
 float average(vec4 c)
 {
@@ -36,85 +41,6 @@ bool isReacheThreshold(vec4 col_acc, vec4 color_sample)
 {
 	return average(col_acc) > threshold_high && average(color_sample) > threshold_low;
 }
-
-//bool multi_sample_boundary_detection(vec3 v1, vec3 position, vec3 delta_dir)
-//{
-//	vec3 v2 = vec3(0,0,0);
-//	const int size = 3;
-//	int count = 0;
-//	// how many non-zero components there are
-//	for (int i=0; i<size; i++)
-//	{
-//		if (v1[i] != 0)
-//		{
-//			count++;
-//		}
-//	}
-//
-//	int index = -1;
-//	// get a vector v2 that is vertical to v1
-//	switch(count)
-//	{
-//	case 0: return false;
-//	case 1:
-//		for (int i=0; i<size; i++)
-//		{
-//			if (v1[i] != 0)
-//			{
-//				v2[(i+1) % size] = v1[i];
-//				break;
-//			}
-//		}
-//		break;
-//	case 2:
-//		for (int i=0; i<size; i++)
-//		{
-//			if (v1[i] != 0)
-//			{
-//				if (index == -1)
-//				{
-//					index = i;
-//				}else
-//				{
-//					v2[i] = -v1[index];
-//					v2[index] = v1[i];
-//					break;
-//				}
-//			}
-//		}
-//		break;
-//	default:
-//		v2.x = v2.y = v1.z;
-//		v2.z = - v1.x - v1.y;
-//	}
-//
-//	v2 = normalize(v2);
-//	vec3 v3 = normalize(cross(v1, v2));
-//	vec3 delta2 = v2 * stepsize;
-//	vec3 delta3 = v3 * stepsize;
-//	vec3 p1 = position + v2 * stepsize;
-//	vec3 p2 = position - v2 * stepsize;
-//	vec3 p3 = position + v3 * stepsize;
-//	vec3 p4 = position - v3 * stepsize;
-//
-//	count = 0;
-//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, position + delta_dir).x)
-//		- to_cluster_number(texture3D(cluster_texture, position - delta_dir).x)))
-//		count++;
-//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p1 + delta_dir).x)
-//		- to_cluster_number(texture3D(cluster_texture, p1 - delta_dir).x)))
-//		count++;
-//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p2 + delta_dir).x)
-//		- to_cluster_number(texture3D(cluster_texture, p2 - delta_dir).x)))
-//		count++;
-//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p3 + delta_dir).x)
-//		- to_cluster_number(texture3D(cluster_texture, p3 - delta_dir).x)))
-//		count++;
-//	if(1 <= abs(to_cluster_number(texture3D(cluster_texture, p4 + delta_dir).x)
-//		- to_cluster_number(texture3D(cluster_texture, p4 - delta_dir).x)))
-//		count++;
-//	return count > 2;
-//}
 
 bool detect_boundary_multisample_5(vec3 v1, vec3 position, vec3 delta_v1)
 {
@@ -289,8 +215,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	//bool threshold_reached = false;
 
 	// calculate difference to sharpen the image
-	vec4 d = vec4(vec3(1,1,1)/sizes, 0);
-	const vec2 mask = vec2(1.0, 0.0);
+	const vec4 mask = vec4(1, 0, 0, 0);
+	vec4 d = vec4(vec3(1, 1, 1)/sizes, 0);
+	vec4 e = vec4(vec3(-1, 1, 0)/sizes, 0);
 	vec4 c, c2, second_derivative;
 	float second_derivative_magnitude;
 
@@ -310,7 +237,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				c = texture3D(volume, ray);
 				color_sample
 					= mask.xxxy * texture2D(transfer_function_2D, c.xw)
-					+ mask.yyyx * multiply(c);
+					+ mask.yyyx * sum3(c);
 			}else
 			{
 				if(transfer_function_option == 2)
@@ -322,10 +249,10 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					if(transfer_function_option == 3)
 					{
 						color_sample
-							= mask.xyyy * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
-							+ mask.yxyy * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
-							+ mask.yyxy * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
-							+ mask.yyyx * multiply(texture3D(volume, ray));
+							= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
+							+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
+							+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
+							+ mask.wwwx * sum3(texture3D(volume, ray));
 					}else
 					{
 						if(transfer_function_option == 4)
@@ -333,38 +260,50 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 							c = texture3D(volume, ray);
 							c2 = c * 2.0;
 							second_derivative
-								= mask.xyyy * abs(texture3D(volume, ray+2.0*d.xww) - c2 + texture3D(volume, ray-2.0*d.xww))
-								+ mask.yxyy * abs(texture3D(volume, ray+2.0*d.wyw) - c2 + texture3D(volume, ray-2.0*d.wyw))
-								+ mask.yyxy * abs(texture3D(volume, ray+2.0*d.wwz) - c2 + texture3D(volume, ray-2.0*d.wwz));
+								= mask.xwww * abs(texture3D(volume, ray+2.0*d.xww) - c2 + texture3D(volume, ray-2.0*d.xww))
+								+ mask.wxww * abs(texture3D(volume, ray+2.0*d.wyw) - c2 + texture3D(volume, ray-2.0*d.wyw))
+								+ mask.wwxw * abs(texture3D(volume, ray+2.0*d.wwz) - c2 + texture3D(volume, ray-2.0*d.wwz));
+							second_derivative_magnitude = max(length(second_derivative), 1e-9);
 							color_sample
-								= mask.xyyy * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
-								+ mask.yxyy * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
-								+ mask.yyxy * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
-								+ mask.yyyx * multiply(c) * length(second_derivative);
+								= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
+								+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
+								+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
+								+ mask.wwwx * sum3(c) / second_derivative_magnitude;
 						}else
 						{
 							if(transfer_function_option == 5)
 							{
-								c = texture3D(volume, ray);
-								c2 = c * 2.0;
-								second_derivative
-									= mask.xyyy * abs(texture3D(volume, ray+2.0*d.xww) - c2 + texture3D(volume, ray-2.0*d.xww))
-									+ mask.yxyy * abs(texture3D(volume, ray+2.0*d.wyw) - c2 + texture3D(volume, ray-2.0*d.wyw))
-									+ mask.yyxy * abs(texture3D(volume, ray+2.0*d.wwz) - c2 + texture3D(volume, ray-2.0*d.wwz));
-								second_derivative_magnitude = max(length(second_derivative), 1e-9);
+								// Sobel operator
+								vec4 c_x = 2 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+									+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
+									+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
+									+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
+									+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
+
+								vec4 c_y = 2 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+									+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
+									+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
+									+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
+									+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
+
+								vec4 c_z = 2 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+									+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
+									+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
+									+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
+									+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
+								
 								color_sample
-									= mask.xyyy * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
-									+ mask.yxyy * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
-									+ mask.yyxy * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
-									+ mask.yyyx * multiply(c) / second_derivative_magnitude;
+									= mask.xwww * c_x
+									+ mask.wxww * c_y
+									+ mask.wwxw * c_z
+									+ mask.wwwx * (c_x.x + c_y.y + c_z.z);
 							}else
 							{
 								if(transfer_function_option == 6)
 								{
 									//color_sample = texture3D(cluster_texture, ray);
 
-									c = texture3D(cluster_texture, ray);
-									color_sample = texture2D(transfer_function_2D, c.xw);
+									color_sample = texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw);
 
 									//color_sample
 									//	= mask.xxxy * texture2D(transfer_function_2D, vec2(average(c), c.a))
@@ -432,6 +371,8 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			{
 				if(peeling_option == 2)
 				{
+					//////////////////////////////////////////////////////////////////////////
+					// to do
 					// feature peeling
 					//c = texture3D(cluster_texture, ray);
 					//cluster_number_new = to_cluster_number(c.x);

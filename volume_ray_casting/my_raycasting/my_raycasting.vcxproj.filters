@@ -86,9 +86,6 @@
     <ClInclude Include="VolumeReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="calculation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="kmpp\KmTree.h">
       <Filter>kmpp</Filter>
     </ClInclude>
@@ -140,9 +137,6 @@
     <ClInclude Include="kmpp\KMeansPP.h">
       <Filter>kmpp</Filter>
     </ClInclude>
-    <ClInclude Include="K_Means_DIY.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Ben\color.h">
       <Filter>Ben</Filter>
     </ClInclude>
@@ -150,6 +144,12 @@
       <Filter>Ben</Filter>
     </ClInclude>
     <ClInclude Include="Ben_import.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="K_Means_PP_DIY.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="processing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

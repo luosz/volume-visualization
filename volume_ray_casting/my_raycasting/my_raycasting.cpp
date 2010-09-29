@@ -24,7 +24,7 @@
 #include "textfile.h"
 #include "reader.h"
 #include "Ben_import.h"
-#include "calculation.h"
+#include "processing.h"
 using namespace reader;
 
 // call finailize() to free the memory before exit
@@ -145,8 +145,8 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_2D,
 	TRANSFER_FUNCTION_3D,
 	TRANSFER_FUNCTION_GRADIENTS_AS_COLORS,
-	TRANSFER_FUNCTION_2ND_DERIVATIVE_WEAKEN,
-	TRANSFER_FUNCTION_2ND_DERIVATIVE_STRENGTHEN,
+	TRANSFER_FUNCTION_2ND_DERIVATIVE,
+	TRANSFER_FUNCTION_SOBEL_OPERATOR,
 	TRANSFER_FUNCTION_K_MEANS,
 	TRANSFER_FUNCTION_COUNT
 };
@@ -177,7 +177,7 @@ void doUI()
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
 	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative weaken", "2nd derivative strengthen", "K-means"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel operator", "K-means"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -635,7 +635,7 @@ template <class T, int TYPE_SIZE>
 void cluster(const T *data, const unsigned int count)
 {
 	unsigned char *label_ptr = new unsigned char[count];
-	calculation::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, static_cast<int>(cluster_quantity), label_ptr);
+	processing::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, static_cast<int>(cluster_quantity), label_ptr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &cluster_texture);
@@ -664,8 +664,8 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	vector<nv::vec3f> second_derivative(count);
 	vector<float> second_derivative_magnitude(count);
 	float max_gradient_magnitude, max_second_derivative_magnitude;
-	calculation::generate_scalar_histogram<T>(data, count, components, histogram, scalar_value);
-	calculation::generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
+	processing::generate_scalar_histogram<T>(data, count, components, histogram, scalar_value);
+	processing::generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
 	// draw scalar histogram
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, histogram_buffer, 0);

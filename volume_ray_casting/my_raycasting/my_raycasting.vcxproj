@@ -97,7 +97,7 @@
     <ClInclude Include="Ben\color.h" />
     <ClInclude Include="Ben\volume.h" />
     <ClInclude Include="Ben_import.h" />
-    <ClInclude Include="calculation.h" />
+    <ClInclude Include="processing.h" />
     <ClInclude Include="K_Means_Local.h" />
     <ClInclude Include="kmlocal\KCtree.h" />
     <ClInclude Include="kmlocal\KCutil.h" />
@@ -109,7 +109,7 @@
     <ClInclude Include="kmlocal\KMrand.h" />
     <ClInclude Include="kmlocal\KMterm.h" />
     <ClInclude Include="kmlocal\KM_ANN.h" />
-    <ClInclude Include="K_Means_DIY.h" />
+    <ClInclude Include="K_Means_PP_DIY.h" />
     <ClInclude Include="K_Means_PlusPlus.h" />
     <ClInclude Include="kmpp\KMeansPP.h" />
     <ClInclude Include="kmpp\KmTree.h" />

@@ -4,11 +4,11 @@
 #include <fstream>
 
 #include "K_Means.h"
-#include "K_Means_DIY.h"
+#include "K_Means_PP_DIY.h"
 #include "K_Means_Local.h"
 #include "K_Means_PlusPlus.h"
 
-namespace calculation
+namespace processing
 {
 	template <class T, int TYPE_SIZE>
 	void k_means(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr)
@@ -20,11 +20,11 @@ namespace calculation
 		vector<nv::vec3f> second_derivative(count);
 		vector<float> second_derivative_magnitude(count);
 		float max_gradient_magnitude, max_second_derivative_magnitude;
-		calculation::generate_scalar_histogram<T>(data, count, components, histogram, scalar_value);
-		calculation::generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
+		generate_scalar_histogram<T>(data, count, components, histogram, scalar_value);
+		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
 		// clustering
-		K_Means_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr);
+		K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr);
 	}
 
 	// calculate scalar histogram

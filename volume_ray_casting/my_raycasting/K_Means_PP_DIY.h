@@ -3,7 +3,7 @@
 
 #define OUTPUT
 
-class K_Means_DIY
+class K_Means_PP_DIY
 {
 public:
 	/************************************************************************

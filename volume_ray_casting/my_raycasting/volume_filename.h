@@ -18,7 +18,6 @@ Name	Size
 marschnerlobb.raw	68 KB
 nucleon.raw	68 KB
 silicium.raw	111 KB
-Bonsai.png	201 KB
 Box.raw	256 KB
 d4.raw	256 KB
 HohlKugel_64x64x64.raw	256 KB
