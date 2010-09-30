@@ -17,12 +17,27 @@ uniform int cluster_limit;
 uniform float cluster_interval;
 uniform int peeling_layer;
 
+// for histogram equalization
+uniform float scalar_min_normalized, scalar_max_normalized;
+
+// histogram equalization
+float scalar_max_min = scalar_max_normalized - scalar_min_normalized;
+vec3 equalize(vec3 v)
+{
+	return (v - scalar_min_normalized) / scalar_max_min;
+}
+
 int to_cluster_number(float position)
 {
 	return int(position / cluster_interval + 0.5);
 }
 
 float sum3(vec4 c)
+{
+	return c.x + c.y + c.z;
+}
+
+float sum3(vec3 c)
 {
 	return c.x + c.y + c.z;
 }
@@ -166,6 +181,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			if(transfer_function_option == 1)
 			{
 				c = texture3D(volume, ray);
+				c.rgb = equalize(c.rgb);
 				color_sample
 					= mask.xxxy * texture2D(transfer_function_2D, c.xw)
 					+ mask.yyyx * sum3(c);
@@ -183,7 +199,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 							= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
 							+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
 							+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
-							+ mask.wwwx * sum3(texture3D(volume, ray));
+							+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
 					}else
 					{
 						if(transfer_function_option == 4)
@@ -199,7 +215,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 								= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
 								+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
 								+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
-								+ mask.wwwx * sum3(c) / second_derivative_magnitude;
+								+ mask.wwwx * sum3(equalize(c.rgb)) / second_derivative_magnitude;
 						}else
 						{
 							if(transfer_function_option == 5)
@@ -228,22 +244,22 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 									+ mask.wxww * c_y
 									+ mask.wwxw * c_z
 									+ mask.wwwx * (c_x.x + c_y.y + c_z.z);
-									//+ mask.wwwx * sum3(texture3D(volume, ray));
-									//+ mask.wwwx * (c_x.x + c_y.y + c_z.z) + sum3(texture3D(volume, ray));
 							}else
 							{
 								if(transfer_function_option == 6)
 								{
-									//color_sample = texture3D(cluster_texture, ray);
-
 									color_sample = texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw);
-
-									//color_sample
-									//	= mask.xxxy * texture2D(transfer_function_2D, vec2(average(c), c.a))
-									//	+ mask.yyyx * multiply(texture3D(volume, ray));
 								}else
 								{
-									color_sample = texture3D(volume, ray);
+									if(transfer_function_option == 7)
+									{
+										color_sample
+											= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
+											+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
+									}else
+									{
+										color_sample = texture3D(volume, ray);
+									}
 								}
 							}
 						}

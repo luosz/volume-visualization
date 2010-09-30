@@ -1,7 +1,5 @@
-#ifndef K_Means_DIY_h
-#define K_Means_DIY_h
-
-#define OUTPUT
+#ifndef K_Means_PP_DIY_h
+#define K_Means_PP_DIY_h
 
 class K_Means_PP_DIY
 {
@@ -82,7 +80,7 @@ public:
 		delete [] distance_accumulation;
 		distance_accumulation = NULL;
 
-#ifdef OUTPUT
+#ifdef _DEBUG
 		ofstream fc("D:\\K_Means_DIY_centroids.txt", ios::out);
 		for (int i=0; i<k; i++)
 		{
@@ -138,7 +136,7 @@ public:
 				centroids_new[centroids_index*D+2] += second_derivative_magnitude[i];
 			}
 
-#ifdef OUTPUT
+#ifdef _DEBUG
 			loop_count++;
 			fc<<loop_count<<")\t";
 #endif // OUTPUT
@@ -153,16 +151,16 @@ public:
 					centroids_new[i*D+2] /= centroids_quantity[i];
 				}else
 				{
-#ifdef OUTPUT
+#ifdef _DEBUG
 					fc<<"loop:"<<loop_count<<"\tno item in this cluster.\t"<<centroids_quantity[i]<<endl;
 #endif // OUTPUT
 				}
-#ifdef OUTPUT
+#ifdef _DEBUG
 				fc<<centroids_new[i*D]<<","<<centroids_new[i*D+1]<<","<<centroids_new[i*D+2]<<"\t";
 #endif // OUTPUT
 			}
 
-#ifdef OUTPUT
+#ifdef _DEBUG
 			fc<<endl;
 #endif // OUTPUT
 
@@ -197,23 +195,23 @@ public:
 		
 		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
 
-#ifdef OUTPUT
+#ifdef _DEBUG
 		cout<<"shift="<<shift<<endl;
 		ofstream f("d:\\K_Means_DIY.txt", ios::out);
 #endif // OUTPUT
 		for (unsigned int i=0; i<count; i++)
 		{
-#ifdef OUTPUT
+#ifdef _DEBUG
 			f<<static_cast<int>(label_ptr[i]);
 #endif // OUTPUT
 			label_ptr[i] = label_ptr[i] << shift;
 		}
 
-#ifdef OUTPUT
+#ifdef _DEBUG
 		f<<endl;
 		cout<<"loop count:"<<loop_count<<endl;
 #endif // OUTPUT
 	}
 };
 
-#endif // K_Means_DIY_h
+#endif // K_Means_PP_DIY_h

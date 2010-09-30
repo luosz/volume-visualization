@@ -46,6 +46,12 @@ GLuint final_image;
 GLuint volume_texture_from_file; // the volume texture from files
 GLuint transfer_texture;
 
+// histogram equalization in shaders
+float scalar_min_normalized = 0;
+GLuint loc_scalar_min_normalized;
+float scalar_max_normalized = 1;
+GLuint loc_scalar_max_normalized;
+
 // for clustering
 GLuint cluster_texture;
 GLuint loc_cluster_texture;
@@ -148,6 +154,7 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_2ND_DERIVATIVE,
 	TRANSFER_FUNCTION_SOBEL_OPERATOR,
 	TRANSFER_FUNCTION_K_MEANS,
+	TRANSFER_FUNCTION_K_MEANS_EQUALIZED,
 	TRANSFER_FUNCTION_COUNT
 };
 int transfer_function_option = 0;
@@ -177,7 +184,7 @@ void doUI()
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
 	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel operator", "K-means"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel operator", "K-means++", "K-means++ equalized"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -389,6 +396,8 @@ void set_shaders() {
 	loc_cluster_limit = glGetUniformLocation(p, "cluster_limit");
 	loc_cluster_interval = glGetUniformLocation(p, "cluster_interval");
 	loc_peeling_layer = glGetUniformLocation(p, "peeling_layer");
+	loc_scalar_min_normalized = glGetUniformLocation(p, "scalar_min_normalized");
+	loc_scalar_max_normalized = glGetUniformLocation(p, "scalar_max_normalized");
 
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
@@ -664,7 +673,8 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	vector<nv::vec3f> second_derivative(count);
 	vector<float> second_derivative_magnitude(count);
 	float max_gradient_magnitude, max_second_derivative_magnitude;
-	processing::generate_scalar_histogram<T>(data, count, components, histogram, scalar_value);
+	processing::generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
+	processing::find_min_max_scalar_in_histogram<T, TYPE_SIZE>(count, histogram, scalar_min_normalized, scalar_max_normalized);
 	processing::generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
 	// draw scalar histogram
@@ -1126,6 +1136,8 @@ void raycasting_pass()
 	glUniform1f(loc_clip, clip);
 	glUniform3f(loc_sizes, sizes[0], sizes[1], sizes[2]);
 	glUniform1f(loc_cluster_interval, cluster_interval);
+	glUniform1f(loc_scalar_min_normalized, scalar_min_normalized);
+	glUniform1f(loc_scalar_max_normalized, scalar_max_normalized);
 
 	glUniform1i(loc_peeling_option, peeling_option);
 	glUniform1i(loc_transfer_function_option, transfer_function_option);

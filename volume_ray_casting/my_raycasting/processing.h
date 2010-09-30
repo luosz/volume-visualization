@@ -20,7 +20,7 @@ namespace processing
 		vector<nv::vec3f> second_derivative(count);
 		vector<float> second_derivative_magnitude(count);
 		float max_gradient_magnitude, max_second_derivative_magnitude;
-		generate_scalar_histogram<T>(data, count, components, histogram, scalar_value);
+		generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
 		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
 		// clustering
@@ -28,7 +28,7 @@ namespace processing
 	}
 
 	// calculate scalar histogram
-	template <class T>
+	template <class T, int TYPE_SIZE>
 	void generate_scalar_histogram(const T *data, const unsigned int count, const unsigned int components, unsigned int *histogram, vector<float> &scalar_value)
 	{
 		unsigned int temp, index;
@@ -45,6 +45,46 @@ namespace processing
 			histogram[temp]++;
 			scalar_value[i] = temp;
 		}
+	}
+
+	// find the min and max scalar value for histogram equalization in shaders
+	template <class T, int TYPE_SIZE>
+	void find_min_max_scalar_in_histogram(const unsigned int count, const unsigned int *histogram, float &scalar_min, float &scalar_max)
+	{
+		const unsigned int min_amount = static_cast<unsigned int>(count / 64.0);
+		unsigned int amount = min_amount;
+		unsigned int min_index = 0;
+		for (unsigned int i=0; i<TYPE_SIZE; i++)
+		{
+			if (histogram[i] >= amount)
+			{
+				min_index = i;
+				break;
+			}else
+			{
+				amount -= histogram[i];
+			}
+		}
+		amount = min_amount;
+		unsigned int max_index = TYPE_SIZE - 1;
+		for (unsigned int i=TYPE_SIZE-1; i>=0; i--)
+		{
+			if (histogram[i] >= amount)
+			{
+				max_index = i;
+				break;
+			}else
+			{
+				amount -= histogram[i];
+			}
+		}
+		scalar_min = static_cast<float>(min_index) / TYPE_SIZE;
+		scalar_max = static_cast<float>(max_index) / TYPE_SIZE;
+
+#ifdef _DEBUG
+		std::cout<<"min max index\t"<<min_index<<"\t"<<max_index<<endl
+			<<"min max float\t"<<scalar_min<<"\t"<<scalar_max<<endl;
+#endif
 	}
 
 	// calculate the gradients and the second derivatives
