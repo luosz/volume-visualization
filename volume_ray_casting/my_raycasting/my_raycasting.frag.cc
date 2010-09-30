@@ -216,7 +216,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 	// calculate difference to sharpen the image
 	const vec4 mask = vec4(1, 0, 0, 0);
-	vec4 d = vec4(vec3(1, 1, 1)/sizes, 0);
+	vec4 d = vec4(vec3(1, 1, 1)/sizes, 0), d2 = d * 2;
 	vec4 e = vec4(vec3(-1, 1, 0)/sizes, 0);
 	vec4 c, c2, second_derivative;
 	float second_derivative_magnitude;
@@ -258,12 +258,12 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						if(transfer_function_option == 4)
 						{
 							c = texture3D(volume, ray);
-							c2 = c * 2.0;
+							c2 = c * 2;
 							second_derivative
-								= mask.xwww * abs(texture3D(volume, ray+2.0*d.xww) - c2 + texture3D(volume, ray-2.0*d.xww))
-								+ mask.wxww * abs(texture3D(volume, ray+2.0*d.wyw) - c2 + texture3D(volume, ray-2.0*d.wyw))
-								+ mask.wwxw * abs(texture3D(volume, ray+2.0*d.wwz) - c2 + texture3D(volume, ray-2.0*d.wwz));
-							second_derivative_magnitude = max(length(second_derivative), 1e-9);
+								= mask.xwww * abs(texture3D(volume, ray+d2.xww) - c2 + texture3D(volume, ray-d2.xww))
+								+ mask.wxww * abs(texture3D(volume, ray+d2.wyw) - c2 + texture3D(volume, ray-d2.wyw))
+								+ mask.wwxw * abs(texture3D(volume, ray+d2.wwz) - c2 + texture3D(volume, ray-d2.wwz));
+							second_derivative_magnitude = max(length(second_derivative), 1e-6);
 							color_sample
 								= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
 								+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
@@ -297,6 +297,8 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 									+ mask.wxww * c_y
 									+ mask.wwxw * c_z
 									+ mask.wwwx * (c_x.x + c_y.y + c_z.z);
+									//+ mask.wwwx * sum3(texture3D(volume, ray));
+									//+ mask.wwwx * (c_x.x + c_y.y + c_z.z) + sum3(texture3D(volume, ray));
 							}else
 							{
 								if(transfer_function_option == 6)
