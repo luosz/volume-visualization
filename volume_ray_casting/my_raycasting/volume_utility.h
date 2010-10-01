@@ -8,8 +8,17 @@
 #include "K_Means_Local.h"
 #include "K_Means_PlusPlus.h"
 
-namespace processing
+namespace volume_utility
 {
+	//////////////////////////////////////////////////////////////////////////
+	// estimate the interval among clusters
+	// interval = (2^int(log(2, 256/k)))/256
+	float get_cluster_interval( int k ) 
+	{
+		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
+		return (1 << shift) / 256.;
+	}
+
 	template <class T, int TYPE_SIZE>
 	void k_means(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr)
 	{
@@ -23,7 +32,7 @@ namespace processing
 		generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
 		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
-		// clustering
+		// call the clustering routine
 		K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr);
 	}
 

@@ -149,7 +149,7 @@
     <ClInclude Include="K_Means_PP_DIY.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="processing.h">
+    <ClInclude Include="volume_utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

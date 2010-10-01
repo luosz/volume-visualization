@@ -24,7 +24,7 @@
 #include "textfile.h"
 #include "reader.h"
 #include "Ben_import.h"
-#include "processing.h"
+#include "volume_utility.h"
 using namespace reader;
 
 // call finailize() to free the memory before exit
@@ -65,7 +65,7 @@ const float LAYER_MIN = 0;
 const float LAYER_INC = 1;
 // the parameter k for k-means
 float cluster_quantity = 8;
-int cluster_quantity_int = -1; // to be initialized
+int cluster_quantity_int_old = -1; // to be initialized
 float cluster_interval;
 GLuint loc_cluster_interval;
 
@@ -242,7 +242,7 @@ void doUI()
 			}
 		}
 
-		if (transfer_function_option == TRANSFER_FUNCTION_K_MEANS)
+		if (transfer_function_option == TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
 		{
 			sprintf(str, "k-means k=%f", cluster_quantity);
 			ui.doLabel(none, str);
@@ -644,7 +644,7 @@ template <class T, int TYPE_SIZE>
 void cluster(const T *data, const unsigned int count)
 {
 	unsigned char *label_ptr = new unsigned char[count];
-	processing::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, static_cast<int>(cluster_quantity), label_ptr);
+	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, static_cast<int>(cluster_quantity), label_ptr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &cluster_texture);
@@ -673,9 +673,9 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	vector<nv::vec3f> second_derivative(count);
 	vector<float> second_derivative_magnitude(count);
 	float max_gradient_magnitude, max_second_derivative_magnitude;
-	processing::generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
-	processing::find_min_max_scalar_in_histogram<T, TYPE_SIZE>(count, histogram, scalar_min_normalized, scalar_max_normalized);
-	processing::generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
+	volume_utility::generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
+	volume_utility::find_min_max_scalar_in_histogram<T, TYPE_SIZE>(count, histogram, scalar_min_normalized, scalar_max_normalized);
+	volume_utility::generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
 	// draw scalar histogram
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, histogram_buffer, 0);
@@ -1120,11 +1120,10 @@ void raycasting_pass()
 
 	int k = static_cast<int>(cluster_quantity);
 	cluster_quantity = k;
-	if (cluster_quantity_int != k)
+	if (cluster_quantity_int_old != k)
 	{
-		cluster_quantity_int = k;
-		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
-		cluster_interval = (1 << shift) / 256.;
+		cluster_quantity_int_old = k;
+		cluster_interval = volume_utility::get_cluster_interval(cluster_quantity_int_old);
 	}
 
 	// Use shaders

@@ -27,14 +27,9 @@ vec3 equalize(vec3 v)
 	return (v - scalar_min_normalized) / scalar_max_min;
 }
 
-int to_cluster_number(float position)
+bool is_in_the_same_cluster(float p1, float p2)
 {
-	return int(position / cluster_interval + 0.5);
-}
-
-float sum3(vec4 c)
-{
-	return c.x + c.y + c.z;
+	return abs(p1 - p2) / cluster_interval <= 1;
 }
 
 float sum3(vec3 c)
@@ -52,7 +47,68 @@ bool isReacheThreshold(vec4 col_acc, vec4 color_sample)
 	return average(col_acc) > threshold_high && average(color_sample) > threshold_low;
 }
 
-bool detect_boundary_multisample_9(vec3 v1, vec3 position)
+vec4 inc = vec4(vec3(-1, 1, 0)/sizes, 0);
+
+vec4 mean_low_pass_filter(vec3 p)
+{
+	// neighbors along x, y, z axes
+	return 
+	(texture3D(volume, p)
+	+ texture3D(volume, p + inc.yww) + texture3D(volume, p + inc.xww)
+	+ texture3D(volume, p + inc.wyw) + texture3D(volume, p + inc.wxw)
+	+ texture3D(volume, p + inc.wwy) + texture3D(volume, p + inc.wwx))
+	/ 7;
+}
+
+vec4 median_low_pass_filter(vec3 p)
+{
+	const int N = 7, N2 = 3;
+	vec4 data[N], temp;
+	data[0] = texture3D(volume, p);
+	data[1] = texture3D(volume, p + inc.yww);
+	data[2] = texture3D(volume, p + inc.xww);
+	data[3] = texture3D(volume, p + inc.wyw);
+	data[4] = texture3D(volume, p + inc.wxw);
+	data[5] = texture3D(volume, p + inc.wwy);
+	data[6] = texture3D(volume, p + inc.wwx);
+
+	// insertion sort
+	for (int i=1; i<N; i++)
+	{
+		for (int j=i-1; j>=0; j--)
+		{
+			if (data[j+1].x < data[j].x)
+			{
+				temp = data[j];
+				data[j] = data[j+1];
+				data[j+1] = temp;
+			}else
+			{
+				break;
+			}
+		}
+	}
+
+	return data[N2];
+}
+
+vec3 fill_and_equalize(vec3 p)
+{
+	return equalize(median_low_pass_filter(p).rgb);
+}
+
+float get_slope(vec4 v1, vec4 v2)
+{
+	return v2.x - v1.x;
+}
+
+float get_importance_value(vec3 p)
+{
+
+}
+
+float diameter = 1.732050 / sizes;
+bool detect_boundary_multisample_9(vec3 v1, vec3 p)
 {
 	const float epsilon = 1e-5;
 	vec3 v2 = vec3(0,0,0);
@@ -95,7 +151,6 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 position)
 
 	// get a vector v3 that is vertical to both v1 and v2, and then normalize v2 and v3
 	// get four positions that are adjacent to the original position
-	float diameter = 1.732050 / sizes;
 	v2 = normalize(v2);
 	vec3 v3 = normalize(cross(v1, v2));
 	vec3 delta_v1 = v1 * diameter;
@@ -103,38 +158,29 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 position)
 	vec3 delta_v3 = v3 * diameter;
 
 	// horizontal and vertical neighbors
-	vec3 p1 = position + delta_v2;
-	vec3 p2 = position - delta_v2;
-	vec3 p3 = position + delta_v3;
-	vec3 p4 = position - delta_v3;
+	vec3 p1 = p + delta_v2;
+	vec3 p2 = p - delta_v2;
+	vec3 p3 = p + delta_v3;
+	vec3 p4 = p - delta_v3;
 
 	// diagonal neighbors
-	vec3 p5 = position + delta_v2 + delta_v3;
-	vec3 p6 = position - delta_v2 - delta_v3;
-	vec3 p7 = position + delta_v2 - delta_v3;
-	vec3 p8 = position - delta_v2 + delta_v3;
+	vec3 p5 = p + delta_v2 + delta_v3;
+	vec3 p6 = p - delta_v2 - delta_v3;
+	vec3 p7 = p + delta_v2 - delta_v3;
+	vec3 p8 = p - delta_v2 + delta_v3;
 
 	// how many pairs belong to different clusters
 	const float one = 1 - epsilon;
-	count = 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, position + delta_v1).x) 
-		- to_cluster_number(texture3D(cluster_texture, position - delta_v1).x)))) ? 1 : 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p1 + delta_v1).x)
-		- to_cluster_number(texture3D(cluster_texture, p1- delta_v1).x)))) ? 1 : 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p2 + delta_v1).x)
-		- to_cluster_number(texture3D(cluster_texture, p2 - delta_v1).x)))) ? 1 : 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p3 + delta_v1).x)
-		- to_cluster_number(texture3D(cluster_texture, p3 - delta_v1).x)))) ? 1 : 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p4 + delta_v1).x)
-		- to_cluster_number(texture3D(cluster_texture, p4 - delta_v1).x)))) ? 1 : 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p5 + delta_v1).x)
-		- to_cluster_number(texture3D(cluster_texture, p5 - delta_v1).x)))) ? 1 : 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p6 + delta_v1).x)
-		- to_cluster_number(texture3D(cluster_texture, p6 - delta_v1).x)))) ? 1 : 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p7 + delta_v1).x)
-		- to_cluster_number(texture3D(cluster_texture, p7 - delta_v1).x)))) ? 1 : 0;
-	count += (one < abs(float(to_cluster_number(texture3D(cluster_texture, p8 + delta_v1).x)
-		- to_cluster_number(texture3D(cluster_texture, p8 - delta_v1).x)))) ? 1 : 0;
+	count
+		= (is_in_the_same_cluster(texture3D(cluster_texture, p + delta_v1).x, texture3D(cluster_texture, p - delta_v1).x) ? 1 : 0)
+		+ (is_in_the_same_cluster(texture3D(cluster_texture, p1 + delta_v1).x, texture3D(cluster_texture, p1 - delta_v1).x) ? 1 : 0)
+		+ (is_in_the_same_cluster(texture3D(cluster_texture, p2 + delta_v1).x, texture3D(cluster_texture, p2 - delta_v1).x) ? 1 : 0)
+		+ (is_in_the_same_cluster(texture3D(cluster_texture, p3 + delta_v1).x, texture3D(cluster_texture, p3 - delta_v1).x) ? 1 : 0)
+		+ (is_in_the_same_cluster(texture3D(cluster_texture, p4 + delta_v1).x, texture3D(cluster_texture, p4 - delta_v1).x) ? 1 : 0)
+		+ (is_in_the_same_cluster(texture3D(cluster_texture, p5 + delta_v1).x, texture3D(cluster_texture, p5 - delta_v1).x) ? 1 : 0)
+		+ (is_in_the_same_cluster(texture3D(cluster_texture, p6 + delta_v1).x, texture3D(cluster_texture, p6 - delta_v1).x) ? 1 : 0)
+		+ (is_in_the_same_cluster(texture3D(cluster_texture, p7 + delta_v1).x, texture3D(cluster_texture, p7 - delta_v1).x) ? 1 : 0)
+		+ (is_in_the_same_cluster(texture3D(cluster_texture, p8 + delta_v1).x, texture3D(cluster_texture, p8 - delta_v1).x) ? 1 : 0);
 
 	// It is a boundary if more than a half pairs belong to different clusters
 	return count >= 5;
@@ -172,6 +218,12 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	//bool cluster_limit_reached = false;
 	int peeling_counter = 0;
 
+	// for feature peeling
+	int state;
+	float slope, slope_threshold, peeling_threshold, importance;	
+	vec3 local_min, local_max;
+	vec4 current_value, next_value;
+
 	for(int i = 0; i < sample_number; i++)
 	{
 		length_acc += delta_dir_len;
@@ -184,7 +236,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				c.rgb = equalize(c.rgb);
 				color_sample
 					= mask.xxxy * texture2D(transfer_function_2D, c.xw)
-					+ mask.yyyx * sum3(c);
+					+ mask.yyyx * sum3(c.rgb);
 			}else
 			{
 				if(transfer_function_option == 2)
@@ -321,27 +373,39 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				if(peeling_option == 2)
 				{
 					//////////////////////////////////////////////////////////////////////////
-					// to do
 					// feature peeling
-					//c = texture3D(cluster_texture, ray);
-					//cluster_number_new = to_cluster_number(c.x);
-					//if(cluster_number == -1)
-					//{
-					//	cluster_number = cluster_number_new;
-					//}else
-					//{
-					//	if(cluster_number != cluster_number_new)
-					//	{
-					//		cluster_number = cluster_number_new;
-					//		cluster_count++;
-					//		if(!cluster_limit_reached && cluster_count >= cluster_limit)
-					//		{
-					//			col_acc = vec4(0,0,0,0);
-					//			alpha_acc = 0;
-					//			cluster_limit_reached = true;
-					//		}
-					//	}
-					//}
+					state = 0;
+					current_value = fill_and_equalize(ray);
+					next_value = fill_and_equalize(ray + delta_dir);
+					slope = get_slope(current_value, next_value);
+
+					if (slope > 0 && state == 0)
+					{
+						state = 1;
+						local_min = ray;
+					}else
+					{
+						if (slope < 0 && state == 1)
+						{
+							local_max = ray;
+							slope = get_slope(fill_and_equalize(local_min), current_value);
+							if (slope > slope_threshold)
+							{
+								importance = get_importance_value(local_min);
+								if (importance > peeling_threshold)
+								{
+									if (peeling_counter == peeling_layer)
+									{
+										break;
+									}else
+									{
+										peeling_counter++;
+									}
+								}
+							}
+						}
+					}
+
 				}else
 				{
 					if(peeling_option == 3)
