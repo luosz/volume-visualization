@@ -31,7 +31,7 @@ vec3 equalize(vec3 v)
 
 bool is_in_the_same_cluster(float p1, float p2)
 {
-	return abs(p1 - p2) / cluster_interval <= 1;
+	return abs(p1 - p2) / cluster_interval <= 1.0;
 }
 
 float sum3(vec3 c)
@@ -112,7 +112,7 @@ float get_slope(vec3 v1, vec3 v2)
 //	return 0;
 //}
 
-float diameter = 1.732050 / sizes;
+vec3 diameter = 1.732050 / sizes;
 bool detect_boundary_multisample_9(vec3 v1, vec3 p)
 {
 	const float epsilon = 1e-5;
@@ -175,7 +175,7 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 p)
 	vec3 p8 = p - delta_v2 + delta_v3;
 
 	// how many pairs belong to different clusters
-	const float one = 1 - epsilon;
+	const float one = 1.0 - epsilon;
 	count
 		= (is_in_the_same_cluster(texture3D(cluster_texture, p + delta_v1).x, texture3D(cluster_texture, p - delta_v1).x) ? 1 : 0)
 		+ (is_in_the_same_cluster(texture3D(cluster_texture, p1 + delta_v1).x, texture3D(cluster_texture, p1 - delta_v1).x) ? 1 : 0)
@@ -213,7 +213,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 	// calculate difference to sharpen the image
 	const vec4 mask = vec4(1, 0, 0, 0);
-	vec4 d = vec4(vec3(1, 1, 1)/sizes, 0), d2 = d * 2;
+	vec4 d = vec4(vec3(1, 1, 1)/sizes, 0), d2 = d * 2.0;
 	vec4 e = vec4(vec3(-1, 1, 0)/sizes, 0);
 	vec4 c, c2, second_derivative;
 	float second_derivative_magnitude;
@@ -261,7 +261,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						if(transfer_function_option == 4)
 						{
 							c = texture3D(volume, ray);
-							c2 = c * 2;
+							c2 = c * 2.0;
 							second_derivative
 								= mask.xwww * abs(texture3D(volume, ray+d2.xww) - c2 + texture3D(volume, ray-d2.xww))
 								+ mask.wxww * abs(texture3D(volume, ray+d2.wyw) - c2 + texture3D(volume, ray-d2.wyw))
@@ -277,19 +277,19 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 							if(transfer_function_option == 5)
 							{
 								// Sobel operator
-								vec4 c_x = 2 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+								vec4 c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
 									+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
 									+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
 									+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
 									+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
 
-								vec4 c_y = 2 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+								vec4 c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
 									+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
 									+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
 									+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
 									+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
 
-								vec4 c_z = 2 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+								vec4 c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
 									+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
 									+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
 									+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
@@ -382,13 +382,13 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					next_value = fill_and_equalize(ray + delta_dir);
 					slope = get_slope(current_value, next_value);
 
-					if (slope > 0 && state == 0)
+					if (slope > 0.0 && state == 0)
 					{
 						state = 1;
 						local_min = ray;
 					}else
 					{
-						if (slope < 0 && state == 1)
+						if (slope < 0.0 && state == 1)
 						{
 							local_max = ray;
 							slope = get_slope(fill_and_equalize(local_min), current_value);
