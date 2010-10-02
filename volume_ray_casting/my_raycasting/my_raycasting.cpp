@@ -55,14 +55,18 @@ GLuint loc_scalar_max_normalized;
 // for clustering
 GLuint cluster_texture;
 GLuint loc_cluster_texture;
-float cluster_limit = 8;
-GLuint loc_cluster_limit;
+
+// for feature peeling
+float slope_threshold = 0;
+GLuint loc_slope_threshold;
+
 // for layer peeling
 float peeling_layer = 0;
 GLuint loc_peeling_layer;
 const float LAYER_MAX = 100;
 const float LAYER_MIN = 0;
 const float LAYER_INC = 1;
+
 // the parameter k for k-means
 float cluster_quantity = 8;
 int cluster_quantity_int_old = -1; // to be initialized
@@ -228,9 +232,9 @@ void doUI()
 		{
 			if (peeling_option == PEELING_FEATURE)
 			{
-				sprintf(str, "cluster_limit: %f", cluster_limit);
+				sprintf(str, "slope threshold: %f", slope_threshold);
 				ui.doLabel(none, str);
-				ui.doHorizontalSlider(rect_slider, 0, 100, &cluster_limit);
+				ui.doHorizontalSlider(rect_slider, -1, 1, &slope_threshold);
 			}else
 			{
 				if (peeling_option == PEELING_BACK || peeling_option == PEELING_FRONT)
@@ -393,7 +397,7 @@ void set_shaders() {
 	loc_luminance = glGetUniformLocation(p, "luminance");
 	loc_sizes = glGetUniformLocation(p, "sizes");
 	loc_clip = glGetUniformLocation(p, "clip");
-	loc_cluster_limit = glGetUniformLocation(p, "cluster_limit");
+	loc_slope_threshold = glGetUniformLocation(p, "slope_threshold");
 	loc_cluster_interval = glGetUniformLocation(p, "cluster_interval");
 	loc_peeling_layer = glGetUniformLocation(p, "peeling_layer");
 	loc_scalar_min_normalized = glGetUniformLocation(p, "scalar_min_normalized");
@@ -1113,8 +1117,6 @@ void raycasting_pass()
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, final_image, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	int cluster_limit_int = static_cast<int>(cluster_limit);
-	cluster_limit = cluster_limit_int;
 	int peeling_layer_int = static_cast<int>(peeling_layer);
 	peeling_layer = peeling_layer_int;
 
@@ -1137,10 +1139,10 @@ void raycasting_pass()
 	glUniform1f(loc_cluster_interval, cluster_interval);
 	glUniform1f(loc_scalar_min_normalized, scalar_min_normalized);
 	glUniform1f(loc_scalar_max_normalized, scalar_max_normalized);
+	glUniform1f(loc_slope_threshold, slope_threshold);
 
 	glUniform1i(loc_peeling_option, peeling_option);
 	glUniform1i(loc_transfer_function_option, transfer_function_option);
-	glUniform1i(loc_cluster_limit, cluster_limit_int);
 	glUniform1i(loc_peeling_layer, peeling_layer_int);
 
 	if(button_generate_Ben_transfer_function)

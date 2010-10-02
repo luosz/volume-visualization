@@ -13,9 +13,11 @@ uniform float threshold_low, threshold_high;
 uniform vec3 sizes; // size of the volume data
 
 // for cluster peeling
-uniform int cluster_limit;
 uniform float cluster_interval;
 uniform int peeling_layer;
+
+// for feature peeling
+uniform float slope_threshold;
 
 // for histogram equalization
 uniform float scalar_min_normalized, scalar_max_normalized;
@@ -49,16 +51,16 @@ bool isReacheThreshold(vec4 col_acc, vec4 color_sample)
 
 vec4 inc = vec4(vec3(-1, 1, 0)/sizes, 0);
 
-vec4 mean_low_pass_filter(vec3 p)
-{
-	// neighbors along x, y, z axes
-	return 
-	(texture3D(volume, p)
-	+ texture3D(volume, p + inc.yww) + texture3D(volume, p + inc.xww)
-	+ texture3D(volume, p + inc.wyw) + texture3D(volume, p + inc.wxw)
-	+ texture3D(volume, p + inc.wwy) + texture3D(volume, p + inc.wwx))
-	/ 7;
-}
+//vec4 mean_low_pass_filter(vec3 p)
+//{
+//	// neighbors along x, y, z axes
+//	return 
+//	(texture3D(volume, p)
+//	+ texture3D(volume, p + inc.yww) + texture3D(volume, p + inc.xww)
+//	+ texture3D(volume, p + inc.wyw) + texture3D(volume, p + inc.wxw)
+//	+ texture3D(volume, p + inc.wwy) + texture3D(volume, p + inc.wwx))
+//	/ 7;
+//}
 
 vec4 median_low_pass_filter(vec3 p)
 {
@@ -73,7 +75,7 @@ vec4 median_low_pass_filter(vec3 p)
 	data[6] = texture3D(volume, p + inc.wwx);
 
 	// selection sort
-	for (int i=0; i<N2; i++)
+	for (int i=0; i<=N2; i++)
 	{
 		// Select the minimum
 		int min = i;
@@ -100,7 +102,7 @@ vec3 fill_and_equalize(vec3 p)
 	return equalize(median_low_pass_filter(p).rgb);
 }
 
-float get_slope(vec4 v1, vec4 v2)
+float get_slope(vec3 v1, vec3 v2)
 {
 	return v2.x - v1.x;
 }
@@ -222,10 +224,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	int peeling_counter = 0;
 
 	// for feature peeling
-	int state;
-	float slope, slope_threshold, peeling_threshold, importance;	
-	vec3 local_min, local_max;
-	vec4 current_value, next_value;
+	int state = 0;
+	float slope;//, peeling_threshold, importance;	
+	vec3 local_min, local_max, current_value, next_value;
 
 	for(int i = 0; i < sample_number; i++)
 	{
@@ -377,7 +378,6 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				{
 					//////////////////////////////////////////////////////////////////////////
 					// feature peeling
-					state = 0;
 					current_value = fill_and_equalize(ray);
 					next_value = fill_and_equalize(ray + delta_dir);
 					slope = get_slope(current_value, next_value);
@@ -394,18 +394,26 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 							slope = get_slope(fill_and_equalize(local_min), current_value);
 							if (slope > slope_threshold)
 							{
-								importance = get_importance_value(local_min);
-								if (importance > peeling_threshold)
+								//importance = get_importance_value(local_min);
+								//if (importance > peeling_threshold)
+								//{
+								//	if (peeling_counter == peeling_layer)
+								//	{
+								//		break;
+								//	}else
+								//	{
+								//		peeling_counter++;
+								//	}
+								//}
+								if (peeling_counter == peeling_layer)
 								{
-									if (peeling_counter == peeling_layer)
-									{
-										break;
-									}else
-									{
-										peeling_counter++;
-									}
+									break;
+								}else
+								{
+									peeling_counter++;
 								}
 							}
+							state = 0;
 						}
 					}
 
