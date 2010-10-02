@@ -62,7 +62,7 @@ vec4 mean_low_pass_filter(vec3 p)
 
 vec4 median_low_pass_filter(vec3 p)
 {
-	const int N = 7, N2 = 3;
+	const int N = 7, N2 = N / 2;
 	vec4 data[N], temp;
 	data[0] = texture3D(volume, p);
 	data[1] = texture3D(volume, p + inc.yww);
@@ -72,20 +72,23 @@ vec4 median_low_pass_filter(vec3 p)
 	data[5] = texture3D(volume, p + inc.wwy);
 	data[6] = texture3D(volume, p + inc.wwx);
 
-	// insertion sort
-	for (int i=1; i<N; i++)
+	// selection sort
+	for (int i=0; i<N2; i++)
 	{
-		for (int j=i-1; j>=0; j--)
+		// Select the minimum
+		int min = i;
+		for (int j=i+1; j<N; j++)
 		{
-			if (data[j+1].x < data[j].x)
+			if (data[j].x < data[min].x)
 			{
-				temp = data[j];
-				data[j] = data[j+1];
-				data[j+1] = temp;
-			}else
-			{
-				break;
+				min = j;
 			}
+		}
+		if (min != i)
+		{
+			temp = data[min];
+			data[min] = data[i];
+			data[i] = temp;
 		}
 	}
 
@@ -102,10 +105,10 @@ float get_slope(vec4 v1, vec4 v2)
 	return v2.x - v1.x;
 }
 
-float get_importance_value(vec3 p)
-{
-
-}
+//float get_importance_value(vec3 p)
+//{
+//	return 0;
+//}
 
 float diameter = 1.732050 / sizes;
 bool detect_boundary_multisample_9(vec3 v1, vec3 p)

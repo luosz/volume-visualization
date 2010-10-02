@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "random_number_generator", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vertical_vectors", "vertical_vectors\vertical_vectors.vcxproj", "{BAC0192E-6C38-4AF8-967D-91A91A049966}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "insertion_sort", "insertion_sort\insertion_sort.vcxproj", "{2F1CF1F3-24F8-4F89-9E75-35070010A601}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sort", "sort\sort.vcxproj", "{FE57E4C1-44AE-42D6-9AB6-B478E14493FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,12 +53,12 @@ Global
 		{BAC0192E-6C38-4AF8-967D-91A91A049966}.Release|Win32.ActiveCfg = Release|Win32
 		{BAC0192E-6C38-4AF8-967D-91A91A049966}.Release|Win32.Build.0 = Release|Win32
 		{BAC0192E-6C38-4AF8-967D-91A91A049966}.Release|x64.ActiveCfg = Release|Win32
-		{2F1CF1F3-24F8-4F89-9E75-35070010A601}.Debug|Win32.ActiveCfg = Debug|Win32
-		{2F1CF1F3-24F8-4F89-9E75-35070010A601}.Debug|Win32.Build.0 = Debug|Win32
-		{2F1CF1F3-24F8-4F89-9E75-35070010A601}.Debug|x64.ActiveCfg = Debug|Win32
-		{2F1CF1F3-24F8-4F89-9E75-35070010A601}.Release|Win32.ActiveCfg = Release|Win32
-		{2F1CF1F3-24F8-4F89-9E75-35070010A601}.Release|Win32.Build.0 = Release|Win32
-		{2F1CF1F3-24F8-4F89-9E75-35070010A601}.Release|x64.ActiveCfg = Release|Win32
+		{FE57E4C1-44AE-42D6-9AB6-B478E14493FB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FE57E4C1-44AE-42D6-9AB6-B478E14493FB}.Debug|Win32.Build.0 = Debug|Win32
+		{FE57E4C1-44AE-42D6-9AB6-B478E14493FB}.Debug|x64.ActiveCfg = Debug|Win32
+		{FE57E4C1-44AE-42D6-9AB6-B478E14493FB}.Release|Win32.ActiveCfg = Release|Win32
+		{FE57E4C1-44AE-42D6-9AB6-B478E14493FB}.Release|Win32.Build.0 = Release|Win32
+		{FE57E4C1-44AE-42D6-9AB6-B478E14493FB}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2F1CF1F3-24F8-4F89-9E75-35070010A601}</ProjectGuid>
+    <ProjectGuid>{FE57E4C1-44AE-42D6-9AB6-B478E14493FB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>insertion_sort</RootNamespace>
+    <RootNamespace>sort</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -74,7 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="insertion_sort.cpp" />
+    <ClCompile Include="sort.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
