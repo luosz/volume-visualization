@@ -25,9 +25,27 @@ void gnomesort(int n, int ar[]) {
 	}
 }
 
-// Gnome sort, improved
+// Gnome sort version 1
 template<class T>
-void gnome_sort(T data[], int n, bool comparator(T, T))
+void gnome_sort_1(T data[], int n, bool comparator(T, T))
+{
+	int i = 1;
+	while (i < n)
+	{
+		if (i > 0 && comparator(data[i], data[i-1]))
+		{
+			swap(data[i], data[i-1]);
+			i--;
+		}else
+		{
+			i++;
+		}
+	}
+}
+
+// Gnome sort version 2
+template<class T>
+void gnome_sort_2(T data[], int n, bool comparator(T, T))
 {
 	int i = 1, previous_position = -1;
 	while (i < n)
@@ -51,6 +69,42 @@ void gnome_sort(T data[], int n, bool comparator(T, T))
 				// After traverse backward, go to the position next to the previous
 				i = previous_position + 1;
 				previous_position = -1;
+			}
+		}
+	}
+}
+
+// Gnome sort version 3
+template<class T>
+void gnome_sort_3(T data[], int n, bool comparator(T, T))
+{
+	int i = 0, previous_position = -1;
+	T temp;
+	while (i < n)
+	{
+		if (i > 0 && comparator(temp, data[i-1]))
+		{
+			// Mark the Gnome's previous position before traverse backward
+			if (previous_position == -1)
+			{
+				previous_position = i;
+			}
+			data[i] = data[i-1];
+			i--;
+		}else
+		{
+			if (previous_position == -1)
+			{
+				i++;
+				temp = data[i];
+			}else
+			{
+				// Put the previous value here
+				data[i] = temp;
+				// After traverse backward, go to the position next to the previous
+				i = previous_position + 1;
+				previous_position = -1;
+				temp = data[i];
 			}
 		}
 	}
@@ -112,19 +166,19 @@ bool smaller(T v1, T v2)
 void main()
 {
 	const int n = 100;
-	double d[n], d2[n], d3[n];
+	double d1[n], d2[n], d3[n], d4[n], d5[n];
 
 	srand( (unsigned)time( NULL ) );
 	for (int i=0; i<n; i++)
 	{
-		d3[i] = d2[i] = d[i] = rand() % 100;
+		d3[i] = d2[i] = d1[i] = rand() % 100;
 	}
 
-	insertion_sort(d, n, smaller<double>);
+	insertion_sort(d1, n, smaller<double>);
 	cout<<"Insertion sort"<<endl;
 	for (int i=0; i<n; i++)
 	{
-		cout<<d[i]<<"\t";
+		cout<<d1[i]<<"\t";
 	}
 	cout<<endl;
 
@@ -136,11 +190,28 @@ void main()
 	}
 	cout<<endl;
 
-	gnome_sort(d3, n, smaller<double>);
-	cout<<"Gnome sort"<<endl;
+	gnome_sort_1(d3, n, smaller<double>);
+	cout<<"Gnome sort 1"<<endl;
 	for (int i=0; i<n; i++)
 	{
 		cout<<d3[i]<<"\t";
 	}
 	cout<<endl;
+
+	gnome_sort_2(d4, n, smaller<double>);
+	cout<<"Gnome sort 2"<<endl;
+	for (int i=0; i<n; i++)
+	{
+		cout<<d4[i]<<"\t";
+	}
+	cout<<endl;
+
+	gnome_sort_3(d5, n, smaller<double>);
+	cout<<"Gnome sort 3"<<endl;
+	for (int i=0; i<n; i++)
+	{
+		cout<<d5[i]<<"\t";
+	}
+	cout<<endl;
+
 }
