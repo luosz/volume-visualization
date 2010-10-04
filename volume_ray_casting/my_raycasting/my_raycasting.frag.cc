@@ -62,7 +62,44 @@ vec4 inc = vec4(vec3(-1, 1, 0)/sizes, 0);
 //	/ 7;
 //}
 
-vec4 median_low_pass_filter(vec3 p)
+vec4 median_filter_9(vec4 v1, vec4 v2, vec4 v3, vec4 v4, vec4 v5, vec4 v6, vec4 v7, vec4 v8, vec4 v9)
+{
+	const int N = 9, N2 = N / 2;
+	vec4 data[N], temp;
+	data[0] = v1;
+	data[1] = v2;
+	data[2] = v3;
+	data[3] = v4;
+	data[4] = v5;
+	data[5] = v6;
+	data[6] = v7;
+	data[7] = v8;
+	data[8] = v9;
+
+	// selection sort
+	for (int i=0; i<=N2; i++)
+	{
+		// Select the minimum
+		int min = i;
+		for (int j=i+1; j<N; j++)
+		{
+			if (data[j].x < data[min].x)
+			{
+				min = j;
+			}
+		}
+		if (min != i)
+		{
+			temp = data[min];
+			data[min] = data[i];
+			data[i] = temp;
+		}
+	}
+
+	return data[N2];
+}
+
+vec4 median_filter_to_position(vec3 p)
 {
 	const int N = 7, N2 = N / 2;
 	vec4 data[N], temp;
@@ -99,7 +136,7 @@ vec4 median_low_pass_filter(vec3 p)
 
 vec3 fill_and_equalize(vec3 p)
 {
-	return equalize(median_low_pass_filter(p).rgb);
+	return equalize(median_filter_to_position(p).rgb);
 }
 
 float get_slope(vec3 v1, vec3 v2)
@@ -191,6 +228,80 @@ bool detect_boundary_multisample_9(vec3 v1, vec3 p)
 	return count >= 5;
 }
 
+vec4 multisample_9(vec3 v1, vec3 p)
+{
+	const float epsilon = 1e-5;
+	vec3 v2 = vec3(0,0,0);
+	const int size = 3;
+	int count = 0, index1 = -1, index2 = -1;
+
+	// how many non-zero components there are
+	for (int i=0; i<size; i++)
+	{
+		if (abs(v1[i]) > epsilon)
+		{
+			count++;
+			if (index1 == -1)
+			{
+				index1 = i;
+			}else
+			{
+				index2 = i;
+			}
+		}
+	}
+
+	// get a vector v2 that is vertical to v1
+	switch(count)
+	{
+	case 0: return false;
+	case 1:
+		index2 = index1 + 1;
+		index2 = (index2 >= size) ? (index2 - size) : index2;
+		v2[index2] = v1[index1];
+		break;
+	case 2:
+		v2[index2] = -v1[index1];
+		v2[index1] = v1[index2];
+		break;
+	default:
+		v2.x = v2.y = v1.z;
+		v2.z = - v1.x - v1.y;
+	}
+
+	// get a vector v3 that is vertical to both v1 and v2, and then normalize v2 and v3
+	// get four positions that are adjacent to the original position
+	v2 = normalize(v2);
+	vec3 v3 = normalize(cross(v1, v2));
+	//vec3 delta_v1 = v1 * diameter;
+	vec3 delta_v2 = v2 * diameter;
+	vec3 delta_v3 = v3 * diameter;
+
+	// horizontal and vertical neighbors
+	vec3 p1 = p + delta_v2;
+	vec3 p2 = p - delta_v2;
+	vec3 p3 = p + delta_v3;
+	vec3 p4 = p - delta_v3;
+
+	// diagonal neighbors
+	vec3 p5 = p + delta_v2 + delta_v3;
+	vec3 p6 = p - delta_v2 - delta_v3;
+	vec3 p7 = p + delta_v2 - delta_v3;
+	vec3 p8 = p - delta_v2 + delta_v3;
+
+	return median_filter_9(
+		texture3D(cluster_texture, p),
+		texture3D(cluster_texture, p1),
+		texture3D(cluster_texture, p2),
+		texture3D(cluster_texture, p3),
+		texture3D(cluster_texture, p4),
+		texture3D(cluster_texture, p5),
+		texture3D(cluster_texture, p6),
+		texture3D(cluster_texture, p7),
+		texture3D(cluster_texture, p8)
+		);
+}
+
 vec4 directRendering(vec3 frontPos, vec3 backPos)
 {
 	vec3 dir = backPos - frontPos;
@@ -222,6 +333,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	//int cluster_number = -1, cluster_number_new, cluster_count = 0;
 	//bool cluster_limit_reached = false;
 	int peeling_counter = 0;
+
+	// for peeling counting
+	int counter1 = 0, counter2 = 0, counter3 = 0;
 
 	// for feature peeling
 	int state = 0;
@@ -451,6 +565,52 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 									peeling_counter++;
 								}
 							}
+						}else
+						{
+							if (peeling_option == 5)
+							{
+								if(average(col_acc) > threshold_high && average(color_sample) < threshold_low)
+								{
+									counter1++;
+								}
+								// feature peeling
+								//current_value = fill_and_equalize(ray);
+								//next_value = fill_and_equalize(ray + delta_dir);
+								//slope = get_slope(current_value, next_value);
+
+								//if (slope > 0.0 && state == 0)
+								//{
+								//	state = 1;
+								//	local_min = ray;
+								//}else
+								//{
+								//	if (slope < 0.0 && state == 1)
+								//	{
+								//		local_max = ray;
+								//		slope = get_slope(fill_and_equalize(local_min), current_value);
+								//		if (slope > slope_threshold)
+								//		{
+								//			//importance = get_importance_value(local_min);
+								//			//if (importance > peeling_threshold)
+								//			//{
+								//			//	if (peeling_counter == peeling_layer)
+								//			//	{
+								//			//		break;
+								//			//	}else
+								//			//	{
+								//			//		peeling_counter++;
+								//			//	}
+								//			//}
+								//			counter2++;
+								//		}
+								//		state = 0;
+								//	}
+								//}
+								//if(detect_boundary_multisample_9(norm_dir, ray))
+								//{
+								//	counter3++;
+								//}
+							}
 						}
 					}
 				}
@@ -461,6 +621,11 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		if(length_acc >= len || col_acc.a >= 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
 	}
 
+	if (peeling_option == 5)
+	{
+		vec3 counter = vec3(counter1, counter2, counter3);
+		col_acc.rgb = counter / 512.0;
+	}
 	//col_acc.a = alpha_acc;
 	col_acc.rgb *= luminance;
 	//for (int i=0; i<3; i++)

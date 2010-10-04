@@ -15,7 +15,8 @@ The gnome sort may be optimized by introducing a variable to store the position 
 http://en.wikipedia.org/wiki/Gnome_sort
 ************************************************************************/
 
-// Gnome sort, original
+// Gnome sort
+// http://www.cs.vu.nl/~dick/gnomesort.html
 void gnomesort(int n, int ar[]) {
 	int i = 0;
 
@@ -96,7 +97,6 @@ void gnome_sort_3(T data[], int n, bool comparator(T, T))
 			if (previous_position == -1)
 			{
 				i++;
-				temp = data[i];
 			}else
 			{
 				// Put the previous value here
@@ -104,8 +104,8 @@ void gnome_sort_3(T data[], int n, bool comparator(T, T))
 				// After traverse backward, go to the position next to the previous
 				i = previous_position + 1;
 				previous_position = -1;
-				temp = data[i];
 			}
+			temp = data[i];
 		}
 	}
 }

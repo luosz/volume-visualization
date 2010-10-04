@@ -139,6 +139,7 @@ enum PeelingOption
 	PEELING_FEATURE,
 	PEELING_BACK,
 	PEELING_FRONT,
+	PEELING_LAYER_COUNT,
 	PEELING_COUNT
 };
 int peeling_option = 0;
@@ -187,7 +188,7 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front"};
+	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front", "Layer count"};
 	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel operator", "K-means++", "K-means++ equalized"};
 
 	glDisable(GL_CULL_FACE);
