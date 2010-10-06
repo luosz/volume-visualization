@@ -80,15 +80,15 @@ public:
 		delete [] distance_accumulation;
 		distance_accumulation = NULL;
 
-#ifdef _DEBUG
-		ofstream fc("D:\\K_Means_DIY_centroids.txt", ios::out);
+#ifdef _DEBUG_OUTPUT
+		ofstream fc("D:\\K_Means_PP_DIY_centroids.txt", ios::out);
 		for (int i=0; i<k; i++)
 		{
 			fc<<centroids[i*D]<<","<<centroids[i*D+1]<<","<<centroids[i*D+2]<<"\t";
 		}
 		fc<<endl;
 		int loop_count = 0;
-#endif // OUTPUT
+#endif
 
 		const float epsilon = 1e-4;
 		unsigned char centroids_index;
@@ -136,10 +136,10 @@ public:
 				centroids_new[centroids_index*D+2] += second_derivative_magnitude[i];
 			}
 
-#ifdef _DEBUG
+#ifdef _DEBUG_OUTPUT
 			loop_count++;
 			fc<<loop_count<<")\t";
-#endif // OUTPUT
+#endif
 
 			// estimate the values of the new centers
 			for (int i=0; i<k; i++)
@@ -151,18 +151,18 @@ public:
 					centroids_new[i*D+2] /= centroids_quantity[i];
 				}else
 				{
-#ifdef _DEBUG
+#ifdef _DEBUG_OUTPUT
 					fc<<"loop:"<<loop_count<<"\tno item in this cluster.\t"<<centroids_quantity[i]<<endl;
-#endif // OUTPUT
+#endif
 				}
-#ifdef _DEBUG
+#ifdef _DEBUG_OUTPUT
 				fc<<centroids_new[i*D]<<","<<centroids_new[i*D+1]<<","<<centroids_new[i*D+2]<<"\t";
-#endif // OUTPUT
+#endif
 			}
 
-#ifdef _DEBUG
+#ifdef _DEBUG_OUTPUT
 			fc<<endl;
-#endif // OUTPUT
+#endif
 
 			// the loop will continue if some centroids have changed
 			changed = false;
@@ -195,22 +195,22 @@ public:
 		
 		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
 
-#ifdef _DEBUG
+#ifdef _DEBUG_OUTPUT
 		cout<<"shift="<<shift<<endl;
-		ofstream f("d:\\K_Means_DIY.txt", ios::out);
-#endif // OUTPUT
+		ofstream f("d:\\K_Means_PP_DIY.txt", ios::out);
+#endif
 		for (unsigned int i=0; i<count; i++)
 		{
-#ifdef _DEBUG
+#ifdef _DEBUG_OUTPUT
 			f<<static_cast<int>(label_ptr[i]);
-#endif // OUTPUT
+#endif
 			label_ptr[i] = label_ptr[i] << shift;
 		}
 
-#ifdef _DEBUG
+#ifdef _DEBUG_OUTPUT
 		f<<endl;
 		cout<<"loop count:"<<loop_count<<endl;
-#endif // OUTPUT
+#endif
 	}
 };
 

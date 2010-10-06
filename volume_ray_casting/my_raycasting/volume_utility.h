@@ -2,6 +2,10 @@
 #define CALCULATION_H
 
 #include <fstream>
+#include <algorithm>
+//#include <functional>      // For greater<int>( )
+
+//#define _DEBUG_OUTPUT
 
 #include "K_Means.h"
 #include "K_Means_PP_DIY.h"
@@ -19,8 +23,52 @@ namespace volume_utility
 		return (1 << shift) / 256.;
 	}
 
+	void median_filter( const vector<float> &scalar_value, vector<float> &scalar_value_filtered, int width, int height, int depth) 
+	{
+		const int N = 7;
+		const int dx[N] = {0, -1, 1, 0, 0, 0, 0};
+		const int dy[N] = {0, 0, 0, -1, 1, 0, 0};
+		const int dz[N] = {0, 0, 0, 0, 0, -1, 1};
+		vector<float> sorting(7);
+
+#ifdef _DEBUG_OUTPUT
+		ofstream f("d:\\median_filter_before.txt", ios::out);
+		ofstream f2("d:\\median_filter_after.txt", ios::out);
+#endif
+
+		for (int i=0; i<width; i++)
+		{
+			for (int j=0; j<height; j++)
+			{
+				for (int k=0; k<depth; k++)
+				{
+					int index = (i * width + j) * height + k;
+					if (i==0 || i==width-1 || j==0 || j==height-1 || k==0 || k==depth-1)
+					{
+						scalar_value_filtered[index] = scalar_value[index];
+					}else
+					{
+						// median filter
+						for (int ii=0; ii<N; ii++)
+						{
+							sorting[ii] = scalar_value[((i + dx[ii]) * width + j + dy[ii]) * height + k + dz[ii]];
+						}
+						partial_sort(sorting.begin(), sorting.begin() + (N + 1) / 2, sorting.end());
+						scalar_value_filtered[index] = sorting[N / 2];
+					}
+
+#ifdef _DEBUG_OUTPUT
+					f<<ios::hex<<scalar_value[index]<<" ";
+					f2<<ios::hex<<scalar_value_filtered[index]<<" ";
+#endif
+
+				}
+			}
+		}
+	}
+
 	template <class T, int TYPE_SIZE>
-	void k_means(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr)
+	void k_means(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr, int width, int height, int depth)
 	{
 		unsigned int histogram[TYPE_SIZE] = {0};
 		vector<float> scalar_value(count); // the scalar data in const T *data
@@ -29,11 +77,17 @@ namespace volume_utility
 		vector<nv::vec3f> second_derivative(count);
 		vector<float> second_derivative_magnitude(count);
 		float max_gradient_magnitude, max_second_derivative_magnitude;
+
 		generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
-		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
+
+		// median filter
+		vector<float> scalar_value_filtered(count);
+		median_filter(scalar_value, scalar_value_filtered, width, height, depth);
+
+		generate_gradient(sizes, count, components, scalar_value_filtered, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
 		// call the clustering routine
-		K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr);
+		K_Means_PP_DIY::k_means(count, scalar_value_filtered, gradient_magnitude, second_derivative_magnitude, k, label_ptr);
 	}
 
 	// calculate scalar histogram
@@ -90,7 +144,7 @@ namespace volume_utility
 		scalar_min = static_cast<float>(min_index) / TYPE_SIZE;
 		scalar_max = static_cast<float>(max_index) / TYPE_SIZE;
 
-#ifdef _DEBUG
+#ifdef _DEBUG_OUTPUT
 		std::cout<<"min max index\t"<<min_index<<"\t"<<max_index<<endl
 			<<"min max float\t"<<scalar_min<<"\t"<<scalar_max<<endl;
 #endif
@@ -148,7 +202,6 @@ namespace volume_utility
 			}
 		}
 	}
-
 }
 
 #endif // CALCULATION_H

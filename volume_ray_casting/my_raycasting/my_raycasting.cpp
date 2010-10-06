@@ -649,7 +649,7 @@ template <class T, int TYPE_SIZE>
 void cluster(const T *data, const unsigned int count)
 {
 	unsigned char *label_ptr = new unsigned char[count];
-	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, static_cast<int>(cluster_quantity), label_ptr);
+	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, static_cast<int>(cluster_quantity), label_ptr, sizes[0], sizes[1], sizes[2]);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &cluster_texture);

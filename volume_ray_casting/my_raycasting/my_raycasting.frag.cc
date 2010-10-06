@@ -254,7 +254,7 @@ vec4 multisample_9(vec3 v1, vec3 p)
 	// get a vector v2 that is vertical to v1
 	switch(count)
 	{
-	case 0: return false;
+	case 0: return vec4(0, 0, 0, 0);
 	case 1:
 		index2 = index1 + 1;
 		index2 = (index2 >= size) ? (index2 - size) : index2;
@@ -316,7 +316,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	//float alpha_sample;
 
 	// black or white background
-	vec4 col_acc = vec4(0,0,0,0);
+	vec4 col_acc = vec4(0, 0, 0, 0);
 	//vec4 col_acc = vec4(1,1,1,1);
 
 	int sample_number = int(len / stepsize);
