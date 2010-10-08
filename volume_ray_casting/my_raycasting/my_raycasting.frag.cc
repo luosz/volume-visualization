@@ -134,7 +134,7 @@ vec4 median_filter_to_position(vec3 p)
 	return data[N2];
 }
 
-vec3 fill_and_equalize(vec3 p)
+vec3 filter_and_equalize(vec3 p)
 {
 	return equalize(median_filter_to_position(p).rgb);
 }
@@ -437,6 +437,8 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				}
 			}
 
+			// color blending
+
 			//////////////////////////////////////////////////////////////////////////
 			// version 1
 			//alpha_sample = color_sample.a * stepsize;
@@ -492,8 +494,8 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				{
 					//////////////////////////////////////////////////////////////////////////
 					// feature peeling
-					current_value = fill_and_equalize(ray);
-					next_value = fill_and_equalize(ray + delta_dir);
+					current_value = filter_and_equalize(ray);
+					next_value = filter_and_equalize(ray + delta_dir);
 					slope = get_slope(current_value, next_value);
 
 					if (slope > 0.0 && state == 0)
@@ -505,7 +507,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						if (slope < 0.0 && state == 1)
 						{
 							local_max = ray;
-							slope = get_slope(fill_and_equalize(local_min), current_value);
+							slope = get_slope(filter_and_equalize(local_min), current_value);
 							if (slope > slope_threshold)
 							{
 								//importance = get_importance_value(local_min);

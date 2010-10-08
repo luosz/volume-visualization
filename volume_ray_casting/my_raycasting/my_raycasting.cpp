@@ -59,6 +59,9 @@ GLuint loc_cluster_texture;
 // for feature peeling
 float slope_threshold = 0;
 GLuint loc_slope_threshold;
+const float SLOPE_THRESHOLD_MAX = 1;
+const float SLOPE_THRESHOLD_MIN = -1;
+const float SLOPE_THRESHOLD_INC = 0.01;
 
 // for layer peeling
 float peeling_layer = 0;
@@ -145,6 +148,9 @@ enum PeelingOption
 int peeling_option = 0;
 float threshold_low = 0.3;
 float threshold_high = 0.3;
+const float OPACITY_THRESHOLD_MAX = 1;
+const float OPACITY_THRESHOLD_MIN = 0.01;
+const float OPACITY_THRESHOLD_INC = 0.01;
 GLuint loc_threshold_high;
 GLuint loc_threshold_low;
 GLuint loc_peeling_option;
@@ -227,15 +233,15 @@ void doUI()
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
 			ui.doLabel(none, str);
-			ui.doHorizontalSlider(rect_slider, 0.00001, 1.0, &threshold_low);
-			ui.doHorizontalSlider(rect_slider, 0.00001, 1.0, &threshold_high);
+			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_low);
+			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_high);
 		}else
 		{
 			if (peeling_option == PEELING_FEATURE)
 			{
 				sprintf(str, "slope threshold: %f", slope_threshold);
 				ui.doLabel(none, str);
-				ui.doHorizontalSlider(rect_slider, -1, 1, &slope_threshold);
+				ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
 			}else
 			{
 				if (peeling_option == PEELING_BACK || peeling_option == PEELING_FRONT)
@@ -937,11 +943,47 @@ void process_keys()
 		case 'x':
 			clip = decrease(clip, CLIP_INC, CLIP_MIN);
 			break;
-		case 'l':
-			peeling_layer = increase(peeling_layer, LAYER_INC, LAYER_MAX);
+		case 'h':
+			if (peeling_option == PEELING_OPACITY)
+			{
+				threshold_low = decrease(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
+			}
+			break;
+		case 'j':
+			if (peeling_option == PEELING_OPACITY)
+			{
+				threshold_low = increase(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
+			}
 			break;
 		case 'k':
-			peeling_layer = decrease(peeling_layer, LAYER_INC, LAYER_MIN);
+			switch(peeling_option)
+			{
+			case PEELING_OPACITY:
+				threshold_high = decrease(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
+				break;
+			case PEELING_FEATURE:
+				slope_threshold = decrease(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MIN);
+				break;
+			case PEELING_BACK:
+			case PEELING_FRONT:
+				peeling_layer = decrease(peeling_layer, LAYER_INC, LAYER_MIN);
+				break;
+			}
+			break;
+		case 'l':
+			switch(peeling_option)
+			{
+			case PEELING_OPACITY:
+				threshold_high = increase(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
+				break;
+			case PEELING_FEATURE:
+				slope_threshold = increase(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MAX);
+				break;
+			case PEELING_BACK:
+			case PEELING_FRONT:
+				peeling_layer = increase(peeling_layer, LAYER_INC, LAYER_MAX);
+				break;
+			}
 			break;
 		}
 	}
