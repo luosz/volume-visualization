@@ -1,6 +1,7 @@
 \.ncb$
 \.user$
 \.sdf$
+\.opensdf$
 \.ipch$
 ^Debug/
 ^Release/
