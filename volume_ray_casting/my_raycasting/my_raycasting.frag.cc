@@ -347,9 +347,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		length_acc += delta_dir_len;
 		if(length_acc > clip)
 		{
-			// transfer function
 			if(transfer_function_option == 1)
 			{
+				// Simple 2D transfer function
 				c = texture3D(volume, ray);
 				c.rgb = equalize(c.rgb);
 				color_sample
@@ -359,12 +359,14 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			{
 				if(transfer_function_option == 2)
 				{
+					// Ben transfer function
 					color_sample = texture3D(transfer_texture, ray);
 				}
 				else
 				{
 					if(transfer_function_option == 3)
 					{
+						// Directional derivatives as RGB
 						color_sample
 							= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
 							+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
@@ -408,7 +410,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 									+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
 									+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
 									+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
-								
+
 								color_sample
 									= mask.xwww * c_x
 									+ mask.wxww * c_y
@@ -418,16 +420,19 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 							{
 								if(transfer_function_option == 6)
 								{
+									// k-means
 									color_sample = texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw);
 								}else
 								{
 									if(transfer_function_option == 7)
 									{
+										// Equalized k-means
 										color_sample
 											= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
 											+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
 									}else
 									{
+										// Raw scalar values without a transfer function
 										color_sample = texture3D(volume, ray);
 									}
 								}
