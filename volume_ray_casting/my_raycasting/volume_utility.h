@@ -1,5 +1,5 @@
-#ifndef CALCULATION_H
-#define CALCULATION_H
+#ifndef volume_utility_h
+#define volume_utility_h
 
 #include <fstream>
 #include <algorithm>
@@ -23,7 +23,68 @@ namespace volume_utility
 		return (1 << shift) / 256.;
 	}
 
-	void median_filter( const vector<float> &scalar_value, vector<float> &scalar_value_filtered, int width, int height, int depth) 
+	// The bandwagon effect filter (The term is my invention ^_^)
+	// For each member, if more than a half of my neighbors belong to a group, I will join the group too
+	void bandwagon_effect_filter(const int k, const unsigned char * label_ptr_before, unsigned char *& label_ptr_after, const int width, const int height, const int depth)
+	{
+		const int N = 7;
+		const int dx[N] = {0, -1, 1, 0, 0, 0, 0};
+		const int dy[N] = {0, 0, 0, -1, 1, 0, 0};
+		const int dz[N] = {0, 0, 0, 0, 0, -1, 1};
+		vector<float> sorting(7);
+		int *counter = new int[k];
+
+#ifdef _DEBUG_OUTPUT
+		ofstream f("d:\\Bandwagon_effect_neighbour_filter_before.txt", ios::out);
+		ofstream f2("d:\\Bandwagon_effect_neighbour_filter_after.txt", ios::out);
+#endif
+
+		for (int i=0; i<width; i++)
+		{
+			for (int j=0; j<height; j++)
+			{
+				for (int k=0; k<depth; k++)
+				{
+					int index = (i * width + j) * height + k;
+					if (i==0 || i==width-1 || j==0 || j==height-1 || k==0 || k==depth-1)
+					{
+						label_ptr_after[index] = label_ptr_before[index];
+					}else
+					{
+						int label_max = -1;
+						memset(counter, 0, sizeof(int)*k);
+
+						// the bandwagon effect filter
+						for (int ii=0; ii<N; ii++)
+						{
+							int label = label_ptr_before[((i + dx[ii]) * width + j + dy[ii]) * height + k + dz[ii]]; 
+							counter[label]++;
+							if (label_max == -1)
+							{
+								label_max = label;
+							}else
+							{
+								if (counter[label] > counter[label_max])
+								{
+									label_max = label;
+								}
+							}
+						}
+						label_ptr_after[index] = (counter[label_max] >= N / 2) ? label_max : label_ptr_before[index];
+					}
+
+#ifdef _DEBUG_OUTPUT
+					f<<label_ptr_before[index]<<" ";
+					f2<<label_ptr_after[index]<<" ";
+#endif
+
+				}
+			}
+		}
+		delete[] counter;
+	}
+
+	void median_filter(const vector<float> &scalar_value_before, vector<float> &scalar_value, const int width, const int height, const int depth) 
 	{
 		const int N = 7;
 		const int dx[N] = {0, -1, 1, 0, 0, 0, 0};
@@ -45,21 +106,21 @@ namespace volume_utility
 					int index = (i * width + j) * height + k;
 					if (i==0 || i==width-1 || j==0 || j==height-1 || k==0 || k==depth-1)
 					{
-						scalar_value_filtered[index] = scalar_value[index];
+						scalar_value[index] = scalar_value_before[index];
 					}else
 					{
 						// median filter
 						for (int ii=0; ii<N; ii++)
 						{
-							sorting[ii] = scalar_value[((i + dx[ii]) * width + j + dy[ii]) * height + k + dz[ii]];
+							sorting[ii] = scalar_value_before[((i + dx[ii]) * width + j + dy[ii]) * height + k + dz[ii]];
 						}
 						partial_sort(sorting.begin(), sorting.begin() + (N + 1) / 2, sorting.end());
-						scalar_value_filtered[index] = sorting[N / 2];
+						scalar_value[index] = sorting[N / 2];
 					}
 
 #ifdef _DEBUG_OUTPUT
-					f<<ios::hex<<scalar_value[index]<<" ";
-					f2<<ios::hex<<scalar_value_filtered[index]<<" ";
+					f<<ios::hex<<scalar_value_before[index]<<" ";
+					f2<<ios::hex<<scalar_value[index]<<" ";
 #endif
 
 				}
@@ -78,16 +139,22 @@ namespace volume_utility
 		vector<float> second_derivative_magnitude(count);
 		float max_gradient_magnitude, max_second_derivative_magnitude;
 
+		//// median filter
+		//vector<float> scalar_value_before(count);
+		//generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value_before);
+		//median_filter(scalar_value_before, scalar_value, width, height, depth);
+
 		generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
-
-		// median filter
-		vector<float> scalar_value_filtered(count);
-		median_filter(scalar_value, scalar_value_filtered, width, height, depth);
-
-		generate_gradient(sizes, count, components, scalar_value_filtered, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
+		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
+		unsigned char *label_ptr_before = new unsigned char[count];
 
 		// call the clustering routine
-		K_Means_PP_DIY::k_means(count, scalar_value_filtered, gradient_magnitude, second_derivative_magnitude, k, label_ptr);
+		K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
+
+		// the bandwagon effect filter
+		bandwagon_effect_filter(k, label_ptr_before, label_ptr, width, height, depth);
+
+		delete[] label_ptr_before;
 	}
 
 	// calculate scalar histogram
@@ -204,4 +271,4 @@ namespace volume_utility
 	}
 }
 
-#endif // CALCULATION_H
+#endif // volume_utility_h
