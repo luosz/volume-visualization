@@ -1286,7 +1286,7 @@ int main(int argc, char* argv[])
 	}
 
 	char str[STR_BUFFER_SIZE];
-	sprintf(str, "GPU raycasting    file: %s", volume_filename);
+	sprintf(str, "GPU raycasting - %s", volume_filename);
 	glutCreateWindow(str);
 	glutReshapeWindow(WINDOW_SIZE,WINDOW_SIZE);
 
