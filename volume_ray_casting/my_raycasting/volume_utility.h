@@ -200,7 +200,7 @@ namespace volume_utility
 		std::cout<<"Shifting labels..."<<std::endl;
 		shift_labels(k, count, label_ptr);
 
-		std::cout<<"The k_means routine is done."<<std::endl;
+		std::cout<<"The k_means routine is done."<<std::endl<<std::endl;
 	}
 
 	// calculate scalar histogram

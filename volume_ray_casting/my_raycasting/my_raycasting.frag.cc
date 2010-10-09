@@ -629,7 +629,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					{
 						// peel the back
 						// classification peeling, peel cluster layers
-						if(detect_boundary_multisample_9(norm_dir, ray))
+						if(detect_boundary_multisample_5(norm_dir, ray))
 						{
 							if (peeling_counter < peeling_layer)
 							{
@@ -645,7 +645,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						{
 							// peel the front
 							// classification peeling, peel cluster layers
-							if(detect_boundary_multisample_9(norm_dir, ray))
+							if(detect_boundary_multisample_5(norm_dir, ray))
 							{
 								if (peeling_counter < peeling_layer)
 								{
