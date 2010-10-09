@@ -151,6 +151,9 @@ float threshold_high = 0.3;
 const float OPACITY_THRESHOLD_MAX = 1;
 const float OPACITY_THRESHOLD_MIN = 0.01;
 const float OPACITY_THRESHOLD_INC = 0.01;
+const float GRADIENT_THRESHOLD_MAX = 100;
+const float GRADIENT_THRESHOLD_MIN = 0;
+const float GRADIENT_THRESHOLD_INC = 1;
 GLuint loc_threshold_high;
 GLuint loc_threshold_low;
 GLuint loc_peeling_option;
@@ -244,8 +247,21 @@ void doUI()
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
 			break;
+		case PEELING_GRADIENT:
+			// if(accumulated>high && sampled<low)
+			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
+			ui.doLabel(none, str);
+			ui.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_low);
+			ui.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_high);
+			break;
+		}
+		switch(peeling_option)
+		{
+		case PEELING_OPACITY:
+		case PEELING_FEATURE:
 		case PEELING_BACK:
 		case PEELING_FRONT:
+		case PEELING_GRADIENT:
 			sprintf(str, "peeling_layer: %f", peeling_layer);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
@@ -944,28 +960,63 @@ void process_keys()
 			clip = decrease(clip, CLIP_INC, CLIP_MIN);
 			break;
 		case 'h':
-			if (peeling_option == PEELING_OPACITY)
+			switch(peeling_option)
 			{
+			case PEELING_OPACITY:
 				threshold_low = decrease(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
+				break;
+			case PEELING_GRADIENT:
+				threshold_low = decrease(threshold_low, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MIN);
+				break;
+			case PEELING_FEATURE:
+				slope_threshold = decrease(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MIN);
+				break;
 			}
 			break;
 		case 'j':
-			if (peeling_option == PEELING_OPACITY)
+			switch(peeling_option)
 			{
+			case PEELING_OPACITY:
 				threshold_low = increase(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
+				break;
+			case PEELING_GRADIENT:
+				threshold_low = increase(threshold_low, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MAX);
+				break;
+			case PEELING_FEATURE:
+				slope_threshold = increase(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MAX);
+				break;
+			}
+			break;
+		case 'n':
+			switch(peeling_option)
+			{
+			case PEELING_OPACITY:
+				threshold_high = decrease(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
+				break;
+			case PEELING_GRADIENT:
+				threshold_high = decrease(threshold_high, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MIN);
+				break;
+			}
+			break;
+		case 'm':
+			switch(peeling_option)
+			{
+			case PEELING_OPACITY:
+				threshold_high = increase(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
+				break;
+			case PEELING_GRADIENT:
+				threshold_high = increase(threshold_high, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MAX);
+				break;
 			}
 			break;
 		case 'k':
 			switch(peeling_option)
 			{
 			case PEELING_OPACITY:
-				threshold_high = decrease(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
-				break;
 			case PEELING_FEATURE:
-				slope_threshold = decrease(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MIN);
-				break;
 			case PEELING_BACK:
 			case PEELING_FRONT:
+			case PEELING_GRADIENT:
 				peeling_layer = decrease(peeling_layer, LAYER_INC, LAYER_MIN);
 				break;
 			}
@@ -974,13 +1025,10 @@ void process_keys()
 			switch(peeling_option)
 			{
 			case PEELING_OPACITY:
-				threshold_high = increase(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
-				break;
 			case PEELING_FEATURE:
-				slope_threshold = increase(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MAX);
-				break;
 			case PEELING_BACK:
 			case PEELING_FRONT:
+			case PEELING_GRADIENT:
 				peeling_layer = increase(peeling_layer, LAYER_INC, LAYER_MAX);
 				break;
 			}
