@@ -425,99 +425,112 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		length_acc += delta_dir_len;
 		if(length_acc > clip)
 		{
-			if(transfer_function_option == 1)
+			// transfer functions
+			switch(transfer_function_option)
 			{
+			case 0:
+				// Raw scalar values without a transfer function
+				color_sample = texture3D(volume, ray);
+				break;
+			case 1:
 				// Simple 2D transfer function
 				c = texture3D(volume, ray);
 				c.rgb = equalize(c.rgb);
 				color_sample
-					= mask.xxxy * texture2D(transfer_function_2D, c.xw)
-					+ mask.yyyx * sum3(c.rgb);
-			}else
-			{
-				if(transfer_function_option == 2)
-				{
-					// Ben transfer function
-					color_sample = texture3D(transfer_texture, ray);
-				}
-				else
-				{
-					if(transfer_function_option == 3)
-					{
-						// Directional derivatives as RGB
-						color_sample
-							= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
-							+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
-							+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
-							+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
-					}else
-					{
-						if(transfer_function_option == 4)
-						{
-							c = texture3D(volume, ray);
-							c2 = c * 2.0;
-							second_derivative
-								= mask.xwww * abs(texture3D(volume, ray+d2.xww) - c2 + texture3D(volume, ray-d2.xww))
-								+ mask.wxww * abs(texture3D(volume, ray+d2.wyw) - c2 + texture3D(volume, ray-d2.wyw))
-								+ mask.wwxw * abs(texture3D(volume, ray+d2.wwz) - c2 + texture3D(volume, ray-d2.wwz));
-							second_derivative_magnitude = max(length(second_derivative), 1e-6);
-							color_sample
-								= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
-								+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
-								+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
-								+ mask.wwwx * sum3(equalize(c.rgb)) / second_derivative_magnitude;
-						}else
-						{
-							if(transfer_function_option == 5)
-							{
-								// Sobel operator
-								vec4 c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
-									+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
-									+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
-									+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
-									+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
+					= mask.xxxw * texture2D(transfer_function_2D, c.xw)
+					+ mask.wwwx * sum3(c.rgb);
+				break;
+			case 2:
+				// Ben transfer function
+				color_sample = texture3D(transfer_texture, ray);
+				break;
+			case 3:
+				// Directional derivatives as RGB
+				color_sample
+					= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
+					+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
+					+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
+					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
+				break;
+			case 4:
+				c = texture3D(volume, ray);
+				c2 = c * 2.0;
+				second_derivative
+					= mask.xwww * abs(texture3D(volume, ray+d2.xww) - c2 + texture3D(volume, ray-d2.xww))
+					+ mask.wxww * abs(texture3D(volume, ray+d2.wyw) - c2 + texture3D(volume, ray-d2.wyw))
+					+ mask.wwxw * abs(texture3D(volume, ray+d2.wwz) - c2 + texture3D(volume, ray-d2.wwz));
+				second_derivative_magnitude = max(length(second_derivative), 1e-6);
+				color_sample
+					= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
+					+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
+					+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
+					+ mask.wwwx * sum3(equalize(c.rgb)) / second_derivative_magnitude;
+				break;
+			case 5:
+				// Sobel operator
+				vec4 c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+					+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
+					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
+					+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
+					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
 
-								vec4 c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
-									+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
-									+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
-									+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
-									+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
+				vec4 c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+					+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
+					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
+					+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
+					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
 
-								vec4 c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
-									+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
-									+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
-									+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
-									+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
+				vec4 c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+					+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
+					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
+					+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
+					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
 
-								color_sample
-									= mask.xwww * c_x
-									+ mask.wxww * c_y
-									+ mask.wwxw * c_z
-									+ mask.wwwx * (c_x.x + c_y.y + c_z.z);
-							}else
-							{
-								if(transfer_function_option == 6)
-								{
-									// k-means
-									color_sample = texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw);
-								}else
-								{
-									if(transfer_function_option == 7)
-									{
-										// Equalized k-means
-										color_sample
-											= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
-											+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
-									}else
-									{
-										// Raw scalar values without a transfer function
-										color_sample = texture3D(volume, ray);
-									}
-								}
-							}
-						}
-					}
-				}
+				color_sample
+					= mask.xwww * c_x
+					+ mask.wxww * c_y
+					+ mask.wwxw * c_z
+					+ mask.wwwx * (c_x.x + c_y.y + c_z.z);
+				break;
+			case 6:
+				// Sobel equalized
+				c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+					+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
+					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
+					+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
+					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
+
+				c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+					+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
+					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
+					+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
+					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
+
+				c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+					+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
+					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
+					+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
+					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
+
+				color_sample
+					= mask.xwww * c_x
+					+ mask.wxww * c_y
+					+ mask.wwxw * c_z
+					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
+				break;
+			case 7:
+				// k-means
+				color_sample = texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw);
+				break;
+			case 8:
+				// k-means equalized
+				color_sample
+					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
+					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
+				break;
+			default:
+				// Raw scalar values without a transfer function
+				color_sample = texture3D(volume, ray);
 			}
 
 			// color blending
@@ -575,7 +588,6 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			{
 				if(peeling_option == 2)
 				{
-					//////////////////////////////////////////////////////////////////////////
 					// feature peeling
 					current_value = filter_and_equalize(ray);
 					next_value = filter_and_equalize(ray + delta_dir);
@@ -615,14 +627,12 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 							state = 0;
 						}
 					}
-
 				}else
 				{
 					if(peeling_option == 3)
 					{
 						// peel the back
-						//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
-						//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
+						// classification peeling, peel cluster layers
 						if(detect_boundary_multisample_9(norm_dir, ray))
 						{
 							if (peeling_counter < peeling_layer)
@@ -639,8 +649,6 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						{
 							// peel the front
 							// classification peeling, peel cluster layers
-							//if(0.5 < abs(to_cluster_number(texture3D(cluster_texture, ray + delta_dir).x)
-							//	- to_cluster_number(texture3D(cluster_texture, ray - delta_dir).x)))
 							if(detect_boundary_multisample_9(norm_dir, ray))
 							{
 								if (peeling_counter < peeling_layer)
@@ -658,49 +666,13 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 								{
 									counter1++;
 								}
-								// feature peeling
-								//current_value = fill_and_equalize(ray);
-								//next_value = fill_and_equalize(ray + delta_dir);
-								//slope = get_slope(current_value, next_value);
-
-								//if (slope > 0.0 && state == 0)
-								//{
-								//	state = 1;
-								//	local_min = ray;
-								//}else
-								//{
-								//	if (slope < 0.0 && state == 1)
-								//	{
-								//		local_max = ray;
-								//		slope = get_slope(fill_and_equalize(local_min), current_value);
-								//		if (slope > slope_threshold)
-								//		{
-								//			//importance = get_importance_value(local_min);
-								//			//if (importance > peeling_threshold)
-								//			//{
-								//			//	if (peeling_counter == peeling_layer)
-								//			//	{
-								//			//		break;
-								//			//	}else
-								//			//	{
-								//			//		peeling_counter++;
-								//			//	}
-								//			//}
-								//			counter2++;
-								//		}
-								//		state = 0;
-								//	}
-								//}
-								//if(detect_boundary_multisample_9(norm_dir, ray))
-								//{
-								//	counter3++;
-								//}
 							}
 						}
 					}
 				}
 			}
-		}
+
+		} // if(length_acc > clip)
 
 		ray += delta_dir;
 		if(length_acc >= len || col_acc.a >= 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
