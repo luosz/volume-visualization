@@ -193,24 +193,10 @@ public:
 		centroids = centroids_new = NULL;
 		centroids_quantity = NULL;
 		
-		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
-
 #ifdef _DEBUG_OUTPUT
-		cout<<"shift="<<shift<<endl;
-		ofstream f("d:\\K_Means_PP_DIY.txt", ios::out);
-#endif
-		for (unsigned int i=0; i<count; i++)
-		{
-#ifdef _DEBUG_OUTPUT
-			f<<static_cast<int>(label_ptr[i]);
-#endif
-			label_ptr[i] = label_ptr[i] << shift;
-		}
-
-#ifdef _DEBUG_OUTPUT
-		f<<endl;
 		cout<<"loop count:"<<loop_count<<endl;
 #endif
+
 	}
 };
 

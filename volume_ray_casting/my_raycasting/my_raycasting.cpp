@@ -615,7 +615,7 @@ void create_volumetexture_a_cube()
 void create_transferfunc_Ben()
 {
 	VolumeReader Volume;
-	Volume.readVolume_Ben(volume_filename);
+	Volume.readVolume(volume_filename);
 	Volume.calHistogram();
 	Volume.calGrad_ex();
 	Volume.calDf2();

@@ -20,10 +20,9 @@ public:
 		Scalar cost = RunKMeansPlusPlus(n, k, d, points, 1, NULL, assignments);
 		delete [] points;
 
-		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
 		for (unsigned int i=0; i<count; i++)
 		{
-			label_ptr[i] = static_cast<unsigned char>(assignments[i]) << shift;
+			label_ptr[i] = static_cast<unsigned char>(assignments[i]);
 		}
 	}
 };

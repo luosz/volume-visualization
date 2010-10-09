@@ -5,7 +5,9 @@
 #include <algorithm>
 //#include <functional>      // For greater<int>( )
 
-//#define _DEBUG_OUTPUT
+#ifdef _DEBUG
+#define _DEBUG_OUTPUT
+#endif
 
 #include "K_Means.h"
 #include "K_Means_PP_DIY.h"
@@ -25,17 +27,18 @@ namespace volume_utility
 
 	// The bandwagon effect filter (The term is my invention ^_^)
 	// For each member, if more than a half of my neighbors belong to a group, I will join the group too
-	void bandwagon_effect_filter(const int k, const unsigned char * label_ptr_before, unsigned char *& label_ptr_after, const int width, const int height, const int depth)
+	void bandwagon_effect_filter(const int k_for_k_means, const unsigned char * label_ptr_before, unsigned char *& label_ptr_after, const int width, const int height, const int depth)
 	{
 		const int N = 7;
 		const int dx[N] = {0, -1, 1, 0, 0, 0, 0};
 		const int dy[N] = {0, 0, 0, -1, 1, 0, 0};
 		const int dz[N] = {0, 0, 0, 0, 0, -1, 1};
-		int *counter = new int[k];
+		int *counter = new int[k_for_k_means];
 
 #ifdef _DEBUG_OUTPUT
-		ofstream f("d:\\Bandwagon_effect_neighbour_filter_before.txt", ios::out);
-		ofstream f2("d:\\Bandwagon_effect_neighbour_filter_after.txt", ios::out);
+		ofstream f("d:\\Bandwagon_effect_filter_before.txt", ios::out);
+		ofstream f2("d:\\Bandwagon_effect_filter_after.txt", ios::out);
+		ofstream changes_log("d:\\Bandwagon_effect_filter_changes_log.txt", ios::out);
 #endif
 
 		for (int i=0; i<width; i++)
@@ -51,7 +54,7 @@ namespace volume_utility
 					}else
 					{
 						int label_max = -1;
-						memset(counter, 0, sizeof(int)*k);
+						memset(counter, 0, sizeof(int) * k_for_k_means);
 
 						// the bandwagon effect filter
 						for (int ii=0; ii<N; ii++)
@@ -70,11 +73,25 @@ namespace volume_utility
 							}
 						}
 						label_ptr_after[index] = (counter[label_max] >= N / 2) ? label_max : label_ptr_before[index];
+
+#ifdef _DEBUG_OUTPUT
+						if (label_ptr_before[index] != label_ptr_after[index])
+						{
+							changes_log<<"i,j,k="<<i<<","<<j<<","<<k<<"\tindex="<<index<<std::endl;
+							changes_log<<"counter:\t";
+							for (int ii=0; ii<k_for_k_means; ii++)
+							{
+								changes_log<<counter[ii]<<" ";
+							}
+							changes_log<<endl;
+							changes_log<<"label_ptr_before[index]="<<(int)label_ptr_before[index]<<"\tlabel_ptr_after[index]="<<(int)label_ptr_after[index]<<std::endl;						}
+#endif
+
 					}
 
 #ifdef _DEBUG_OUTPUT
-					f<<label_ptr_before[index]<<" ";
-					f2<<label_ptr_after[index]<<" ";
+					f<<ios::hex<<(int)label_ptr_before[index]<<" ";
+					f2<<ios::hex<<(int)label_ptr_after[index]<<" ";
 #endif
 
 				}
@@ -127,6 +144,26 @@ namespace volume_utility
 		}
 	}
 
+	void shift_labels(const int k, const unsigned int count, unsigned char *& label_ptr)
+	{
+		int shift = static_cast<int>(std::log(256.0 / k) / std::log(2.0));
+
+#ifdef _DEBUG_OUTPUT
+		std::cout<<"label shift="<<shift<<std::endl;
+		ofstream f("d:\\K_Means_debug_output.txt", ios::out);
+		for (unsigned int i=0; i<count; i++)
+		{
+			f<<static_cast<int>(label_ptr[i]);
+		}
+		f<<endl;
+#endif
+
+		for (unsigned int i=0; i<count; i++)
+		{
+			label_ptr[i] = label_ptr[i] << shift;
+		}
+	}
+
 	template <class T, int TYPE_SIZE>
 	void k_means(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr, int width, int height, int depth)
 	{
@@ -158,8 +195,10 @@ namespace volume_utility
 		// the bandwagon effect filter
 		std::cout<<"The bandwagon effect filter..."<<std::endl;
 		bandwagon_effect_filter(k, label_ptr_before, label_ptr, width, height, depth);
-
 		delete[] label_ptr_before;
+
+		std::cout<<"Shifting labels..."<<std::endl;
+		shift_labels(k, count, label_ptr);
 
 		std::cout<<"The k_means routine is done."<<std::endl;
 	}
