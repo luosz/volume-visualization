@@ -412,13 +412,19 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	//bool cluster_limit_reached = false;
 	int peeling_counter = 0;
 
-	// for peeling counting
-	int counter1 = 0, counter2 = 0, counter3 = 0;
+	//// for peeling counting
+	//int counter1 = 0, counter2 = 0, counter3 = 0;
+
+	// for gradient peeling
+	vec3 gradient_acc = vec3(0, 0, 0);
 
 	// for feature peeling
 	int state = 0;
 	float slope;//, peeling_threshold, importance;	
 	vec3 local_min, local_max, current_value, next_value;
+
+	// for Sobel operator
+	vec4 c_x, c_y, c_z;
 
 	for(int i = 0; i < sample_number; i++)
 	{
@@ -468,19 +474,19 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				break;
 			case 5:
 				// Sobel operator
-				vec4 c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+				c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
 					+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
 					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
 					+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
 					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
 
-				vec4 c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+				c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
 					+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
 					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
 					+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
 					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
 
-				vec4 c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+				c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
 					+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
 					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
 					+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
@@ -662,9 +668,48 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 						{
 							if (peeling_option == 5)
 							{
-								if(average(col_acc) > threshold_high && average(color_sample) < threshold_low)
+								// graident peeling
+								if (transfer_function_option != 5 && transfer_function_option != 6)
 								{
-									counter1++;
+									c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+										+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
+										+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
+										+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
+										+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
+
+									c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+										+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
+										+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
+										+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
+										+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
+
+									c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+										+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
+										+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
+										+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
+										+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
+								}
+
+								vec4 gradient_sample
+									= mask.xwww * c_x
+									+ mask.wxww * c_y
+									+ mask.wwxw * c_z;
+								gradient_acc += abs(gradient_sample).xyz;
+
+								// opacity peeling
+								//if(!threshold_reached && isReacheThreshold(col_acc, color_sample))
+								//threshold_reached = true;
+								if(length(gradient_acc) > threshold_high && length(gradient_sample.xyz) < threshold_low)
+								{
+									if (peeling_counter == peeling_layer)
+									{
+										break;
+									}else
+									{
+										col_acc = vec4(0,0,0,0);
+										//alpha_acc = 0;
+										peeling_counter++;
+									}
 								}
 							}
 						}
@@ -678,11 +723,11 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		if(length_acc >= len || col_acc.a >= 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
 	}
 
-	if (peeling_option == 5)
-	{
-		vec3 counter = vec3(counter1, counter2, counter3);
-		col_acc.rgb = counter / 512.0;
-	}
+	//if (peeling_option == 5)
+	//{
+	//	vec3 counter = vec3(counter1, counter2, counter3);
+	//	col_acc.rgb = counter / 512.0;
+	//}
 	//col_acc.a = alpha_acc;
 	col_acc.rgb *= luminance;
 	//for (int i=0; i<3; i++)
