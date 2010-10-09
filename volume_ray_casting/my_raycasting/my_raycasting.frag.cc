@@ -24,6 +24,7 @@ uniform float scalar_min_normalized, scalar_max_normalized;
 
 // histogram equalization
 float scalar_max_min = scalar_max_normalized - scalar_min_normalized;
+
 vec3 equalize(vec3 v)
 {
 	return (v - scalar_min_normalized) / scalar_max_min;
@@ -283,12 +284,6 @@ bool detect_boundary_multisample_5(vec3 v1, vec3 p)
 	vec3 p3 = p + delta_v3;
 	vec3 p4 = p - delta_v3;
 
-	//// diagonal neighbors
-	//vec3 p5 = p + delta_v2 + delta_v3;
-	//vec3 p6 = p - delta_v2 - delta_v3;
-	//vec3 p7 = p + delta_v2 - delta_v3;
-	//vec3 p8 = p - delta_v2 + delta_v3;
-
 	// how many pairs belong to different clusters
 	const float one = 1.0 - epsilon;
 	count
@@ -297,10 +292,6 @@ bool detect_boundary_multisample_5(vec3 v1, vec3 p)
 		+ (is_in_the_same_cluster(texture3D(cluster_texture, p2 + delta_v1).x, texture3D(cluster_texture, p2 - delta_v1).x) ? 1 : 0)
 		+ (is_in_the_same_cluster(texture3D(cluster_texture, p3 + delta_v1).x, texture3D(cluster_texture, p3 - delta_v1).x) ? 1 : 0)
 		+ (is_in_the_same_cluster(texture3D(cluster_texture, p4 + delta_v1).x, texture3D(cluster_texture, p4 - delta_v1).x) ? 1 : 0);
-		//+ (is_in_the_same_cluster(texture3D(cluster_texture, p5 + delta_v1).x, texture3D(cluster_texture, p5 - delta_v1).x) ? 1 : 0)
-		//+ (is_in_the_same_cluster(texture3D(cluster_texture, p6 + delta_v1).x, texture3D(cluster_texture, p6 - delta_v1).x) ? 1 : 0)
-		//+ (is_in_the_same_cluster(texture3D(cluster_texture, p7 + delta_v1).x, texture3D(cluster_texture, p7 - delta_v1).x) ? 1 : 0)
-		//+ (is_in_the_same_cluster(texture3D(cluster_texture, p8 + delta_v1).x, texture3D(cluster_texture, p8 - delta_v1).x) ? 1 : 0);
 
 	// It is a boundary if more than a half pairs belong to different clusters
 	return count >= 3;
@@ -586,7 +577,6 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					}else
 					{
 						col_acc = vec4(0,0,0,0);
-						//alpha_acc = 0;
 						peeling_counter++;
 					}
 				}
@@ -660,7 +650,6 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 								if (peeling_counter < peeling_layer)
 								{
 									col_acc = vec4(0,0,0,0);
-									//alpha_acc = 0;
 									peeling_counter++;
 								}
 							}
@@ -707,7 +696,6 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 									}else
 									{
 										col_acc = vec4(0,0,0,0);
-										//alpha_acc = 0;
 										peeling_counter++;
 									}
 								}
@@ -723,17 +711,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		if(length_acc >= len || col_acc.a >= 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
 	}
 
-	//if (peeling_option == 5)
-	//{
-	//	vec3 counter = vec3(counter1, counter2, counter3);
-	//	col_acc.rgb = counter / 512.0;
-	//}
-	//col_acc.a = alpha_acc;
 	col_acc.rgb *= luminance;
-	//for (int i=0; i<3; i++)
-	//{
-	//	col_acc[i] *= luminance;
-	//}
 	return col_acc;
 }
 
