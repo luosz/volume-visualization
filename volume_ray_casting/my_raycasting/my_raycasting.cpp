@@ -142,7 +142,7 @@ enum PeelingOption
 	PEELING_FEATURE,
 	PEELING_BACK,
 	PEELING_FRONT,
-	PEELING_LAYER_COUNT,
+	PEELING_GRADIENT,
 	PEELING_COUNT
 };
 int peeling_option = 0;
@@ -195,7 +195,7 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front", "Layer count"};
+	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front", "Gradient"};
 	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel equalized", "K-means++", "K-means++ equalized"};
 
 	glDisable(GL_CULL_FACE);
@@ -229,31 +229,30 @@ void doUI()
 		nv::Rect rect_slider(0,0,600,0);
 		ui.doHorizontalSlider(rect_slider, STEPSIZE_MIN, STEPSIZE_MAX, &stepsize);
 
-		if (peeling_option == PEELING_OPACITY)
+		// show peeling widgets
+		switch(peeling_option)
 		{
+		case PEELING_OPACITY:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_low);
 			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_high);
-		}else
-		{
-			if (peeling_option == PEELING_FEATURE)
-			{
-				sprintf(str, "slope threshold: %f", slope_threshold);
-				ui.doLabel(none, str);
-				ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
-			}else
-			{
-				if (peeling_option == PEELING_BACK || peeling_option == PEELING_FRONT)
-				{
-					sprintf(str, "peeling_layer: %f", peeling_layer);
-					ui.doLabel(none, str);
-					ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
-				}
-			}
+			break;
+		case PEELING_FEATURE:
+			sprintf(str, "slope threshold: %f", slope_threshold);
+			ui.doLabel(none, str);
+			ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
+			break;
+		case PEELING_BACK:
+		case PEELING_FRONT:
+			sprintf(str, "peeling_layer: %f", peeling_layer);
+			ui.doLabel(none, str);
+			ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
+			break;
 		}
 
+		// show transfer function widgets
 		if (transfer_function_option == TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
 		{
 			sprintf(str, "k-means k=%f", cluster_quantity);
