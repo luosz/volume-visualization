@@ -89,12 +89,12 @@ void print_about(int argc, char* argv[])
 {
 	char about[STR_BUFFER_SIZE * 4] = 
 "//////////////////////////////////////////////////////////////////////////\n\
-GPU raycasting demo \n\
-Copyright (c) 2010 Luo Shengzhou, Shenzhen Institute of Advanced Technology, Chinese Academy of Sciences. \n\
+GPU raycasting demo\n\
+Copyright (c) 2010 Shengzhou Luo, Shenzhen Institute of Advanced Technology, Chinese Academy of Sciences.\n\
 \n\
-Usage: \n\
-%s [source] \n\
-source - File to load. \n\
+Usage:\n\
+%s [source]\n\
+source - File to load.\n\
 //////////////////////////////////////////////////////////////////////////\n\n";
 	const char *p = get_file_path_separator_position(argv[0]);
 	if (NULL == p)
