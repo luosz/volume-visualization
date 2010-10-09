@@ -145,15 +145,23 @@ enum PeelingOption
 	PEELING_GRADIENT,
 	PEELING_COUNT
 };
+
 int peeling_option = 0;
 float threshold_low = 0.3;
-float threshold_high = 0.3;
+float threshold_high = 0;
+
 const float OPACITY_THRESHOLD_MAX = 1;
 const float OPACITY_THRESHOLD_MIN = 0.01;
 const float OPACITY_THRESHOLD_INC = 0.01;
+
 const float GRADIENT_THRESHOLD_MAX = 100;
 const float GRADIENT_THRESHOLD_MIN = 0;
 const float GRADIENT_THRESHOLD_INC = 1;
+
+const float GRADIENT_SAMPLE_THRESHOLD_MAX = 5;
+const float GRADIENT_SAMPLE_THRESHOLD_MIN = 0;
+const float GRADIENT_SAMPLE_THRESHOLD_INC = 0.05;
+
 GLuint loc_threshold_high;
 GLuint loc_threshold_low;
 GLuint loc_peeling_option;
@@ -198,7 +206,7 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front", "Gradient"};
+	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling"};
 	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel equalized", "K-means++", "K-means++ equalized"};
 
 	glDisable(GL_CULL_FACE);
@@ -966,7 +974,7 @@ void process_keys()
 				threshold_low = decrease(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
 				break;
 			case PEELING_GRADIENT:
-				threshold_low = decrease(threshold_low, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MIN);
+				threshold_low = decrease(threshold_low, GRADIENT_SAMPLE_THRESHOLD_INC, GRADIENT_SAMPLE_THRESHOLD_MIN);
 				break;
 			case PEELING_FEATURE:
 				slope_threshold = decrease(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MIN);
@@ -980,7 +988,7 @@ void process_keys()
 				threshold_low = increase(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
 				break;
 			case PEELING_GRADIENT:
-				threshold_low = increase(threshold_low, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MAX);
+				threshold_low = increase(threshold_low, GRADIENT_SAMPLE_THRESHOLD_INC, GRADIENT_SAMPLE_THRESHOLD_MAX);
 				break;
 			case PEELING_FEATURE:
 				slope_threshold = increase(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MAX);
