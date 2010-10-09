@@ -163,7 +163,8 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_3D,
 	TRANSFER_FUNCTION_GRADIENTS_AS_COLORS,
 	TRANSFER_FUNCTION_2ND_DERIVATIVE,
-	TRANSFER_FUNCTION_SOBEL_OPERATOR,
+	TRANSFER_FUNCTION_SOBEL,
+	TRANSFER_FUNCTION_SOBEL_EQUALIZED,
 	TRANSFER_FUNCTION_K_MEANS,
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED,
 	TRANSFER_FUNCTION_COUNT
@@ -195,7 +196,7 @@ void doUI()
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
 	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity", "Feature", "Peel back", "Peel front", "Layer count"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel operator", "K-means++", "K-means++ equalized"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel equalized", "K-means++", "K-means++ equalized"};
 
 	glDisable(GL_CULL_FACE);
 

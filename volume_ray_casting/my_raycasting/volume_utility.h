@@ -31,7 +31,6 @@ namespace volume_utility
 		const int dx[N] = {0, -1, 1, 0, 0, 0, 0};
 		const int dy[N] = {0, 0, 0, -1, 1, 0, 0};
 		const int dz[N] = {0, 0, 0, 0, 0, -1, 1};
-		vector<float> sorting(7);
 		int *counter = new int[k];
 
 #ifdef _DEBUG_OUTPUT
