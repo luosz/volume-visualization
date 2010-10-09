@@ -143,23 +143,25 @@ namespace volume_utility
 		//generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value_before);
 		//median_filter(scalar_value_before, scalar_value, width, height, depth);
 
-		std::cout<<"Scalar histogram"<<std::endl;
+		std::cout<<"Scalar histogram..."<<std::endl;
 		generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
 
-		std::cout<<"Gradients and second derivatives"<<std::endl;
+		std::cout<<"Gradients and second derivatives..."<<std::endl;
 		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
 		unsigned char *label_ptr_before = new unsigned char[count];
 
 		// call the clustering routine
-		std::cout<<"K-means++"<<std::endl;
+		std::cout<<"K-means++..."<<std::endl;
 		K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
 
 		// the bandwagon effect filter
-		std::cout<<"The bandwagon effect filter"<<std::endl;
+		std::cout<<"The bandwagon effect filter..."<<std::endl;
 		bandwagon_effect_filter(k, label_ptr_before, label_ptr, width, height, depth);
 
 		delete[] label_ptr_before;
+
+		std::cout<<"The k_means routine is done."<<std::endl;
 	}
 
 	// calculate scalar histogram
