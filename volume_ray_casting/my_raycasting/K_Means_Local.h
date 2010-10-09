@@ -51,13 +51,11 @@ public:
 		double* sqDist = new double[dataPts.getNPts()];
 		ctrs.getAssignments(closeCtr, sqDist);
 
-		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
-		ofstream f("d:\\K_Means_Local.txt", ios::out);
 		for (int i=0; i<dataPts.getNPts(); i++)
 		{
-			label_ptr[i] = static_cast<unsigned char>(closeCtr[i]) << shift;
-			f<<closeCtr[i];
+			label_ptr[i] = static_cast<unsigned char>(closeCtr[i]);
 		}
+
 		delete [] closeCtr;
 		delete [] sqDist;
 	}

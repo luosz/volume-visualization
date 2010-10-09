@@ -25,7 +25,10 @@ public:
 
 		vector<int> labels(count);
 		vector<nv::vec3f> centroids(k);
+
+#ifdef _DEBUG_OUTPUT
 		ofstream fc("D:\\centroids.txt", ios::out);
+#endif
 
 		// Make initial guesses for the means m1, m2, ..., mk
 		// Seed the random-number generator with the current time so that
@@ -34,9 +37,16 @@ public:
 		for (int i=0; i<k; i++)
 		{
 			centroids[i] = points[rand() % count];
+
+#ifdef _DEBUG_OUTPUT
 			fc<<centroids[i].x<<","<<centroids[i].y<<","<<centroids[i].z<<"    ";
+#endif
+
 		}
+
+#ifdef _DEBUG_OUTPUT
 		fc<<endl;
+#endif
 
 		const float epsilon = numeric_limits<float>::epsilon() * 1e4; // const float epsilon = 0.001;
 		cout<<epsilon<<endl;
@@ -112,20 +122,18 @@ public:
 						centroids[i] = centroid_new;
 					}
 				}
+
+#ifdef _DEBUG_OUTPUT
 				fc<<centroids[i].x<<","<<centroids[i].y<<","<<centroids[i].z<<"    ";
+#endif
+
 			}
+
+#ifdef _DEBUG_OUTPUT
 			fc<<endl;
-		}
+#endif
 
-		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
-		ofstream f("d:\\K_Means.txt", ios::out);
-		for (unsigned int i=0; i<count; i++)
-		{
-			label_ptr[i] = static_cast<unsigned char>(labels[i]) << shift;
-			f<<labels[i];
 		}
-
-		//return loop_count;
 	}
 };
 

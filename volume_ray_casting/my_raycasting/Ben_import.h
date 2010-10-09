@@ -40,7 +40,7 @@ void setTransferfunc(color_opacity *& tf, volume & Volume)
 	//int x, y, z, index;
 	unsigned int index;
 	float temp1, temp2,temp3, temp4;
-	double d, g, df2, a, alpha;
+	double d, g, a, alpha; //, df2;
 	float range;
 	float H, S, L;
 	unsigned int dim_x = Volume.getX();

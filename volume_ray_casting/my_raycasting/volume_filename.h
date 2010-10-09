@@ -75,6 +75,16 @@ Bunny.raw	"184,832 KB"
 XMasTree.raw	"255,488 KB"
 ************************************************************************/
 
+const char *get_file_path_separator_position(const char *filename)
+{
+	const char *p = strrchr(filename, '\\');
+	if (NULL == p)
+	{
+		p = strrchr(filename, '/');
+	}
+	return p;
+}
+
 void print_about(int argc, char* argv[])
 {
 	char about[STR_BUFFER_SIZE * 4] = 
@@ -86,12 +96,14 @@ Usage: \n\
 %s [source] \n\
 source - File to load. \n\
 //////////////////////////////////////////////////////////////////////////\n\n";
-	char *p = strrchr(argv[0], '\\');
+	const char *p = get_file_path_separator_position(argv[0]);
 	if (NULL == p)
 	{
-		p = strrchr(argv[0], '/');
+		printf(about, argv[0]);
+	}else
+	{
+		printf(about, p + 1);
 	}
-	printf(about, p + 1);
 }
 
 #endif // volume_filename_h
