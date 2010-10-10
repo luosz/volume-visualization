@@ -939,7 +939,7 @@ inline float decrease(const float value, const float dec, const float min)
 }
 
 // for contiunes keypresses
-void process_keys()
+void key_hold()
 {
 	// Process keys
 	for (int i = 0; i < 256; i++)
@@ -1045,15 +1045,14 @@ void process_keys()
 	}
 }
 
-void key_press(unsigned char k, int x, int y)
+void key_press(unsigned char key, int x, int y)
 {
-	gKeys[k] = true;
+	gKeys[key] = true;
 }
 
 void key_release(unsigned char key, int x, int y)
 {
 	gKeys[key] = false;
-
 	switch (key)
 	{
 	case 27 :
@@ -1062,7 +1061,13 @@ void key_release(unsigned char key, int x, int y)
 		break; 
 	case 'i':
 		// image to render
-		render_option = (render_option + 1) % RENDER_COUNT;
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			render_option = (render_option - 1 + RENDER_COUNT) % RENDER_COUNT;
+		}else
+		{
+			render_option = (render_option + 1) % RENDER_COUNT;
+		}
 		break;
 	case 'u':
 		// turn UI on/off
@@ -1070,11 +1075,23 @@ void key_release(unsigned char key, int x, int y)
 		break;
 	case 't':
 		// transfer function
-		transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			transfer_function_option = (transfer_function_option - 1 + TRANSFER_FUNCTION_COUNT) % TRANSFER_FUNCTION_COUNT;
+		}else
+		{
+			transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
+		}
 		break;
 	case 'p':
 		// peeling
-		peeling_option = (peeling_option + 1) % PEELING_COUNT;
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			peeling_option = (peeling_option - 1 + PEELING_COUNT) % PEELING_COUNT;
+		}else
+		{
+			peeling_option = (peeling_option + 1) % PEELING_COUNT;
+		}
 		break;
 	}
 }
@@ -1088,7 +1105,7 @@ void idle_func()
 		manipulator.idle();
 	}
 
-	process_keys();
+	key_hold();
 	glutPostRedisplay();
 }
 
