@@ -70,6 +70,27 @@ const float LAYER_MAX = 100;
 const float LAYER_MIN = 0;
 const float LAYER_INC = 1;
 
+// for opacity peeling and gradient peeling
+int peeling_option = 0;
+float threshold_low = 0.3;
+float threshold_high = 0;
+
+const float OPACITY_THRESHOLD_MAX = 1;
+const float OPACITY_THRESHOLD_MIN = 0.01;
+const float OPACITY_THRESHOLD_INC = 0.01;
+
+const float GRADIENT_THRESHOLD_MAX = 50;
+const float GRADIENT_THRESHOLD_MIN = 0;
+const float GRADIENT_THRESHOLD_INC = 0.5;
+
+const float GRADIENT_SAMPLE_THRESHOLD_MAX = 5;
+const float GRADIENT_SAMPLE_THRESHOLD_MIN = 0;
+const float GRADIENT_SAMPLE_THRESHOLD_INC = 0.05;
+
+GLuint loc_threshold_high;
+GLuint loc_threshold_low;
+GLuint loc_peeling_option;
+
 // the parameter k for k-means
 float cluster_quantity = 8;
 int cluster_quantity_int_old = -1; // to be initialized
@@ -145,26 +166,6 @@ enum PeelingOption
 	PEELING_GRADIENT,
 	PEELING_COUNT
 };
-
-int peeling_option = 0;
-float threshold_low = 0.3;
-float threshold_high = 0;
-
-const float OPACITY_THRESHOLD_MAX = 1;
-const float OPACITY_THRESHOLD_MIN = 0.01;
-const float OPACITY_THRESHOLD_INC = 0.01;
-
-const float GRADIENT_THRESHOLD_MAX = 100;
-const float GRADIENT_THRESHOLD_MIN = 0;
-const float GRADIENT_THRESHOLD_INC = 1;
-
-const float GRADIENT_SAMPLE_THRESHOLD_MAX = 5;
-const float GRADIENT_SAMPLE_THRESHOLD_MIN = 0;
-const float GRADIENT_SAMPLE_THRESHOLD_INC = 0.05;
-
-GLuint loc_threshold_high;
-GLuint loc_threshold_low;
-GLuint loc_peeling_option;
 
 // for transfer function
 enum TransferFunctionOption
