@@ -70,6 +70,27 @@ const float LAYER_MAX = 100;
 const float LAYER_MIN = 0;
 const float LAYER_INC = 1;
 
+// for opacity peeling and gradient peeling
+int peeling_option = 0;
+float threshold_low = 0.3;
+float threshold_high = 0;
+
+const float OPACITY_THRESHOLD_MAX = 1;
+const float OPACITY_THRESHOLD_MIN = 0;
+const float OPACITY_THRESHOLD_INC = 0.01;
+
+const float GRADIENT_THRESHOLD_MAX = 50;
+const float GRADIENT_THRESHOLD_MIN = 0;
+const float GRADIENT_THRESHOLD_INC = 0.5;
+
+const float GRADIENT_SAMPLE_THRESHOLD_MAX = 5;
+const float GRADIENT_SAMPLE_THRESHOLD_MIN = 0;
+const float GRADIENT_SAMPLE_THRESHOLD_INC = 0.05;
+
+GLuint loc_threshold_high;
+GLuint loc_threshold_low;
+GLuint loc_peeling_option;
+
 // the parameter k for k-means
 float cluster_quantity = 8;
 int cluster_quantity_int_old = -1; // to be initialized
@@ -145,26 +166,6 @@ enum PeelingOption
 	PEELING_GRADIENT,
 	PEELING_COUNT
 };
-
-int peeling_option = 0;
-float threshold_low = 0.3;
-float threshold_high = 0;
-
-const float OPACITY_THRESHOLD_MAX = 1;
-const float OPACITY_THRESHOLD_MIN = 0;
-const float OPACITY_THRESHOLD_INC = 0.01;
-
-const float GRADIENT_THRESHOLD_MAX = 100;
-const float GRADIENT_THRESHOLD_MIN = 0;
-const float GRADIENT_THRESHOLD_INC = 1;
-
-const float GRADIENT_SAMPLE_THRESHOLD_MAX = 5;
-const float GRADIENT_SAMPLE_THRESHOLD_MIN = 0;
-const float GRADIENT_SAMPLE_THRESHOLD_INC = 0.05;
-
-GLuint loc_threshold_high;
-GLuint loc_threshold_low;
-GLuint loc_peeling_option;
 
 // for transfer function
 enum TransferFunctionOption
@@ -939,7 +940,7 @@ inline float decrease(const float value, const float dec, const float min)
 }
 
 // for contiunes keypresses
-void process_keys()
+void key_hold()
 {
 	// Process keys
 	for (int i = 0; i < 256; i++)
@@ -1045,15 +1046,14 @@ void process_keys()
 	}
 }
 
-void key_press(unsigned char k, int x, int y)
+void key_press(unsigned char key, int x, int y)
 {
-	gKeys[k] = true;
+	gKeys[key] = true;
 }
 
 void key_release(unsigned char key, int x, int y)
 {
 	gKeys[key] = false;
-
 	switch (key)
 	{
 	case 27 :
@@ -1062,7 +1062,13 @@ void key_release(unsigned char key, int x, int y)
 		break; 
 	case 'i':
 		// image to render
-		render_option = (render_option + 1) % RENDER_COUNT;
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			render_option = (render_option - 1 + RENDER_COUNT) % RENDER_COUNT;
+		}else
+		{
+			render_option = (render_option + 1) % RENDER_COUNT;
+		}
 		break;
 	case 'u':
 		// turn UI on/off
@@ -1070,11 +1076,23 @@ void key_release(unsigned char key, int x, int y)
 		break;
 	case 't':
 		// transfer function
-		transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			transfer_function_option = (transfer_function_option - 1 + TRANSFER_FUNCTION_COUNT) % TRANSFER_FUNCTION_COUNT;
+		}else
+		{
+			transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
+		}
 		break;
 	case 'p':
 		// peeling
-		peeling_option = (peeling_option + 1) % PEELING_COUNT;
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			peeling_option = (peeling_option - 1 + PEELING_COUNT) % PEELING_COUNT;
+		}else
+		{
+			peeling_option = (peeling_option + 1) % PEELING_COUNT;
+		}
 		break;
 	}
 }
@@ -1088,7 +1106,7 @@ void idle_func()
 		manipulator.idle();
 	}
 
-	process_keys();
+	key_hold();
 	glutPostRedisplay();
 }
 
