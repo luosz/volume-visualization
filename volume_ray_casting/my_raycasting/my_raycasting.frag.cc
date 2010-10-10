@@ -40,6 +40,11 @@ float sum3(vec3 c)
 	return c.x + c.y + c.z;
 }
 
+float sum3(vec4 c)
+{
+	return c.x + c.y + c.z;
+}
+
 float average(vec4 c)
 {
 	return (c.x + c.y + c.z) * 0.33333333333333333333333333333333;
@@ -84,7 +89,7 @@ vec4 median_filter_9(vec4 v1, vec4 v2, vec4 v3, vec4 v4, vec4 v5, vec4 v6, vec4 
 		int min = i;
 		for (int j=i+1; j<N; j++)
 		{
-			if (data[j].x < data[min].x)
+			if (sum3(data[j]) < sum3(data[min]))
 			{
 				min = j;
 			}
@@ -142,7 +147,7 @@ vec3 filter_and_equalize(vec3 p)
 
 float get_slope(vec3 v1, vec3 v2)
 {
-	return v2.x - v1.x;
+	return sum3(v2) - sum3(v1);
 }
 
 //float get_importance_value(vec3 p)

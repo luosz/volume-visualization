@@ -61,7 +61,7 @@ float slope_threshold = 0;
 GLuint loc_slope_threshold;
 const float SLOPE_THRESHOLD_MAX = 1;
 const float SLOPE_THRESHOLD_MIN = -1;
-const float SLOPE_THRESHOLD_INC = 0.01;
+const float SLOPE_THRESHOLD_INC = 0.05;
 
 // for layer peeling
 float peeling_layer = 0;
@@ -151,7 +151,7 @@ float threshold_low = 0.3;
 float threshold_high = 0;
 
 const float OPACITY_THRESHOLD_MAX = 1;
-const float OPACITY_THRESHOLD_MIN = 0.01;
+const float OPACITY_THRESHOLD_MIN = 0;
 const float OPACITY_THRESHOLD_INC = 0.01;
 
 const float GRADIENT_THRESHOLD_MAX = 100;
