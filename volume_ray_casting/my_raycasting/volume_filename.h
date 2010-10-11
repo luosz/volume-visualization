@@ -2,14 +2,14 @@
 #define volume_filename_h
 
 #ifdef MAX_PATH
-#define STR_BUFFER_SIZE MAX_PATH
+#define MAX_STR_SIZE MAX_PATH
 #else
-#define STR_BUFFER_SIZE 320
+#define MAX_STR_SIZE 320
 #endif
 
 // filename can be set in command arguments
 // in Visual Studio, it is in project Properties->Debugging->Command Arguments
-char volume_filename[STR_BUFFER_SIZE] = "data\\nucleon.dat";
+char volume_filename[MAX_STR_SIZE] = "data\\nucleon.dat";
 
 /************************************************************************
 Common volume data: Tooth Engine foot head256 VisMale CT_Head_small CT_Head_large lobster
@@ -87,7 +87,7 @@ const char *get_file_path_separator_position(const char *filename)
 
 void print_about(int argc, char* argv[])
 {
-	char about[STR_BUFFER_SIZE * 4] = 
+	char about[MAX_STR_SIZE * 4] = 
 "//////////////////////////////////////////////////////////////////////////\n\
 GPU raycasting demo\n\
 Copyright (c) 2010 Shengzhou Luo, Shenzhen Institute of Advanced Technology, Chinese Academy of Sciences.\n\

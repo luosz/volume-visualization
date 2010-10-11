@@ -420,7 +420,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	vec3 local_min, local_max, current_value, next_value;
 
 	// for Sobel operator
-	vec4 c_x, c_y, c_z;
+	vec4 g_x, g_y, g_z;
 
 	for(int i = 0; i < sample_number; i++)
 	{
@@ -448,77 +448,113 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				break;
 			case 3:
 				// Directional derivatives as RGB
+				g_x = abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww));
+				g_y = abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw));
+				g_z = abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz));
+
 				color_sample
-					= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
-					+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
-					+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
-					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
+					= mask.xwww * g_x
+					+ mask.wxww * g_y
+					+ mask.wwxw * g_z
+					+ mask.wwwx * (g_x.x + g_y.y + g_z.z);
 				break;
 			case 4:
+				// second derivatives
 				c = texture3D(volume, ray);
 				c2 = c * 2.0;
+
 				second_derivative
 					= mask.xwww * abs(texture3D(volume, ray+d2.xww) - c2 + texture3D(volume, ray-d2.xww))
 					+ mask.wxww * abs(texture3D(volume, ray+d2.wyw) - c2 + texture3D(volume, ray-d2.wyw))
 					+ mask.wwxw * abs(texture3D(volume, ray+d2.wwz) - c2 + texture3D(volume, ray-d2.wwz));
 				second_derivative_magnitude = max(length(second_derivative), 1e-6);
+
+				// Directional derivatives as RGB
+				g_x = abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww));
+				g_y = abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw));
+				g_z = abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz));
+
 				color_sample
-					= mask.xwww * abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww))
-					+ mask.wxww * abs(texture3D(volume, ray+d.wyw)-texture3D(volume, ray-d.wyw))
-					+ mask.wwxw * abs(texture3D(volume, ray+d.wwz)-texture3D(volume, ray-d.wwz))
+					= mask.xwww * g_x
+					+ mask.wxww * g_y
+					+ mask.wwxw * g_z
 					+ mask.wwwx * sum3(equalize(c.rgb)) / second_derivative_magnitude;
 				break;
 			case 5:
 				// Sobel operator
-				c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
-					+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
-					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
-					+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
-					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
+				g_x = abs(
+					2.0 * (texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+					+ (texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
+					+ (texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
+					+ (texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
+					+ (texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy))
+					);
 
-				c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
-					+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
-					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
-					+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
-					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
+				g_y = abs(
+					2.0 * (texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+					+ (texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
+					+ (texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
+					+ (texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
+					+ (texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy))
+					);
 
-				c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
-					+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
-					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
-					+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
-					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
+				g_z = abs(
+					2.0 * (texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+					+ (texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
+					+ (texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
+					+ (texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
+					+ (texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx))
+					);
 
 				color_sample
-					= mask.xwww * c_x
-					+ mask.wxww * c_y
-					+ mask.wwxw * c_z
-					+ mask.wwwx * (c_x.x + c_y.y + c_z.z);
+					= mask.xwww * g_x
+					+ mask.wxww * g_y
+					+ mask.wwxw * g_z
+					+ mask.wwwx * (g_x.x + g_y.y + g_z.z);
 				break;
 			case 6:
-				// Sobel equalized
-				c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
-					+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
-					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
-					+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
-					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
+				// Sobel 3D operator
+				g_x = abs(
+					4.0 * (texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+					+ 2.0 * (texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
+					+ 2.0 * (texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
+					+ 2.0 * (texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
+					+ 2.0 * (texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy))
+					+ (texture3D(volume, ray+e.yxx)-texture3D(volume, ray+e.xxx))
+					+ (texture3D(volume, ray+e.yyy)-texture3D(volume, ray+e.xyy)) 
+					+ (texture3D(volume, ray+e.yyx)-texture3D(volume, ray+e.xyx))
+					+ (texture3D(volume, ray+e.yxy)-texture3D(volume, ray+e.xxy))
+					);
 
-				c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
-					+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
-					+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
-					+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
-					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
+				g_y = abs(
+					4.0 * (texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+					+ 2.0 * (texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
+					+ 2.0 * (texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
+					+ 2.0 * (texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
+					+ 2.0 * (texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy))
+					+ (texture3D(volume, ray+e.xyx)-texture3D(volume, ray+e.xxx)) 
+					+ (texture3D(volume, ray+e.yyy)-texture3D(volume, ray+e.yxy))
+					+ (texture3D(volume, ray+e.yyx)-texture3D(volume, ray+e.yxx))
+					+ (texture3D(volume, ray+e.xyy)-texture3D(volume, ray+e.xxy))
+					);
 
-				c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
-					+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
-					+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
-					+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
-					+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
+				g_z = abs(
+					4.0 * (texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+					+ 2.0 * (texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
+					+ 2.0 * (texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
+					+ 2.0 * (texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
+					+ 2.0 * (texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx))
+					+ (texture3D(volume, ray+e.xxy)-texture3D(volume, ray+e.xxx)) 
+					+ (texture3D(volume, ray+e.yyy)-texture3D(volume, ray+e.yyx))
+					+ (texture3D(volume, ray+e.yxy)-texture3D(volume, ray+e.yxx))
+					+ (texture3D(volume, ray+e.xyy)-texture3D(volume, ray+e.xyx))
+					);
 
 				color_sample
-					= mask.xwww * c_x
-					+ mask.wxww * c_y
-					+ mask.wwxw * c_z
-					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
+					= mask.xwww * g_x
+					+ mask.wxww * g_y
+					+ mask.wwxw * g_z
+					+ mask.wwwx * (g_x.x + g_y.y + g_z.z) * 0.125;
 				break;
 			case 7:
 				// k-means
@@ -665,19 +701,19 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 								// graident peeling
 								if (transfer_function_option != 5 && transfer_function_option != 6)
 								{
-									c_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+									g_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
 										+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
 										+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
 										+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
 										+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
 
-									c_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+									g_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
 										+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
 										+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
 										+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
 										+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
 
-									c_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+									g_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
 										+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
 										+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
 										+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
@@ -685,9 +721,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 								}
 
 								vec4 gradient_sample
-									= mask.xwww * c_x
-									+ mask.wxww * c_y
-									+ mask.wwxw * c_z;
+									= mask.xwww * g_x
+									+ mask.wxww * g_y
+									+ mask.wwxw * g_z;
 								gradient_acc += abs(gradient_sample).xyz;
 
 								// opacity peeling

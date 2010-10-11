@@ -106,7 +106,7 @@ GLuint v,f,p;//,f2 // the OpenGL shaders
 GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture;
-const float LUMINANCE_MAX = 100;
+const float LUMINANCE_MAX = 50;
 const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
 float luminance = 1;
@@ -138,6 +138,7 @@ nv::GlutUIContext ui;
 bool button_show_generated_cube = false;
 bool button_show_generated_cube_backup = false;
 bool button_auto_rotate = false;
+bool button_lock_viewpoint = false;
 bool button_generate_histogram = false;
 bool button_cluster = false;
 bool button_generate_Ben_transfer_function = false;
@@ -176,7 +177,7 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_GRADIENTS_AS_COLORS,
 	TRANSFER_FUNCTION_2ND_DERIVATIVE,
 	TRANSFER_FUNCTION_SOBEL,
-	TRANSFER_FUNCTION_SOBEL_EQUALIZED,
+	TRANSFER_FUNCTION_SOBEL_3D,
 	TRANSFER_FUNCTION_K_MEANS,
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED,
 	TRANSFER_FUNCTION_COUNT
@@ -208,7 +209,7 @@ void doUI()
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
 	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel equalized", "K-means++", "K-means++ equalized"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -219,11 +220,12 @@ void doUI()
 		ui.beginGroup();
 
 		ui.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
-		ui.doCheckButton(none, "Show generated cube", &button_show_generated_cube);
+		ui.doCheckButton(none, "Test cube", &button_show_generated_cube);
 		ui.doCheckButton(none, "Auto rotate", &button_auto_rotate);
+		ui.doCheckButton(none, "Lock viewpoint", &button_lock_viewpoint);
 		ui.doButton(none, "Generate histogram", &button_generate_histogram);
 		ui.doButton(none, "Cluster", &button_cluster);
-		ui.doButton(none, "Generate Ben transfer function", &button_generate_Ben_transfer_function);
+		ui.doButton(none, "Generate Ben TF", &button_generate_Ben_transfer_function);
 		ui.doButton(none, "Do it all", &button_all);
 		ui.endGroup();
 
@@ -234,7 +236,7 @@ void doUI()
 		ui.endGroup();
 
 		ui.beginGroup(nv::GroupFlags_GrowDownFromRight);
-		char str[STR_BUFFER_SIZE];
+		char str[MAX_STR_SIZE];
 		sprintf(str, "Step size: %f", stepsize);
 		ui.doLabel(none, str);
 
@@ -310,7 +312,10 @@ void doUI()
 		const nv::ButtonState &mbState = ui.getMouseState(1);
 		const nv::ButtonState &rbState =  ui.getMouseState(2);
 
-		manipulator.motion(ui.getCursorX(), WINDOW_SIZE - ui.getCursorY());
+		if (!button_lock_viewpoint)
+		{
+			manipulator.motion(ui.getCursorX(), WINDOW_SIZE - ui.getCursorY());
+		}
 
 		updateButtonState(lbState, manipulator, GLUT_LEFT_BUTTON);
 		updateButtonState(mbState, manipulator, GLUT_MIDDLE_BUTTON);
@@ -1059,7 +1064,10 @@ void key_release(unsigned char key, int x, int y)
 	case 27 :
 		// escape to exit
 		exit(0);
-		break; 
+		break;
+	case ' ':
+		button_lock_viewpoint = !button_lock_viewpoint;
+		break;
 	case 'i':
 		// image to render
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
@@ -1359,7 +1367,7 @@ int main(int argc, char* argv[])
 		strcpy(volume_filename, argv[1]);
 	}
 
-	char str[STR_BUFFER_SIZE];
+	char str[MAX_STR_SIZE];
 	sprintf(str, "GPU raycasting - %s", volume_filename);
 	glutCreateWindow(str);
 	glutReshapeWindow(WINDOW_SIZE,WINDOW_SIZE);

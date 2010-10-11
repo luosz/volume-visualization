@@ -76,14 +76,16 @@ public:
 
 		//////////////////////////////////////////////////////////////////////////
 		// get the raw file path and filename
-		const char *p = get_file_path_separator_position(s);
+		char str[MAX_STR_SIZE];
+		strcpy(str, s);
+		const char *p = get_file_path_separator_position(str);
 		if (NULL == p)
 		{
 			volume::readData(rawFilename);
 		}else
 		{
 			strcpy((char *)(p) + 1, rawFilename);
-			volume::readData(s);
+			volume::readData(str);
 		}
 		//////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +96,7 @@ public:
 	void readVolume_Ben(char* filename = NULL)
 	{
 		readVolFile(filename);
-		char str[STR_BUFFER_SIZE];
+		char str[MAX_STR_SIZE];
 		strcpy(str, filename);
 		int length = strlen(str);
 		if (length > 4 && tolower(str[length - 4])=='.' && tolower(str[length - 3])=='d' && tolower(str[length - 2])=='a' && tolower(str[length - 1])=='t')
