@@ -91,6 +91,10 @@ GLuint loc_threshold_high;
 GLuint loc_threshold_low;
 GLuint loc_peeling_option;
 
+// for linear interpolation of alpha in the transfer function
+GLuint loc_alpha_opacity;
+float alpha_opacity = 0;
+
 // the parameter k for k-means
 float cluster_quantity = 8;
 int cluster_quantity_int_old = -1; // to be initialized
@@ -284,7 +288,15 @@ void doUI()
 		{
 			sprintf(str, "k-means k=%f", cluster_quantity);
 			ui.doLabel(none, str);
-			ui.doHorizontalSlider(rect_slider, 1, 100, &cluster_quantity);
+			ui.doHorizontalSlider(rect_slider, 1, 32, &cluster_quantity);
+		}else
+		{
+			if (transfer_function_option == TRANSFER_FUNCTION_SOBEL || transfer_function_option == TRANSFER_FUNCTION_SOBEL_3D)
+			{
+				sprintf(str, "opacity=mix(gradient,scalar,alpha)    alpha=%f", alpha_opacity);
+				ui.doLabel(none, str);
+				ui.doHorizontalSlider(rect_slider, 0, 1, &alpha_opacity);
+			}
 		}
 
 		ui.endGroup();
@@ -439,6 +451,7 @@ void set_shaders() {
 	loc_peeling_layer = glGetUniformLocation(p, "peeling_layer");
 	loc_scalar_min_normalized = glGetUniformLocation(p, "scalar_min_normalized");
 	loc_scalar_max_normalized = glGetUniformLocation(p, "scalar_max_normalized");
+	loc_alpha_opacity = glGetUniformLocation(p, "alpha_opacity");
 
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
@@ -1265,6 +1278,7 @@ void raycasting_pass()
 	glUniform1f(loc_scalar_min_normalized, scalar_min_normalized);
 	glUniform1f(loc_scalar_max_normalized, scalar_max_normalized);
 	glUniform1f(loc_slope_threshold, slope_threshold);
+	glUniform1f(loc_alpha_opacity, alpha_opacity);
 
 	glUniform1i(loc_peeling_option, peeling_option);
 	glUniform1i(loc_transfer_function_option, transfer_function_option);

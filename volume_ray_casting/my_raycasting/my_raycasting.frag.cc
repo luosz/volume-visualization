@@ -19,6 +19,9 @@ uniform int peeling_layer;
 // for feature peeling
 uniform float slope_threshold;
 
+// for linear interpolation of alpha in the transfer function
+uniform float alpha_opacity;
+
 // for histogram equalization
 uniform float scalar_min_normalized, scalar_max_normalized;
 
@@ -510,7 +513,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					= mask.xwww * g_x
 					+ mask.wxww * g_y
 					+ mask.wwxw * g_z
-					+ mask.wwwx * (g_x.x + g_y.y + g_z.z);
+					+ mask.wwwx * (alpha_opacity > 0.0 ? mix((g_x.x + g_y.y + g_z.z), sum3(equalize(texture3D(volume, ray).rgb)), alpha_opacity) : (g_x.x + g_y.y + g_z.z));
 				break;
 			case 6:
 				// Sobel 3D operator
@@ -554,7 +557,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					= mask.xwww * g_x
 					+ mask.wxww * g_y
 					+ mask.wwxw * g_z
-					+ mask.wwwx * (g_x.x + g_y.y + g_z.z) * 0.125;
+					+ mask.wwwx * (alpha_opacity > 0.0 ? mix((g_x.x + g_y.y + g_z.z) * 0.125, sum3(equalize(texture3D(volume, ray).rgb)), alpha_opacity) : (g_x.x + g_y.y + g_z.z) * 0.125);
 				break;
 			case 7:
 				// k-means
