@@ -1,5 +1,5 @@
-#ifndef Ben_imported_h
-#define Ben_imported_h
+#ifndef import_BenBenRaycasting_h
+#define import_BenBenRaycasting_h
 
 //////////////////////////////////////////////////////////////////////////
 // imported from Ben's codes
@@ -13,7 +13,7 @@
 #ifndef _WINDEF_
 typedef unsigned char       BYTE;
 #endif
-#include "Ben/color.h"
+#include "../BenBenRaycasting/color.h"
 
 const double e = 2.7182818284590452353602874713526624977572470936999595749669676277240766303535;
 
@@ -130,4 +130,4 @@ void setTransferfunc(color_opacity *& tf, volume & Volume)
 			}
 }
 
-#endif // Ben_imported_h
+#endif // import_BenBenRaycasting_h
