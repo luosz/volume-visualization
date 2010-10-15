@@ -22,7 +22,7 @@ public:
 	}
 
 	// get the .raw file name from the .dat file automatically
-	bool readVolume(char * s)
+	virtual bool readVolFile(char * s)
 	{
 		char * cp, line[100], rawFilename[100];
 		FILE * fp = fopen(s, "r");
@@ -75,6 +75,7 @@ public:
 
 		//////////////////////////////////////////////////////////////////////////
 		// get the raw file path and filename
+		std::cout<<"VolumeReader::readVolFile - get the raw file path and filename"<<std::endl;
 		char str[MAX_STR_SIZE];
 		filename_utility::get_raw_filename_from_dat_filename(s, rawFilename, str);
 		volume::readData(str);

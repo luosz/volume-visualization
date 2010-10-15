@@ -84,7 +84,7 @@ public:
 		free(df2);
 		free(df3);
 	}
-	bool readVolFile(char * s);
+	virtual bool readVolFile(char * s);
 	bool readData(char * s);
 	void traverse();
 	void calHistogram();

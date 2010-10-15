@@ -642,7 +642,7 @@ void create_volumetexture_a_cube()
 void create_transferfunc_Ben()
 {
 	VolumeReader Volume;
-	Volume.readVolume(volume_filename);
+	Volume.readVolFile(volume_filename);
 	Volume.calHistogram();
 	Volume.calGrad_ex();
 	Volume.calDf2();
@@ -1370,9 +1370,6 @@ void display()
 
 int main(int argc, char* argv[])
 {
-	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-
 	filename_utility::print_about(argc, argv);
 
 	// read filename from arguments if available
@@ -1380,6 +1377,9 @@ int main(int argc, char* argv[])
 	{
 		strcpy(volume_filename, argv[1]);
 	}
+
+	glutInit(&argc,argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 
 	char str[MAX_STR_SIZE];
 	sprintf(str, "GPU raycasting - %s", volume_filename);
