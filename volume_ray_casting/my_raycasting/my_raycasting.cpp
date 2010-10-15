@@ -20,10 +20,10 @@
 #include <nvGlutManipulators.h>
 #include <nvGlutWidgets.h>
 
-#include "volume_filename.h"
+#include "filename.h"
 #include "textfile.h"
 #include "reader.h"
-#include "Ben_import.h"
+#include "import_BenBenRaycasting.h"
 #include "volume_utility.h"
 using namespace reader;
 
@@ -1373,7 +1373,7 @@ int main(int argc, char* argv[])
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 
-	print_about(argc, argv);
+	filename_utility::print_about(argc, argv);
 
 	// read filename from arguments if available
 	if (argc > 1)

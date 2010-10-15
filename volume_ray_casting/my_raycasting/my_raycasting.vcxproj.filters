@@ -19,8 +19,8 @@
     <Filter Include="kmlocal">
       <UniqueIdentifier>{602eb9a7-35a1-469a-b1c2-11b9a4551252}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Ben">
-      <UniqueIdentifier>{779f5ec5-441a-4afd-ba6f-4c430744a507}</UniqueIdentifier>
+    <Filter Include="../BenBenRaycasting">
+      <UniqueIdentifier>{d854886c-a38d-4867-88d5-f62cb4feddb0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -69,8 +69,8 @@
     <ClCompile Include="kmpp\KMeansPP.cpp">
       <Filter>kmpp</Filter>
     </ClCompile>
-    <ClCompile Include="Ben\volume.cpp">
-      <Filter>Ben</Filter>
+    <ClCompile Include="..\BenBenRaycasting\volume.cpp">
+      <Filter>../BenBenRaycasting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,25 +131,28 @@
     <ClInclude Include="K_Means_PlusPlus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="volume_filename.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="kmpp\KMeansPP.h">
       <Filter>kmpp</Filter>
-    </ClInclude>
-    <ClInclude Include="Ben\color.h">
-      <Filter>Ben</Filter>
-    </ClInclude>
-    <ClInclude Include="Ben\volume.h">
-      <Filter>Ben</Filter>
-    </ClInclude>
-    <ClInclude Include="Ben_import.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="K_Means_PP_DIY.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="volume_utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filename.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\color.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\volume.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="filename_utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="import_BenBenRaycasting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

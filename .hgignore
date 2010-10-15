@@ -6,5 +6,8 @@
 ^Debug/
 ^Release/
 ^ipch/
+/ipch/
 /Debug/
 /Release/
+^~
+/~
