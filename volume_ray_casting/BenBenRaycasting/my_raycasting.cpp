@@ -36,6 +36,9 @@
 #include <nvVector.h>
 
 //////////////////////////////////////////////////////////////////////////
+// ark @ 2010.10.15
+#include "../my_raycasting/VolumeReader.h"
+//////////////////////////////////////////////////////////////////////////
 
 #define MAX_KEYS 256
 #define WINDOW_SIZE 700
@@ -75,14 +78,21 @@ float stepsize = 1.0/1000.0;
 GLuint frontface_buffer; // the FBO buffers
 GLuint v,f,p;//,f2 // the OpenGL shaders
 GLuint loc_stepsize;
-volume Volume; 
+
+//////////////////////////////////////////////////////////////////////////
+// ark @ 2010.10.15
+VolumeReader Volume;
 //////////////////////////////////////////////////////////////////////////
 
 nv::GlutExamine manipulator;
 nv::GlutUIContext ui;
 
-char file1[] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.dat";
-char file2[] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.raw";
+//////////////////////////////////////////////////////////////////////////
+// ark @ 2010.10.15
+char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.dat";
+//char file2[] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.raw";
+//////////////////////////////////////////////////////////////////////////
+
 char * lable;
 
 void NormalTest(void);
@@ -961,7 +971,7 @@ void init()
 	Volume.readVolFile(file1);
 	cout<<"Data file name:"<<endl;
 //	cin>>file;
-	Volume.readData(file2);
+	//Volume.readData(file2);
 	Volume.calHistogram();
 //	Volume.calEp();
 	Volume.calGrad();
@@ -1340,6 +1350,15 @@ void NormalTest()
 
 int main(int argc, char* argv[])
 {
+	//////////////////////////////////////////////////////////////////////////
+	// ark @ 2010.10.15
+	// read filename from arguments if available
+	if (argc > 1)
+	{
+		strcpy(file1, argv[1]);
+	}
+	//////////////////////////////////////////////////////////////////////////
+
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition(50, 50);
