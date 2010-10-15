@@ -96,7 +96,7 @@
   <ItemGroup>
     <ClInclude Include="..\BenBenRaycasting\color.h" />
     <ClInclude Include="..\BenBenRaycasting\volume.h" />
-    <ClInclude Include="import_BenBenRaycasting.h" />
+    <ClInclude Include="BenBenRaycasting.h" />
     <ClInclude Include="filename_utility.h" />
     <ClInclude Include="volume_utility.h" />
     <ClInclude Include="K_Means_Local.h" />

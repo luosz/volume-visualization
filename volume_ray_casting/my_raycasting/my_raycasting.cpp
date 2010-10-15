@@ -23,7 +23,7 @@
 #include "filename.h"
 #include "textfile.h"
 #include "reader.h"
-#include "import_BenBenRaycasting.h"
+#include "BenBenRaycasting.h"
 #include "volume_utility.h"
 using namespace reader;
 
@@ -653,7 +653,7 @@ void create_transferfunc_Ben()
 	unsigned int dim_y = Volume.getY();
 	unsigned int dim_z = Volume.getZ();
 	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	setTransferfunc(tf, Volume);
+	setTransferfunc_Ben(tf, Volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);

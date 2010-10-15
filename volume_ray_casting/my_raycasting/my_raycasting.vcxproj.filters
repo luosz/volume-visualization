@@ -22,6 +22,9 @@
     <Filter Include="../BenBenRaycasting">
       <UniqueIdentifier>{d854886c-a38d-4867-88d5-f62cb4feddb0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{26b3aad2-a8eb-4573-b9aa-69677fd9d440}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp">
@@ -152,7 +155,7 @@
     <ClInclude Include="filename_utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="import_BenBenRaycasting.h">
+    <ClInclude Include="BenBenRaycasting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -163,9 +166,17 @@
     <None Include="kmpp\README.txt">
       <Filter>kmpp</Filter>
     </None>
-    <None Include="ray_casting.frag.backup" />
-    <None Include="simple_fragment.frag.backup" />
-    <None Include="my_raycasting.frag.cc" />
-    <None Include="simple_vertex.vert.cc" />
+    <None Include="my_raycasting.frag.cc">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="simple_vertex.vert.cc">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="ray_casting.frag.backup">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="simple_fragment.frag.backup">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
