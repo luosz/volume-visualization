@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef VolumeReader_h
 #define VolumeReader_h
 
@@ -7,8 +5,9 @@
 #include <cctype>
 #include <cstring>
 
-#include "Ben\volume.h"
+#include "../BenBenRaycasting/volume.h"
 #include "reader.h"
+#include "filename_utility.h"
 
 class VolumeReader : public volume
 {
@@ -77,38 +76,11 @@ public:
 		//////////////////////////////////////////////////////////////////////////
 		// get the raw file path and filename
 		char str[MAX_STR_SIZE];
-		strcpy(str, s);
-		const char *p = get_file_path_separator_position(str);
-		if (NULL == p)
-		{
-			volume::readData(rawFilename);
-		}else
-		{
-			strcpy((char *)(p) + 1, rawFilename);
-			volume::readData(str);
-		}
+		filename_utility::get_raw_filename_from_dat_filename(s, rawFilename, str);
+		volume::readData(str);
 		//////////////////////////////////////////////////////////////////////////
 
 		return true;
-	}
-
-	// utilize readVolFile and readData
-	void readVolume_Ben(char* filename = NULL)
-	{
-		readVolFile(filename);
-		char str[MAX_STR_SIZE];
-		strcpy(str, filename);
-		int length = strlen(str);
-		if (length > 4 && tolower(str[length - 4])=='.' && tolower(str[length - 3])=='d' && tolower(str[length - 2])=='a' && tolower(str[length - 1])=='t')
-		{
-			str[length - 3] = 'r';
-			str[length - 2] = 'a';
-			str[length - 1] = 'w';
-			readData(str);
-		}else
-		{
-			std::cerr<<"Errors in reading .dat file: "<<filename<<" and .raw file: "<<str<<std::endl;
-		}
 	}
 
 	// read volume data from file using readData in reader.h
