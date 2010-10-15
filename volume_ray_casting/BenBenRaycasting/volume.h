@@ -29,7 +29,7 @@ typedef struct
 
 class volume
 {
-private:
+protected:
 	unsigned int length;               //体数据长度
 	unsigned int width;                //体数据宽度
 	unsigned int height;               //体数据高度
