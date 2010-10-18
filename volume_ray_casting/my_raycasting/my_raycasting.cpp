@@ -147,6 +147,7 @@ bool button_generate_histogram = false;
 bool button_cluster = false;
 bool button_generate_Ben_transfer_function = false;
 bool button_all = false;
+bool button_show_alpha_blending = false;
 
 enum RenderOption
 {
@@ -225,12 +226,13 @@ void doUI()
 
 		ui.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
 		ui.doCheckButton(none, "Test cube", &button_show_generated_cube);
-		ui.doCheckButton(none, "Auto rotate", &button_auto_rotate);
-		ui.doCheckButton(none, "Lock viewpoint", &button_lock_viewpoint);
+		ui.doCheckButton(none, "Rotate", &button_auto_rotate);
+		ui.doCheckButton(none, "Lock view", &button_lock_viewpoint);
+		ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
 		ui.doButton(none, "Generate histogram", &button_generate_histogram);
 		ui.doButton(none, "Cluster", &button_cluster);
 		ui.doButton(none, "Generate Ben TF", &button_generate_Ben_transfer_function);
-		ui.doButton(none, "Do it all", &button_all);
+		ui.doButton(none, "Do all", &button_all);
 		ui.endGroup();
 
 		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
@@ -291,7 +293,7 @@ void doUI()
 			ui.doHorizontalSlider(rect_slider, 1, 32, &cluster_quantity);
 		}else
 		{
-			if (transfer_function_option == TRANSFER_FUNCTION_SOBEL || transfer_function_option == TRANSFER_FUNCTION_SOBEL_3D)
+			if (button_show_alpha_blending && (transfer_function_option == TRANSFER_FUNCTION_SOBEL || transfer_function_option == TRANSFER_FUNCTION_SOBEL_3D))
 			{
 				sprintf(str, "opacity=mix(gradient,scalar,alpha)    alpha=%f", alpha_opacity);
 				ui.doLabel(none, str);
