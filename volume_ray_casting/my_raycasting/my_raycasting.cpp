@@ -1076,11 +1076,11 @@ void key_release(unsigned char key, int x, int y)
 	gKeys[key] = false;
 	switch (key)
 	{
-	case 27 :
-		// escape to exit
-		exit(0);
-		break;
-	case ' ':
+	//case 27 :
+	//	// escape to exit
+	//	exit(0);
+	//	break;
+	case 'o':
 		button_lock_viewpoint = !button_lock_viewpoint;
 		break;
 	case 'i':
