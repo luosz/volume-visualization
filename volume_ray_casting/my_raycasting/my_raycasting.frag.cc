@@ -739,7 +739,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 										break;
 									}else
 									{
+										// clear the accumulated color and gradient
 										col_acc = vec4(0,0,0,0);
+										gradient_acc = vec3(0,0,0);
 										peeling_counter++;
 									}
 								}
