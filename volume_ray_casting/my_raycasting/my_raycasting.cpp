@@ -742,17 +742,15 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 
 	// draw quadrangle strips to make a histogram
 	glBegin(GL_QUAD_STRIP);
-	float x, y, min = 0.125, height = (1/(1-0.618)) * float(count) / TYPE_SIZE;
+	float x, y, height = (1/(1-0.618)) * float(count) / TYPE_SIZE;
 	for (unsigned int i = 0; i<TYPE_SIZE; i++)
 	{
 		x = float(i) / TYPE_SIZE;
 		y = float(histogram[i]) / height;
 		glColor3f(x, x, x);
+		glColor3f(1.0, 1.0, 1.0);
 		glVertex2f(x, 0);
-		if (x < min)
-			glColor3f(min, min, min);
-		else
-			glColor3f(x, x, x);
+		glColor3f(1.0, 1.0, 1.0);
 		glVertex2f(x, y);
 	}
 	glEnd();
