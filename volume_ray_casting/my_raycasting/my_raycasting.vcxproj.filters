@@ -72,7 +72,7 @@
     <ClCompile Include="kmpp\KMeansPP.cpp">
       <Filter>kmpp</Filter>
     </ClCompile>
-    <ClCompile Include="..\BenBenRaycasting\volume.cpp">
+    <ClCompile Include="..\BenBenRaycasting\Volume.cpp">
       <Filter>../BenBenRaycasting</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,14 +149,14 @@
     <ClInclude Include="..\BenBenRaycasting\color.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
-    <ClInclude Include="..\BenBenRaycasting\volume.h">
-      <Filter>../BenBenRaycasting</Filter>
-    </ClInclude>
     <ClInclude Include="filename_utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BenBenRaycasting.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\Volume.h">
+      <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
