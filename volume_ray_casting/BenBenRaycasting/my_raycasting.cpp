@@ -89,7 +89,7 @@ nv::GlutUIContext ui;
 
 //////////////////////////////////////////////////////////////////////////
 // ark @ 2010.10.15
-char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\head256.dat";
+char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Tooth.dat";
 //char file2[] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.raw";
 //////////////////////////////////////////////////////////////////////////
 
@@ -641,134 +641,52 @@ void setTransferfunc(void)
 
 void setTransferfunc2(void)
 {
-int x, y, z, index, i, j;
-float temp1, temp2,temp3, temp4;
-double d, g, df2, a, alpha;
-float range;
-float max_alpha = 0.5;
-float p, q, r, value, dF1;
-float H, S, L;
-bool b1;
-bool b2;
-int t1, t2;
-float df1, df1_max, f, f_max, df2_max;
-float sigma = 4;
+	int x, y, z, index, i, j;
+	float temp1, temp2,temp3, temp4;
+	double d, g, df2, a, alpha;
+	float range;
+	float max_alpha = 0.5;
+	float p, q, r, value, dF1;
+	int t1, t2;
+	float df1, df1_max, f, f_max, df2_max;
+	float sigma = 4;
 
+	dim_x = Volume.getX();
+	dim_y = Volume.getY();
+	dim_z = Volume.getZ();
+	tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
+	if(tf == NULL)
+	{
+	fprintf(stderr, "Not enough space for tf");
+	}
+	for(z = 0; z < dim_z; ++z)
+		for(y = 0;y < dim_y; ++y)
+			for(x = 0; x < dim_x; ++x)
+			{
+				index = Volume.getIndex(x, y, z);
+				d = double(Volume.getData(x, y, z));
+				g = double(Volume.getGrad(x, y, z));
+				a = log(double(Volume.getX() + Volume.getY() + Volume.getZ()) / 3.0); 
+				temp4 = exp(-d / g);
 
+				df1 = (float)Volume.getGrad(x, y, z);
+				df1_max = (float)Volume.getMaxGrad();
+				f = (float)Volume.getData(x, y, z);
+				f_max = Volume.getMaxData();
+				df2 = double(Volume.getDf2(x,y ,z));
+				df2_max = Volume.getMaxDf2();
 
-dim_x = Volume.getX();
-dim_y = Volume.getY();
-dim_z = Volume.getZ();
-tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-if(tf == NULL)
-{
-fprintf(stderr, "Not enough space for tf");
-}
-for(z = 0; z < dim_z; ++z)
-for(y = 0;y < dim_y; ++y)
-for(x = 0; x < dim_x; ++x)
-{
-index = Volume.getIndex(x, y, z);
-/* H = (float(Volume.getData(x, y, z)) / float(Volume.getMaxData())) * 360.0; 
-S = (float(Volume.getDf2(x, y, z)) / float(Volume.getMaxDf2()));
-L = (float(Volume.getDf3(x, y, z)) / float(Volume.getMaxDf3()));*/
-range = Volume.getRange();
-if(Volume.getData(x, y, z) <= range / 6.0)
-H = 30;
-else if(Volume.getData(x, y, z) <= range * (1.0 / 3.0))
-H = 90;
-else if(Volume.getData(x, y, z) <= range * (1.0 / 2.0))
-H = 150;
-else if(Volume.getData(x, y, z) <= range * (2.0 / 3.0))
-H = 210;
-else if(Volume.getData(x, y, z) <= range * (5.0 / 6.0))
-H = 270;
-else
-H = 330;
+				temp4 =	exp(- d / g);
+				alpha = temp4;
+				alpha = 1.0 + 1 / a * log((1.0 - pow(e, -a)) * temp4 + pow(e, -a)) / log(e);
+				//alpha = (exp(-a * (1.0 - temp4)) - exp(-a)) / (1 - exp(-a));
 
-
-// H = Volume.getHistogram(Volume.getData(x, y, z)) / (Volume.getX() * Volume.getY() * Volume.getZ());
-//S = 1;
-S = norm(float(Volume.getMinGrad()), float(Volume.getMaxGrad()), float(Volume.getGrad(x, y, z))) * 360.0; 
-//  H = norm(float(Volume.getMinDf2()), float(Volume.getMaxDf2()), float(Volume.getDf2(x, y, z)));
-L = norm(float(Volume.getMinDf2()), float(Volume.getMaxDf2()), float(Volume.getDf2(x, y, z)));
-// L = norm(float(Volume.getMinData()), float(Volume.getMaxData()), float(Volume.getData(x, y, z)));
-
-// S = pow(double(1 / e), double(1.0) / double(Volume.getGrad(x, y, z)));*/
-
-HSL2RGB(H, S, L, &temp1, &temp2, &temp3);
-/*temp1 = (sqrt(sqrt(temp1)));
-temp2 = (sqrt(sqrt(temp2)));
-temp3 = (sqrt(sqrt(temp3)));*/
-// cout<<temp1<<"\t"<<temp2<<"\t"<<temp3<<endl;
-/* temp1 = pow(double(temp1), double(0.3333333));
-temp2 = pow(double(temp2), double(0.3333333));
-temp3 = pow(double(temp3), double(0.3333333));*/
-temp1 *= 1.5;
-temp2 *= 1.5;
-temp3 *= 1.5;
-if(temp1 > 1.0)
-temp1 = 1.0;
-if(temp2 > 1.0)
-temp2 = 1.0;
-if(temp3 > 1.0)
-temp3 = 1.0;
-tf[index].r  =  (unsigned char)(temp1 * 255);
-
-tf[index].g = (unsigned char)(temp2 * 255);
-tf[index].b =  (unsigned char)(temp3 * 255);
-
-
-{
-d = double(Volume.getData(x, y, z));
-g = double(Volume.getGrad(x, y, z));
-a = log(double(Volume.getX() + Volume.getY() + Volume.getZ()) / 3.0); 
-temp4 = exp(-d / g);
-
-df1 = (float)Volume.getGrad(x, y, z);
-df1_max = (float)Volume.getMaxGrad();
-f = (float)Volume.getData(x, y, z);
-f_max = Volume.getMaxData();
-df2 = double(Volume.getDf2(x,y ,z));
-df2_max = Volume.getMaxDf2();
-//temp4 = 1.6 *(df1) / df1_max *  f / f_max;
-//temp4 = exp(df2 / df2_max * df1 / df1_max);
-temp4 =	exp(- d / g);
-alpha = temp4;
-alpha = 1.0 + 1 / a * log((1.0 - pow(e, -a)) * temp4 + pow(e, -a)) / log(e);
-//alpha = (exp(-a * (1.0 - temp4)) - exp(-a)) / (1 - exp(-a));
-
-float ddd = sqrt(x / float(Volume.getX()) * x / (float)Volume.getX()
+				float ddd = sqrt(x / float(Volume.getX()) * x / (float)Volume.getX()
 	                                                                  + y / float(Volume.getY() * y / float(Volume.getY()))
 																	  + z / float(Volume.getZ() * z / float(Volume.getZ())));
-//alpha =   (df1) / df1_max *  f / f_max;
 
+				tf[index].a =  unsigned char(alpha * 255);
 
-	tf[index].a =  unsigned char(alpha * 255);
-}
-
-
-
-}
-
-//for(i = 1;i <= 11; ++i)
-//		for(j = 1;j <= 11;++j)
-//		{			
-//				for(x = 0; x < dim_x;++x)
-//					for(y = 0; y < dim_y; ++y)
-//						for(z = 0; z < dim_z; ++z)
-//						{
-//							value = float(Volume.getData(x, y, z));
-//							dF1 = float(Volume.getGrad(x, y, z));
-//							value /= float(Volume.getMaxData());
-//							dF1 /= float(Volume.getMaxGrad());
-//							t1 = int(value * 10);
-//							t2 = int(df1 * 10);
-//							if((Volume.getIntensity_gradient_histogram(i, j) < 100) && 
-//								(t1 >= i - 1) &&(t1 < i) && (t2 >= j - 1) && (t2 < j))
-//								tf[Volume.getIndex(x, y, z)].a = 0;
-//						}
-//		}
 }
 
 void setTransferFunc3()
@@ -884,9 +802,9 @@ alpha = f / f_max * df1 / df1_max;
 
 void setTransferfunc5(void)
 {
-	 int x, y, z, i, j, k, p, q, r, index;
-	 float a, d, d_max = 0, gx, gy, gz, g;
-	 float alpha1, alpha2, beta;
+	 int x, y, z, i, j, k, p, q, r, index, intensity, num = 0;
+	 float a, d, d_max = 0, gx, gy, gz, g, g_magnitude;
+	 float alpha1, alpha2, alpha3, alpha4, beta;
 
 	 dim_x = Volume.getX();
 	 dim_y = Volume.getY();
@@ -954,11 +872,30 @@ void setTransferfunc5(void)
 					if(d == 0)
 						d = 1e-4;
 				
+			//		intensity = Volume.getData(i, j, k);
+			//		g_magnitude = Volume.getGrad(i, j, k);
+
 					alpha1 = exp(-1.0 * a / d);
 					alpha2 = ( exp(-beta * (1 - alpha1)) - exp(-beta) ) / (1 - exp(-beta));
-			//		if(d <  0.1 * d_max)
-				//		alpha2 = 0;
+
+					if(alpha2 > 0.6)
+					{
+						num++;
+					//	cout<<alpha2<<endl;
+					}
+					if(alpha2 < 0.8)
+						alpha2 = 0;
+			//		alpha3 = exp(-1.0 * float(intensity) / g_magnitude);
+			//		alpha4 = ( exp(-beta * (1 - alpha3)) - exp(-beta) ) / (1 - exp(-beta));
+
+			//		if(d <  0.01 * d_max)
+			//			alpha2 = 0;
+					
 					tf[index].a = unsigned char(alpha2 * 255);
+
+					/*if(alpha4 < 0.2)
+						alpha4 = 0;
+					tf[index].a  = unsigned char(alpha4 * 255);*/
 
 					gx = fabs(float(Volume.getData(i + 1, j, k)) - float(Volume.getData(i - 1, j, k)));
 					gy = fabs(float(Volume.getData(i , j + 1, k)) - float(Volume.getData(i , j - 1, k)));
@@ -970,6 +907,8 @@ void setTransferfunc5(void)
 					tf[index].b = unsigned char(gz / g * 255.0); 
 				}
 			}
+
+	cout<<float(num) / float(dim_x * dim_y * dim_z)<<endl;
 }
 
 void create_transferfunc()
@@ -1066,7 +1005,7 @@ void init()
 //	Volume.calHistogram();
 //	Volume.calEp();
 //	Volume.NormalDistributionTest();
-//	Volume.calGrad();
+	Volume.calGrad();
 //	Volume.calGrad_ex();
 //	Volume.calDf2();
 //	Volume.average_deviation();
