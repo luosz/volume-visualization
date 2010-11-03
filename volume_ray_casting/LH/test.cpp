@@ -1,4 +1,4 @@
-#include "VolumeReader.h"
+#include "../my_raycasting/VolumeReader.h" 
 #include "LH_Histograms_Constructor.h"
 #include <iostream>
 #include <fstream>
@@ -63,7 +63,7 @@ using namespace std;
 //	}
 //}
 
-void generate_gradient(volume &vv,const unsigned int datalength,const unsigned int datawidth,const unsigned int dataheight, std::vector<nv::vec3f> &gradient, std::vector<float> &gradient_magnitude, float &max_gradient_magnitude, std::vector<nv::vec3f> &second_derivative, std::vector<float> &second_derivative_magnitude, float &max_second_derivative_magnitude)
+void generate_gradient(Volume &vv,const unsigned int datalength,const unsigned int datawidth,const unsigned int dataheight, std::vector<nv::vec3f> &gradient, std::vector<float> &gradient_magnitude, float &max_gradient_magnitude, std::vector<nv::vec3f> &second_derivative, std::vector<float> &second_derivative_magnitude, float &max_second_derivative_magnitude)
 {
 	//std::cout<<"gradient vector address = "<<&gradient<<std::endl;
 	unsigned int index;
