@@ -14,28 +14,14 @@ struct AccessBase
 	virtual unsigned int getData(unsigned int index) = 0;
 };
 
-struct AccessUnsignedChar : AccessBase
+template<class T>
+struct AccessGeneric : AccessBase
 {
-	unsigned char * data;
+	T * data;
 
-	AccessUnsignedChar(void * d)
+	AccessGeneric(void * d)
 	{
-		this->data = (unsigned char *)d;
-	}
-
-	virtual unsigned int getData(unsigned int index)
-	{
-		return (unsigned int)data[index];
-	}
-};
-
-struct AccessUnsignedShort : AccessBase
-{
-	unsigned short * data;
-
-	AccessUnsignedShort(void * d)
-	{
-		this->data = (unsigned short *)d;
+		this->data = (T *)d;
 	}
 
 	virtual unsigned int getData(unsigned int index)
@@ -98,14 +84,14 @@ public:
 				{
 					strcpy(format, "UCHAR");
 					printf("Get data's format: Unsigned Char\n");
-					dataTypeSize = sizeof(char);
+					dataTypeSize = sizeof(unsigned char);
 					range = 256;
 				}
 				else if(strstr(line, "USHORT"))
 				{
 					strcpy(format, "USHORT");
 					printf("Get data's format: Unsigned Short\n");
-					dataTypeSize = sizeof(short);
+					dataTypeSize = sizeof(unsigned short);
 					range = 65536;
 				}
 				else 
@@ -124,16 +110,18 @@ public:
 		volume::readData(str);
 
 		// create an accessor of the data type
-		switch(dataTypeSize)
+		if(strcmp(format, "UCHAR") == 0)
 		{
-		case sizeof(char):
-			accessor = new AccessUnsignedChar(data);
-			break;
-		case sizeof(short):
-			accessor = new AccessUnsignedShort(data);
-			break;
-		default:
-			std::cerr<<"Unsupported data type in "<<s<<std::endl;
+			accessor = new AccessGeneric<unsigned char *>(data);
+		}else
+		{
+			if(strcmp(format, "USHORT") == 0)
+			{
+				accessor = new AccessGeneric<unsigned short *>(data);
+			}else 
+			{
+				std::cerr<<"Unsupported data type in "<<s<<std::endl;
+			}
 		}
 		//////////////////////////////////////////////////////////////////////////
 
@@ -167,15 +155,15 @@ public:
 		{
 		case DATRAW_UCHAR:
 			strcpy(format, "UCHAR");
-			dataTypeSize = sizeof(char);
+			dataTypeSize = sizeof(unsigned char);
 			range = 256;
-			accessor = new AccessUnsignedChar(data);
+			accessor = new AccessGeneric<unsigned char *>(data);
 			break;
 		case DATRAW_USHORT:
 			strcpy(format, "USHORT");
-			dataTypeSize = sizeof(short);
+			dataTypeSize = sizeof(unsigned short);
 			range = 65536;
-			accessor = new AccessUnsignedShort(data);
+			accessor = new AccessGeneric<unsigned char *>(data);
 			break;
 		default:
 			std::cerr<<"Unsupported data type in "<<filename<<std::endl;
