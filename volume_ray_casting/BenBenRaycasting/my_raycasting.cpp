@@ -28,7 +28,7 @@
 #include "textfile.h"
 #include "color.h"
 //#include "reader.h"
-#include "volume.h"
+#include "Volume.h"
 #include "k_means.h"
 // NVIDIA OpenGL SDK
 #include <nvGlutManipulators.h>
@@ -81,7 +81,7 @@ GLuint loc_stepsize;
 
 //////////////////////////////////////////////////////////////////////////
 // ark @ 2010.10.15
-VolumeReader volume;
+VolumeReader vr;
 //////////////////////////////////////////////////////////////////////////
 
 nv::GlutExamine manipulator;
@@ -478,9 +478,9 @@ void drawQuads(float x, float y, float z)
 void create_volume_texture()
 {
 	GLenum glType;
-	if(strcmp(volume.getFormat(), "UCHAR") == 0)
+	if(strcmp(vr.getFormat(), "UCHAR") == 0)
 		glType = GL_UNSIGNED_BYTE;
-	else if(strcmp(volume.getFormat(), "USHORT") ==0)
+	else if(strcmp(vr.getFormat(), "USHORT") ==0)
 		glType = GL_UNSIGNED_SHORT;
 	else
 		cout<<"Invalid data type"<<endl;
@@ -493,7 +493,7 @@ void create_volume_texture()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, dim_x, dim_y, dim_z, 0, GL_LUMINANCE, glType, volume.getDataAddr());
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, dim_x, dim_y, dim_z, 0, GL_LUMINANCE, glType, vr.getDataAddr());
 }
 void create_volumetexture()
 {
@@ -577,30 +577,30 @@ void setTransferfunc(void)
 	double df_dx, df_dy, df_dz, gradient, df, Ra;
 	float range, q;
 	float H, S, L;
-	dim_x = volume.getX();
-	dim_y = volume.getY();
-	dim_z = volume.getZ();
+	dim_x = vr.getX();
+	dim_y = vr.getY();
+	dim_z = vr.getZ();
 	tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
 	if(tf == NULL)
 	{
 		fprintf(stderr, "Not enough space for tf");
 	}
-	center_x = float(volume.getX()) / 2.0; 
-	center_y = float(volume.getY()) / 2.0;
-	center_z = float(volume.getZ()) / 2.0;
+	center_x = float(vr.getX()) / 2.0; 
+	center_y = float(vr.getY()) / 2.0;
+	center_z = float(vr.getZ()) / 2.0;
 	for(z = 0; z < dim_z; ++z)
 		for(y = 0;y < dim_y; ++y)
 			for(x = 0; x < dim_x; ++x)
 			{
-				index = volume.getIndex(x, y, z);
+				index = vr.getIndex(x, y, z);
 				d = 1 / 3.0 * (dim_x + dim_y + dim_z);				
-				range = volume.getRange();
-				H = double(volume.getData(x ,y ,z)) / double(range) * 360.0; 
+				range = vr.getRange();
+				H = double(vr.getData(x ,y ,z)) / double(range) * 360.0; 
 
 			//	S = 1 - pow(e , -1.0 * d *double(Volume.getData(x, y, z)));
 			//	S = exp()
-				S = norm(volume.getMinData(), volume.getMaxData(), volume.getData(x, y, z));
-				L = norm(volume.getMinGrad(), volume.getMaxGrad(), volume.getGrad(x, y, z));
+				S = norm(vr.getMinData(), vr.getMaxData(), vr.getData(x, y, z));
+				L = norm(vr.getMinGrad(), vr.getMaxGrad(), vr.getGrad(x, y, z));
 	//			L = double(x) + double(y) + double(z) / (3 * d);
 		
 				
@@ -615,15 +615,15 @@ void setTransferfunc(void)
 
 				
 				
-				elasity = volume.getEp(x, y, z);
-				gradient = volume.getGrad(x, y, z);
+				elasity = vr.getEp(x, y, z);
+				gradient = vr.getGrad(x, y, z);
 				q = log(d);
-			if(gradient < 20 ||  volume.getDf3(x ,y , z) < 10 || volume.getDf2(x, y, z) < 10)
+			if(gradient < 20 ||  vr.getDf3(x ,y , z) < 10 || vr.getDf2(x, y, z) < 10)
 					opacity = 0;
 			
 				else 
 				{
-				    Ra = - double(volume.getDf2(x, y, z)) / double(volume.getGrad(x, y, z));
+				    Ra = - double(vr.getDf2(x, y, z)) / double(vr.getGrad(x, y, z));
 				
 			//		opacity = 1 - pow(e , -1.0 *  log(d)  * double(Volume.getMaxGrad() ) / gradient);
 					opacity = 1 - pow(e, -1.0  * Ra);
@@ -656,9 +656,9 @@ float sigma = 4;
 
 
 
-dim_x = volume.getX();
-dim_y = volume.getY();
-dim_z = volume.getZ();
+dim_x = vr.getX();
+dim_y = vr.getY();
+dim_z = vr.getZ();
 tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
 if(tf == NULL)
 {
@@ -668,20 +668,20 @@ for(z = 0; z < dim_z; ++z)
 for(y = 0;y < dim_y; ++y)
 for(x = 0; x < dim_x; ++x)
 {
-index = volume.getIndex(x, y, z);
+index = vr.getIndex(x, y, z);
 /* H = (float(Volume.getData(x, y, z)) / float(Volume.getMaxData())) * 360.0; 
 S = (float(Volume.getDf2(x, y, z)) / float(Volume.getMaxDf2()));
 L = (float(Volume.getDf3(x, y, z)) / float(Volume.getMaxDf3()));*/
-range = volume.getRange();
-if(volume.getData(x, y, z) <= range / 6.0)
+range = vr.getRange();
+if(vr.getData(x, y, z) <= range / 6.0)
 H = 30;
-else if(volume.getData(x, y, z) <= range * (1.0 / 3.0))
+else if(vr.getData(x, y, z) <= range * (1.0 / 3.0))
 H = 90;
-else if(volume.getData(x, y, z) <= range * (1.0 / 2.0))
+else if(vr.getData(x, y, z) <= range * (1.0 / 2.0))
 H = 150;
-else if(volume.getData(x, y, z) <= range * (2.0 / 3.0))
+else if(vr.getData(x, y, z) <= range * (2.0 / 3.0))
 H = 210;
-else if(volume.getData(x, y, z) <= range * (5.0 / 6.0))
+else if(vr.getData(x, y, z) <= range * (5.0 / 6.0))
 H = 270;
 else
 H = 330;
@@ -689,9 +689,9 @@ H = 330;
 
 // H = Volume.getHistogram(Volume.getData(x, y, z)) / (Volume.getX() * Volume.getY() * Volume.getZ());
 //S = 1;
-S = norm(float(volume.getMinGrad()), float(volume.getMaxGrad()), float(volume.getGrad(x, y, z))) * 360.0; 
+S = norm(float(vr.getMinGrad()), float(vr.getMaxGrad()), float(vr.getGrad(x, y, z))) * 360.0; 
 //  H = norm(float(Volume.getMinDf2()), float(Volume.getMaxDf2()), float(Volume.getDf2(x, y, z)));
-L = norm(float(volume.getMinDf2()), float(volume.getMaxDf2()), float(volume.getDf2(x, y, z)));
+L = norm(float(vr.getMinDf2()), float(vr.getMaxDf2()), float(vr.getDf2(x, y, z)));
 // L = norm(float(Volume.getMinData()), float(Volume.getMaxData()), float(Volume.getData(x, y, z)));
 
 // S = pow(double(1 / e), double(1.0) / double(Volume.getGrad(x, y, z)));*/
@@ -720,17 +720,17 @@ tf[index].b =  (unsigned char)(temp3 * 255);
 
 
 {
-d = double(volume.getData(x, y, z));
-g = double(volume.getGrad(x, y, z));
-a = log(double(volume.getX() + volume.getY() + volume.getZ()) / 3.0); 
+d = double(vr.getData(x, y, z));
+g = double(vr.getGrad(x, y, z));
+a = log(double(vr.getX() + vr.getY() + vr.getZ()) / 3.0); 
 temp4 = exp(-d / g);
 
-df1 = (float)volume.getGrad(x, y, z);
-df1_max = (float)volume.getMaxGrad();
-f = (float)volume.getData(x, y, z);
-f_max = volume.getMaxData();
-df2 = double(volume.getDf2(x,y ,z));
-df2_max = volume.getMaxDf2();
+df1 = (float)vr.getGrad(x, y, z);
+df1_max = (float)vr.getMaxGrad();
+f = (float)vr.getData(x, y, z);
+f_max = vr.getMaxData();
+df2 = double(vr.getDf2(x,y ,z));
+df2_max = vr.getMaxDf2();
 //temp4 = 1.6 *(df1) / df1_max *  f / f_max;
 //temp4 = exp(df2 / df2_max * df1 / df1_max);
 temp4 =	exp(- d / g);
@@ -738,9 +738,9 @@ alpha = temp4;
 alpha = 1.0 + 1 / a * log((1.0 - pow(e, -a)) * temp4 + pow(e, -a)) / log(e);
 //alpha = (exp(-a * (1.0 - temp4)) - exp(-a)) / (1 - exp(-a));
 
-float ddd = sqrt(x / float(volume.getX()) * x / (float)volume.getX()
-	                                                                  + y / float(volume.getY() * y / float(volume.getY()))
-																	  + z / float(volume.getZ() * z / float(volume.getZ())));
+float ddd = sqrt(x / float(vr.getX()) * x / (float)vr.getX()
+	                                                                  + y / float(vr.getY() * y / float(vr.getY()))
+																	  + z / float(vr.getZ() * z / float(vr.getZ())));
 //alpha =   (df1) / df1_max *  f / f_max;
 
 
@@ -788,9 +788,9 @@ float sigma = 4;
 
 
 
-dim_x = volume.getX();
-dim_y = volume.getY();
-dim_z = volume.getZ();
+dim_x = vr.getX();
+dim_y = vr.getY();
+dim_z = vr.getZ();
 tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
 if(tf == NULL)
 {
@@ -800,25 +800,25 @@ for(z = 0; z < dim_z; ++z)
 for(y = 0;y < dim_y; ++y)
 for(x = 0; x < dim_x; ++x)
 {
-index = volume.getIndex(x, y, z);
+index = vr.getIndex(x, y, z);
 
-range = volume.getRange();
-if(volume.getData(x, y, z) <= range / 6.0)
+range = vr.getRange();
+if(vr.getData(x, y, z) <= range / 6.0)
 H = 30;
-else if(volume.getData(x, y, z) <= range * (1.0 / 3.0))
+else if(vr.getData(x, y, z) <= range * (1.0 / 3.0))
 H = 90;
-else if(volume.getData(x, y, z) <= range * (1.0 / 2.0))
+else if(vr.getData(x, y, z) <= range * (1.0 / 2.0))
 H = 150;
-else if(volume.getData(x, y, z) <= range * (2.0 / 3.0))
+else if(vr.getData(x, y, z) <= range * (2.0 / 3.0))
 H = 210;
-else if(volume.getData(x, y, z) <= range * (5.0 / 6.0))
+else if(vr.getData(x, y, z) <= range * (5.0 / 6.0))
 H = 270;
 else
 H = 330;
 
-S = norm(float(volume.getMinGrad()), float(volume.getMaxGrad()), float(volume.getGrad(x, y, z))) * 360.0; 
+S = norm(float(vr.getMinGrad()), float(vr.getMaxGrad()), float(vr.getGrad(x, y, z))) * 360.0; 
 
-L = norm(float(volume.getMinDf2()), float(volume.getMaxDf2()), float(volume.getDf2(x, y, z)));
+L = norm(float(vr.getMinDf2()), float(vr.getMaxDf2()), float(vr.getDf2(x, y, z)));
 
 
 HSL2RGB(H, S, L, &temp1, &temp2, &temp3);
@@ -837,17 +837,17 @@ tf[index].r  =  (unsigned char)(temp1 * 255);
 tf[index].g = (unsigned char)(temp2 * 255);
 tf[index].b =  (unsigned char)(temp3 * 255);
 
-d = double(volume.getData(x, y, z));
-g = double(volume.getGrad(x, y, z));
-a = log(double(volume.getX() + volume.getY() + volume.getZ()) / 3.0); 
+d = double(vr.getData(x, y, z));
+g = double(vr.getGrad(x, y, z));
+a = log(double(vr.getX() + vr.getY() + vr.getZ()) / 3.0); 
 temp4 = exp(-d / g);
 
-df1 = (float)volume.getGrad(x, y, z);
-df1_max = (float)volume.getMaxGrad();
-f = (float)volume.getData(x, y, z);
-f_max = volume.getMaxData();
-df2 = double(volume.getDf2(x,y ,z));
-df2_max = volume.getMaxDf2();
+df1 = (float)vr.getGrad(x, y, z);
+df1_max = (float)vr.getMaxGrad();
+f = (float)vr.getData(x, y, z);
+f_max = vr.getMaxData();
+df2 = double(vr.getDf2(x,y ,z));
+df2_max = vr.getMaxDf2();
 //temp4 = 1.6 *(df1) / df1_max *  f / f_max;
 //temp4 = exp(df2 / df2_max * df1 / df1_max);
 temp4 =	exp(- d / g);
@@ -865,10 +865,10 @@ alpha = f / f_max * df1 / df1_max;
 					for(y = 0; y < dim_y; ++y)
 						for(z = 0; z < dim_z; ++z)
 						{
-							value = float(volume.getData(x, y, z));
-							dF1 = float(volume.getGrad(x, y, z));
-							value /= float(volume.getMaxData());
-							dF1 /= float(volume.getMaxGrad());
+							value = float(vr.getData(x, y, z));
+							dF1 = float(vr.getGrad(x, y, z));
+							value /= float(vr.getMaxData());
+							dF1 /= float(vr.getMaxGrad());
 							t1 = int(value * 10);
 							t2 = int(df1 * 10);
 						//	if((Volume.getSpatialDistribution(i, j) > 50) && 
@@ -888,9 +888,9 @@ void setTransferfunc5(void)
 	 float a, d, d_max = 0, gx, gy, gz, g;
 	 float alpha1, alpha2, beta;
 
-	 dim_x = volume.getX();
-	 dim_y = volume.getY();
-	 dim_z = volume.getZ();
+	 dim_x = vr.getX();
+	 dim_y = vr.getY();
+	 dim_z = vr.getZ();
 	 beta = log((dim_x + dim_y + dim_z) / 3.0);
 
 	 tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
@@ -902,7 +902,7 @@ void setTransferfunc5(void)
 		 for(j = 0; j < dim_y; ++j)
 			 for(k = 0; k < dim_z; ++k)
 			 {
-				index = volume.getIndex(i, j, k);	
+				index = vr.getIndex(i, j, k);	
 				 if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 				{						
 					a = d = 0; 
@@ -914,12 +914,12 @@ void setTransferfunc5(void)
 						 for(p = i - 1;p <= i + 1;++p)
 							 for(q = j - 1; q <= j + 1; ++q)
 								 for(r = k - 1; r <= k + 1; ++r)
-									 a += float(volume.getData(p, q, r));
+									 a += float(vr.getData(p, q, r));
 						 a /= 27;
 						for(p = i - 1;p <= i + 1;++p)
 							 for(q = j - 1; q <= j + 1; ++q)
 								 for(r = k - 1; r <= k + 1; ++r)
-									 d += pow(double(volume.getData(p, q, r)) - a, 2.0);
+									 d += pow(double(vr.getData(p, q, r)) - a, 2.0);
 						d /= 27;
 						if(d == 0)
 							d = 1e-4;
@@ -932,7 +932,7 @@ void setTransferfunc5(void)
 		for(j = 0;j < dim_y; ++j)
 			for(k = 0;k < dim_z; ++k)
 			{
-				index = volume.getIndex(i, j, k);	
+				index = vr.getIndex(i, j, k);	
 				if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 				{						
 					a = d = 0; 
@@ -944,12 +944,12 @@ void setTransferfunc5(void)
 					for(p = i - 1;p <= i + 1;++p)
 						for(q = j - 1; q <= j + 1; ++q)
 							for(r = k - 1; r <= k + 1; ++r)
-								a += float(volume.getData(p, q, r));
+								a += float(vr.getData(p, q, r));
 					a /= 27;
 					for(p = i - 1;p <= i + 1;++p)
 						for(q = j - 1; q <= j + 1; ++q)
 							for(r = k - 1; r <= k + 1; ++r)
-								d += pow(double(volume.getData(p, q, r)) - a, 2.0);
+								d += pow(double(vr.getData(p, q, r)) - a, 2.0);
 					d /= 27;
 					if(d == 0)
 						d = 1e-4;
@@ -960,9 +960,9 @@ void setTransferfunc5(void)
 				//		alpha2 = 0;
 					tf[index].a = unsigned char(alpha2 * 255);
 
-					gx = fabs(float(volume.getData(i + 1, j, k)) - float(volume.getData(i - 1, j, k)));
-					gy = fabs(float(volume.getData(i , j + 1, k)) - float(volume.getData(i , j - 1, k)));
-					gz = fabs(float(volume.getData(i , j, k + 1)) - float(volume.getData(i , j, k - 1)));
+					gx = fabs(float(vr.getData(i + 1, j, k)) - float(vr.getData(i - 1, j, k)));
+					gy = fabs(float(vr.getData(i , j + 1, k)) - float(vr.getData(i , j - 1, k)));
+					gz = fabs(float(vr.getData(i , j, k + 1)) - float(vr.getData(i , j, k - 1)));
 					g = sqrt(gx * gx + gy * gy + gz * gz);
 
 					tf[index].r = unsigned char(gx / g * 255.0);
@@ -1058,7 +1058,7 @@ void init()
 //	cout<<"Input file name:";
 //	cin>>file;
 
-	volume.readVolFile(file1);
+	vr.readVolFile(file1);
 	cout<<"Data file name:"<<endl;
 //	Volume.filter();
 //	cin>>file;
@@ -1387,16 +1387,16 @@ void NormalTest()
 	                       0.1128, 0.0923, 0.0728, 0.0540, 0.0358, 0.0178
 	                      };
 	float average, d1, d2, w;
-	for(x = 1; x <= volume.getX() - 1; ++x)
-		for(y = 1;y <= volume.getY() - 1; ++y)
-			for(z = 1; z  <= volume.getZ() - 1; ++z)
+	for(x = 1; x <= vr.getX() - 1; ++x)
+		for(y = 1;y <= vr.getY() - 1; ++y)
+			for(z = 1; z  <= vr.getZ() - 1; ++z)
 			{
 				index = 1;
 				for(i = x - 1; i <= x + 1; ++i)
 					for(j = y - 1; j <= y +1; ++j)
 						for(k = z - 1; k <= z + 1; ++k)
 						{
-							value[index] = volume.getData(i, j, k);
+							value[index] = vr.getData(i, j, k);
 							index++;
 						}
 				for(i = 0; i < 27; ++i)
@@ -1438,7 +1438,7 @@ void NormalTest()
 				}
 					
 			}
-			cout<<float(count) /  (float(volume.getX()) * float(volume.getY()) * float(volume.getZ()));
+			cout<<float(count) /  (float(vr.getX()) * float(vr.getY()) * float(vr.getZ()));
 }
 
 

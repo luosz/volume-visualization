@@ -27,7 +27,7 @@ typedef struct
 	unsigned short FH;
 }LH;
 
-class volume
+class Volume
 {
 protected:
 	unsigned int length;               //体数据长度
@@ -57,7 +57,7 @@ protected:
 	float spatial_distribution[12][12];
 	LH * LH_Histogram;
 public:
-	volume()
+	Volume()
 	{
 		length = width = height = count = range = dataTypeSize = max_data = min_data = threshold = 0;
 		max_frequency = 0;
@@ -73,7 +73,7 @@ public:
 		df3 = NULL;
 		little_epsilon = 10;
 	}
-	~volume()
+	~Volume()
 	{
 		free(data);
 		free(histogram);

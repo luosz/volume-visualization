@@ -2,7 +2,7 @@
 #define K_MEANS
 #include <iostream>
 #include <cmath>
-#include "volume.h"
+#include "Volume.h"
 
 using namespace std;
 
@@ -22,7 +22,7 @@ typedef struct k_means_grid
 	double average_df3;
 }k_means_grid;
 
-void k_means(volume   * v,  char * lable)
+void k_means(Volume   * v,  char * lable)
 {
 	int i, index, x, y, z;
 	
