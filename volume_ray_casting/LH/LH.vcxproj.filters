@@ -16,6 +16,9 @@
     <Filter Include="../BenBenRaycasting">
       <UniqueIdentifier>{5029f362-9375-4fa7-9ef4-d02b3a7b742f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="../my_raycasting">
+      <UniqueIdentifier>{424738dc-78cc-4ec2-9a8b-8994225b0758}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LH_Histograms_Constructor.h">
@@ -28,7 +31,7 @@
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
     <ClInclude Include="..\my_raycasting\VolumeReader.h">
-      <Filter>../BenBenRaycasting</Filter>
+      <Filter>../my_raycasting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
