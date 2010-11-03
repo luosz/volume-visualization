@@ -96,7 +96,7 @@ public:
 	void calEp();
 	void calLH();
 	void Intensity_gradient_histogram();
-	unsigned int getData(unsigned int x, unsigned int y, unsigned int z);
+	virtual unsigned int getData(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getGrad(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getDf2(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getDf3(unsigned int x, unsigned int y, unsigned int z);
