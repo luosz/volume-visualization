@@ -19,9 +19,6 @@
     <Filter Include="kmlocal">
       <UniqueIdentifier>{602eb9a7-35a1-469a-b1c2-11b9a4551252}</UniqueIdentifier>
     </Filter>
-    <Filter Include="../BenBenRaycasting">
-      <UniqueIdentifier>{d854886c-a38d-4867-88d5-f62cb4feddb0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="shaders">
       <UniqueIdentifier>{26b3aad2-a8eb-4573-b9aa-69677fd9d440}</UniqueIdentifier>
     </Filter>
@@ -71,9 +68,6 @@
     </ClCompile>
     <ClCompile Include="kmpp\KMeansPP.cpp">
       <Filter>kmpp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\BenBenRaycasting\volume.cpp">
-      <Filter>../BenBenRaycasting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -145,12 +139,6 @@
     </ClInclude>
     <ClInclude Include="filename.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\BenBenRaycasting\color.h">
-      <Filter>../BenBenRaycasting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\BenBenRaycasting\volume.h">
-      <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
     <ClInclude Include="filename_utility.h">
       <Filter>Header Files</Filter>

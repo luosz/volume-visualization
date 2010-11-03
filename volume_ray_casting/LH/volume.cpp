@@ -168,7 +168,7 @@ unsigned int volume::getZ(void)
 
 void volume::calHistogram()
 {
-	int i, c;
+	int i, c, total;
 
 	max_data = 0;
 	min_data = 10000;
@@ -208,6 +208,18 @@ void volume::calHistogram()
 	}
 	else
 		printf("Invalid data.\n");
+
+	acc_distribution = (float * )malloc(sizeof(float) * count);
+	if(acc_distribution == NULL)
+		cout<<"Not enough space for acc_distribution"<<endl;
+	
+	total = 0;
+	for(i = 0;i < range; ++i)
+	{
+		total += int(histogram[i]);
+		acc_distribution[i] = float(total) / float(count);
+//		cout<<"acc_distribution [ "<<i<<" ]  = "<< acc_distribution[i]<<endl;
+	}
 }
 
 unsigned int volume::getData(unsigned int x, unsigned int y, unsigned int z)
@@ -233,7 +245,7 @@ unsigned int volume::getData(unsigned int x, unsigned int y, unsigned int z)
 
 unsigned int volume::getIndex(unsigned int x, unsigned int y, unsigned int z)
 {
-	return (z * width * length + y * length + x);
+	return ((z * width + y) * length + x);
 }
 
 void volume::calGradient()
@@ -552,11 +564,11 @@ void volume::calDf3(void)
 				}
 				Df3 = sqrt(df3_dx * df3_dx + df3_dy * df3_dy + df3_dz * df3_dz);
 
-					df3[index] = Df3;
+					df3[index] = int(Df3);
 					if(Df3 > max_df3)
-						max_df3 = Df3;
+						max_df3 = int(Df3);
 					if(Df3 < min_df3)
-						min_df3 = Df3;
+						min_df3 = int(Df3);
 					//			cout<<"df3_dx = "<<df3_dx<<"    df3_dy = "<<df3_dy<<"    df3_dz = "<<df3_dz<<" Df3 = "<<df3[index]<<endl;
 			}
 }
@@ -787,6 +799,15 @@ void volume::statistics(void)
 	cout<<"E(f) = "<<ex<<endl;
 	cout<<"Var(f) = "<<var<<endl;
 	cout<<"Cv(f) = "<<cv<<endl;
+	cout<<"max_grad = "<<max_grad<<endl;
+
+	for(x = 1; x <= 11; ++x)
+		for(y = 1; y <= 11;++y)
+		{
+			cout<<x<<",  "<<y<<",   "<<intensity_gradient_histogram[x][y]<<endl;
+			cout<<"Spatial distribution ="<<spatial_distribution[x][y]<<endl;
+		}		
+	
 }
 
 unsigned int volume::getHistogram(unsigned int intensity)
@@ -802,4 +823,250 @@ unsigned int volume::getMaxFrequency(void)
 			result = histogram[i];
 
 	return result;
+}
+
+void volume::calEp(void)
+{
+	int x, y, z, index;
+	double f, f1, f2, df_dx, df_dy, df_dz, ep_x, ep_y, ep_z;
+
+	ep = (float *)malloc(sizeof(float) * count);
+
+	if(ep == NULL)
+	{
+		cout<<"Not enough space for EP"<<endl;
+		return;
+	}
+	max_ep = 0;
+	min_ep = 100;
+	for(x = 0; x < length; ++x)
+		for(y = 0;y < width; ++y)
+			for(z = 0; z < height; ++z)
+			{
+				index = getIndex(x, y, z);
+				if(x == 0 || x == length - 1 || y == 0 || y == width - 1 || z == 0 || z == height - 1)
+					ep[index] = 0;
+				else
+				{				
+					if(getData(x, y, z) == 0)
+						f = 0.01;
+					else
+						f = getData(x, y, z);
+					f1 = getData(x - 1, y, z);
+					f2 = getData(x + 1, y, z);
+					df_dx = (f2 - f1) / 2.0;
+					
+					ep_x = df_dx * double(x) / f;
+
+					f1 = getData(x, y - 1, z);
+					f2 = getData(x, y + 1, z);
+					df_dy = (f2 - f1) / 2.0;
+					ep_y = df_dy * double(y) / f;
+
+					f1 = getData(x, y, z - 1);
+					f2 = getData(x, y, z + 1);
+					df_dz = (f2 - f1) / 2.0;
+					ep_z = df_dz * double(y) / f;
+					ep[index] = sqrt(ep_x * ep_x 
+																+ ep_y * ep_y
+																+ ep_z * ep_z);
+					if(ep[index] > max_ep)
+						max_ep = ep[index];
+					if(ep[index] < min_ep)
+						min_ep = ep[index];
+				}
+			}
+}
+
+float volume::getEp(unsigned int x, unsigned int y, unsigned int z)
+{
+	return ep[getIndex(x, y, z)];
+}
+
+float volume::getMaxEp()
+{
+	return max_ep;
+}
+
+float volume::getMinEp()
+{
+	return min_ep;
+}
+
+unsigned int volume::getCount()
+{
+	return length * width * height;
+}
+
+void volume::calLH()
+{
+	int x, y, z, index;
+	int i, j, k, H, L;
+	int current_x, current_y, current_z;
+	int current2_x, current2_y, current2_z;
+	int H_x, H_y, H_z;
+	int L_x, L_y, L_z;
+
+	LH * LH_Histogram = (LH *)malloc(sizeof(LH) * length * width * height);
+	if(LH_Histogram == NULL)
+		cout<<"Not enough space for LH Histogram"<<endl;
+
+
+	for(x = 0; x < length; ++x)
+		for(y = 0; y < width; ++y)
+			for(z = 0; z < height; ++z)
+			{
+				index = getIndex(x, y, z);
+				if(x == 0 || x == length - 1 || y == 0 || y == width - 1 || z == 0 || z == height - 1)
+					LH_Histogram[index].FH = LH_Histogram[index].FL = getData(x, y, z);
+				else if(getGrad(x, y, z) < little_epsilon)
+					LH_Histogram[index].FH = LH_Histogram[index].FL = getData(x, y, z);
+				else
+				{
+				//	cout<<"OK"<<endl;
+					current_x = x;
+					current_y = y;
+					current_z = z;
+					do
+					{
+						H = getData(current_x, current_y, current_z);
+				//		cout<<"H = "<<H<<endl;
+						for(i = current_x - 1;i <= current_x + 1; ++i)
+						{
+							for(j = current_y - 1; j <= current_y +1; ++j)
+							{
+								for(k = current_z - 1; k <= current_z + 1; ++k)
+								{
+									if(i < 0 || i > length - 1 || j < 0 || j > width - 1 || z < 0 || z > height - 1)
+									{
+						//				cout<<"Not ok"<<endl;;
+										goto tag1;
+									}
+									if(getData(i, j, k) >= H)
+									{
+						//				cout<<"Higher"<<endl;
+										H = getData(i, j, k);
+										H_x = i;
+										H_y = j;
+										H_z = k;
+					//					cout<<i<<", "<<j<<", "<<k<<endl;
+									}
+								}
+							}
+					 }
+								current_x = H_x;
+								current_y = H_y;
+								current_z = H_z;
+								if(current_x < 0 || current_y > length -1 || current_y < 0 || current_y > width - 1 || current_z < 0 || current_z > height -1)
+									goto tag1;
+					}while(getGrad(current_x, current_y, current_z) >= little_epsilon 
+						     );
+					tag1 : ; 
+					cout<<"break out"<<endl;
+
+					current_x = x;
+					current_y = y;
+					current_z = z;
+					do
+					{
+						L = getData(current_x, current_y, current_z);
+						for(i = current_x - 1;i <= current_x + 1; ++i)
+							for(j = current_y - 1; j <= current_y +1; ++j)
+								for(k = current_z - 1; k <= current_z + 1; ++k)
+								{
+									if(i < 0 || i > length - 1 || j < 0 || j > width - 1 || z < 0 || z > height - 1)
+									{
+										cout<<"Not ok";
+										goto tag2;
+									}	
+									if(i == current_x && j == current_y && k == current_z)
+										break;
+									if(getData(i, j, k) <= L)
+									{
+										L = getData(i, j, k);
+										L_x = i;
+										L_y = j;
+										L_z = k;
+									}
+								}
+								current_x = L_x;
+								current_y = L_y;
+								current_z = L_z;
+					}while(
+						      getGrad(current_x, current_y, current_z) >= little_epsilon);
+					cout<<"break out 2"<<endl;
+					tag2: ;
+					LH_Histogram[index].FH = H;
+					LH_Histogram[index].FL = L;
+
+					cout<<"H = "<<H<<", L = "<<L<<endl;
+				}
+			}
+			for(x = 0; x < length; ++x)
+				for(y = 0; y  < width; ++y)
+					for(z = 0; z < height; ++z)
+					{
+						index = getIndex(x, y, z);
+						if(LH_Histogram[index].FH != LH_Histogram[index].FL)
+						cout<<"X = "<<x<<",  Y = "<<y<<" ,  Z = "<<z<<" , FH = "
+							<<LH_Histogram[index].FH<<endl;
+					//		" , FL = "<<LH_Histogram[index].FL<<endl;
+					}
+}
+
+void volume::Intensity_gradient_histogram()
+{
+	int i, j;
+	int x, y, z, temp1, temp2;
+	float pre_x, pre_y, pre_z, pos_x, pos_y, pos_z;
+	float value, df1, value_max;
+
+	for(i = 1;i <= 11;++i)
+		for(j = 1;j <= 11;++j)
+		{
+			intensity_gradient_histogram[i][j] = 0;
+			spatial_distribution[i][j] = 0;
+		}	
+
+		for(i = 1; i <= 11;++i)
+			for(j = 1; j <= 11; ++j)
+			{
+				pre_x = pre_y = pre_z = 0;
+				for(x = 0; x < length;++x)
+					for(y = 0; y < width; ++y)
+						for(z = 0; z < height; ++z)
+						{
+							value = float(getData(x, y, z));
+							df1 = float(getGrad(x, y, z));
+							value /= float(getMaxData());
+							df1 /= float(getMaxGrad());
+							temp1 = int(value * 10);
+							temp2 = int(df1 * 10);
+								if((temp1 >= i - 1) &&(temp1 < i) && (temp2 >= j - 1) && (temp2 < j))
+								{
+									intensity_gradient_histogram[i][j]++;
+									pos_x = float(x) / float(length);
+									pos_y = float(y) / float(width);
+									pos_z = float(z) / float(height);
+					//				cout<<pos_x<<pos_y<<pos_z<<endl;
+									spatial_distribution[i][j] += sqrt(pow(double(pos_x - pre_x), 2.0) 
+																					+  pow(double(pos_y - pre_y), 2.0)
+																					+  pow(double(pos_z - pre_z), 2.0));
+									pre_x = pos_x;
+									pre_y = pos_y;
+									pre_z = pos_z;
+								}
+						}
+			}
+		
+}
+
+float volume::getSpatialDistribution(int i, int j)
+{
+	return spatial_distribution[i][j];
+}
+
+unsigned int volume::getIntensity_gradient_histogram(int i, int j)
+{
+	return intensity_gradient_histogram[i][j];
 }

@@ -1,11 +1,7 @@
-#ifndef volume_filename_h
-#define volume_filename_h
+#ifndef filename_h
+#define filename_h
 
-#ifdef MAX_PATH
-#define MAX_STR_SIZE MAX_PATH
-#else
-#define MAX_STR_SIZE 320
-#endif
+#include "filename_utility.h"
 
 // filename can be set in command arguments
 // in Visual Studio, it is in project Properties->Debugging->Command Arguments
@@ -75,35 +71,4 @@ Bunny.raw	"184,832 KB"
 XMasTree.raw	"255,488 KB"
 ************************************************************************/
 
-const char *get_file_path_separator_position(const char *filename)
-{
-	const char *p = strrchr(filename, '\\');
-	if (NULL == p)
-	{
-		p = strrchr(filename, '/');
-	}
-	return p;
-}
-
-void print_about(int argc, char* argv[])
-{
-	char about[MAX_STR_SIZE * 4] = 
-"//////////////////////////////////////////////////////////////////////////\n\
-GPU raycasting demo\n\
-Copyright (c) 2010 Shengzhou Luo, Shenzhen Institute of Advanced Technology, Chinese Academy of Sciences.\n\
-\n\
-Usage:\n\
-%s [source]\n\
-source - File to load.\n\
-//////////////////////////////////////////////////////////////////////////\n\n";
-	const char *p = get_file_path_separator_position(argv[0]);
-	if (NULL == p)
-	{
-		printf(about, argv[0]);
-	}else
-	{
-		printf(about, p + 1);
-	}
-}
-
-#endif // volume_filename_h
+#endif // filename_h

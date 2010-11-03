@@ -1,18 +1,16 @@
-#pragma once
-
 #ifndef VolumeReader_h
 #define VolumeReader_h
 
 #include <cstdio>
 #include <cctype>
 #include <cstring>
-#include <nvMath.h>
-#include <vector>
-#include <iostream>
 
-#include "Ben\volume.h"
+//#include "../BenBenRaycasting/volume.h"
+//#include "../my_raycasting/reader.h"
+//#include "../my_raycasting/filename_utility.h"
+#include "volume.h"
 #include "reader.h"
-#include "volume_filename.h"
+#include "filename_utility.h"
 
 class VolumeReader : public volume
 {
@@ -26,8 +24,13 @@ public:
 	{
 	}
 
+	virtual void * getDataPointer()
+	{
+		return data;
+	}
+
 	// get the .raw file name from the .dat file automatically
-	bool readVolume(char * s)
+	virtual bool readVolFile(char * s)
 	{
 		char * cp, line[100], rawFilename[100];
 		FILE * fp = fopen(s, "r");
@@ -80,39 +83,13 @@ public:
 
 		//////////////////////////////////////////////////////////////////////////
 		// get the raw file path and filename
+		//std::cout<<"VolumeReader::readVolFile - get the raw file path and filename"<<std::endl;
 		char str[MAX_STR_SIZE];
-		strcpy(str, s);
-		const char *p = get_file_path_separator_position(str);
-		if (NULL == p)
-		{
-			volume::readData(rawFilename);
-		}else
-		{
-			strcpy((char *)(p) + 1, rawFilename);
-			volume::readData(str);
-		}
+		filename_utility::get_raw_filename_from_dat_filename(s, rawFilename, str);
+		volume::readData(str);
 		//////////////////////////////////////////////////////////////////////////
 
 		return true;
-	}
-
-	// utilize readVolFile and readData
-	void readVolume_Ben(char* filename = NULL)
-	{
-		readVolFile(filename);
-		char str[MAX_STR_SIZE];
-		strcpy(str, filename);
-		int length = strlen(str);
-		if (length > 4 && tolower(str[length - 4])=='.' && tolower(str[length - 3])=='d' && tolower(str[length - 2])=='a' && tolower(str[length - 1])=='t')
-		{
-			str[length - 3] = 'r';
-			str[length - 2] = 'a';
-			str[length - 1] = 'w';
-			readData(str);
-		}else
-		{
-			std::cerr<<"Errors in reading .dat file: "<<filename<<" and .raw file: "<<str<<std::endl;
-		}
 	}
 
 	// read volume data from file using readData in reader.h
@@ -145,8 +122,8 @@ public:
 			dataTypeSize = sizeof(short);
 			range = 65536;
 			break;
-		default:
-			std::cerr<<"Unsupported data type in "<<filename<<std::endl;
+		//default:
+			//std::cerr<<"Unsupported data type in "<<filename<<std::endl;
 		}
 
 		data = *data_ptr;
