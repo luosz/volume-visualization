@@ -76,7 +76,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\BenBenRaycasting\volume.cpp" />
     <ClCompile Include="kmlocal\KCtree.cpp" />
     <ClCompile Include="kmlocal\KCutil.cpp" />
     <ClCompile Include="kmlocal\KMcenters.cpp" />
@@ -94,8 +93,6 @@
     <ClCompile Include="textfile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\BenBenRaycasting\color.h" />
-    <ClInclude Include="..\BenBenRaycasting\volume.h" />
     <ClInclude Include="BenBenRaycasting.h" />
     <ClInclude Include="filename_utility.h" />
     <ClInclude Include="volume_utility.h" />

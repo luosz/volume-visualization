@@ -122,6 +122,7 @@
     <ClCompile Include="volume.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\my_raycasting\VolumeReader.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="k_means.h" />
     <ClInclude Include="resource.h" />

@@ -47,6 +47,9 @@
     <ClInclude Include="k_means.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\my_raycasting\VolumeReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="my_raycasting.frag" />

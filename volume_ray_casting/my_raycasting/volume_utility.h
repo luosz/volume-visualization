@@ -41,14 +41,14 @@ namespace volume_utility
 		ofstream changes_log("d:\\Bandwagon_effect_filter_changes_log.txt", ios::out);
 #endif
 
-		for (int i=0; i<width; i++)
+		for (int i=0; i<depth; i++)
 		{
 			for (int j=0; j<height; j++)
 			{
-				for (int k=0; k<depth; k++)
+				for (int k=0; k<width; k++)
 				{
-					int index = (i * width + j) * height + k;
-					if (i==0 || i==width-1 || j==0 || j==height-1 || k==0 || k==depth-1)
+					int index = (i * height + j) * width + k;
+					if (k==0 || k==width-1 || j==0 || j==height-1 || i==0 || i==depth-1)
 					{
 						label_ptr_after[index] = label_ptr_before[index];
 					}else
@@ -59,7 +59,7 @@ namespace volume_utility
 						// the bandwagon effect filter
 						for (int ii=0; ii<N; ii++)
 						{
-							int label = label_ptr_before[((i + dx[ii]) * width + j + dy[ii]) * height + k + dz[ii]]; 
+							int label = label_ptr_before[((i + dx[ii]) * height + j + dy[ii]) * width + k + dz[ii]]; 
 							counter[label]++;
 							if (label_max == -1)
 							{
@@ -113,14 +113,14 @@ namespace volume_utility
 		ofstream f2("d:\\median_filter_after.txt", ios::out);
 #endif
 
-		for (int i=0; i<width; i++)
+		for (int i=0; i<depth; i++)
 		{
 			for (int j=0; j<height; j++)
 			{
-				for (int k=0; k<depth; k++)
+				for (int k=0; k<width; k++)
 				{
-					int index = (i * width + j) * height + k;
-					if (i==0 || i==width-1 || j==0 || j==height-1 || k==0 || k==depth-1)
+					int index = (i * height + j) * width + k;
+					if (k==0 || k==width-1 || j==0 || j==height-1 || i==0 || i==depth-1)
 					{
 						scalar_value[index] = scalar_value_before[index];
 					}else
@@ -128,7 +128,7 @@ namespace volume_utility
 						// median filter
 						for (int ii=0; ii<N; ii++)
 						{
-							sorting[ii] = scalar_value_before[((i + dx[ii]) * width + j + dy[ii]) * height + k + dz[ii]];
+							sorting[ii] = scalar_value_before[((i + dx[ii]) * height + j + dy[ii]) * width + k + dz[ii]];
 						}
 						partial_sort(sorting.begin(), sorting.begin() + (N + 1) / 2, sorting.end());
 						scalar_value[index] = sorting[N / 2];
@@ -268,48 +268,48 @@ namespace volume_utility
 	{
 		unsigned int index;
 		int boundary[3] = {sizes[0]-1, sizes[1]-1, sizes[2]-1};
-		//nv::vec3f second_derivative;
+		int width = sizes[0], height = sizes[1], depth = sizes[2];
 
 		max_second_derivative_magnitude = max_gradient_magnitude = -1;
-		for (int i=0; i<sizes[0]; i++)
+		for (int i=0; i<depth; i++)
 		{
-			for (int j=0; j<sizes[1]; j++)
+			for (int j=0; j<height; j++)
 			{
-				for (int k=0; k<sizes[2]; k++)
+				for (int k=0; k<width; k++)
 				{
-					index = i * j * k;
-					if (i==0 || j==0 || k==0 || i==boundary[0] || j==boundary[1] || k==boundary[2])
+					index = ((i) * height + j) * width + k;
+					if (k==0 || j==0 || i==0 || k==boundary[0] || j==boundary[1] || i==boundary[2])
 					{
 						gradient_magnitude[index] = gradient[index].x = gradient[index].y = gradient[index].z = 0;
 					}else
 					{
-						gradient[index].x = scalar_value[(i+1) * j * k] - scalar_value[(i-1) * j * k];
-						gradient[index].y = scalar_value[i * (j+1) * k] - scalar_value[i * (j-1) * k];
-						gradient[index].z = scalar_value[i * j * (k+1)] - scalar_value[i * j * (k-1)];
+						gradient[index].x = scalar_value[((i + 1) * height + j) * width + k] - scalar_value[((i - 1) * height + j) * width + k];
+						gradient[index].y = scalar_value[((i) * height + j + 1) * width + k] - scalar_value[((i) * height + j - 1) * width + k];
+						gradient[index].z = scalar_value[((i) * height + j) * width + k + 1] - scalar_value[((i) * height + j) * width + k - 1];
 						gradient_magnitude[index] = length(gradient[index]);
-						max_gradient_magnitude = max(gradient_magnitude[index], max_gradient_magnitude);
+						max_gradient_magnitude = std::max(gradient_magnitude[index], max_gradient_magnitude);
 					}
 				}
 			}
 		}
 
-		for (int i=0; i<sizes[0]; i++)
+		for (int i=0; i<depth; i++)
 		{
-			for (int j=0; j<sizes[1]; j++)
+			for (int j=0; j<height; j++)
 			{
-				for (int k=0; k<sizes[2]; k++)
+				for (int k=0; k<width; k++)
 				{
-					index = i * j * k;
-					if (i==0 || j==0 || k==0 || i==boundary[0] || j==boundary[1] || k==boundary[2])
+					index = ((i) * height + j) * width + k;
+					if (k==0 || j==0 || i==0 || k==boundary[0] || j==boundary[1] || i==boundary[2])
 					{
 						second_derivative_magnitude[index] = 0;
 					}else
 					{
-						second_derivative[index].x = gradient[(i+1) * j * k].x - gradient[(i-1) * j * k].x;
-						second_derivative[index].y = gradient[i * (j+1) * k].y - gradient[i * (j-1) * k].y;
-						second_derivative[index].z = gradient[i * j * (k+1)].z - gradient[i * j * (k-1)].z;
+						second_derivative[index].x = gradient[((i + 1) * height + j) * width + k].x - gradient[((i - 1) * height + j) * width + k].x;
+						second_derivative[index].y = gradient[((i) * height + j + 1) * width + k].y - gradient[((i) * height + j - 1) * width + k].y;
+						second_derivative[index].z = gradient[((i) * height + j) * width + k + 1].z - gradient[((i) * height + j) * width + k - 1].z;
 						second_derivative_magnitude[index] = length(second_derivative[index]);
-						max_second_derivative_magnitude = max(second_derivative_magnitude[index], max_second_derivative_magnitude);
+						max_second_derivative_magnitude = std::max(second_derivative_magnitude[index], max_second_derivative_magnitude);
 					}
 				}
 			}

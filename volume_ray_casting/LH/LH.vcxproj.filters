@@ -13,30 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Ben">
-      <UniqueIdentifier>{15c074e5-f599-4774-87cb-55563d0f4f57}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="LH_Histograms_Constructor.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Ben\volume.cpp">
-      <Filter>Ben</Filter>
-    </ClCompile>
-    <ClCompile Include="test.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LH_Histograms_Constructor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Ben\color.h">
-      <Filter>Ben</Filter>
+    <ClInclude Include="BenBenRaycasting.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Ben\volume.h">
-      <Filter>Ben</Filter>
+    <ClInclude Include="color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filename.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filename_utility.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="reader.h">
       <Filter>Header Files</Filter>
@@ -44,14 +36,19 @@
     <ClInclude Include="sysconf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="volume_filename.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="volume_utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VolumeReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="volume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="volume.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

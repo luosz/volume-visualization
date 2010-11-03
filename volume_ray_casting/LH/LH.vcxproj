@@ -10,10 +10,25 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BenBenRaycasting.h" />
+    <ClInclude Include="color.h" />
+    <ClInclude Include="filename.h" />
+    <ClInclude Include="filename_utility.h" />
+    <ClInclude Include="LH_Histograms_Constructor.h" />
+    <ClInclude Include="reader.h" />
+    <ClInclude Include="sysconf.h" />
+    <ClInclude Include="volume.h" />
+    <ClInclude Include="VolumeReader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="volume.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{040F4727-99C1-49FE-9FE3-461CA6250535}</ProjectGuid>
+    <ProjectGuid>{769B3C2E-BE25-4658-9180-520AB5501675}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>LH_Histograms</RootNamespace>
+    <RootNamespace>LH</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -73,21 +88,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Ben\volume.cpp" />
-    <ClCompile Include="LH_Histograms_Constructor.cpp" />
-    <ClCompile Include="test.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Ben\color.h" />
-    <ClInclude Include="Ben\volume.h" />
-    <ClInclude Include="LH_Histograms_Constructor.h" />
-    <ClInclude Include="reader.h" />
-    <ClInclude Include="sysconf.h" />
-    <ClInclude Include="VolumeReader.h" />
-    <ClInclude Include="volume_filename.h" />
-    <ClInclude Include="volume_utility.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

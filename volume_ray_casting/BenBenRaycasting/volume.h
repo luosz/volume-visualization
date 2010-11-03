@@ -73,16 +73,24 @@ public:
 		df3 = NULL;
 		little_epsilon = 10;
 	}
-	~volume()
+	virtual ~volume()
 	{
-		free(data);
-		free(histogram);
-		free(gradient);
-		free(opacity);
-		free(group);
-		free(tag);
-		free(df2);
-		free(df3);
+		if(data)
+			free(data);
+		if(histogram)
+			free(histogram);
+		if(gradient)
+			free(gradient);
+		if(opacity)
+			free(opacity);
+		if(group)
+			free(group);
+		if(tag)	
+			free(tag);
+		if(df2)
+			free(df2);
+		if(df3)
+			free(df3);
 	}
 	virtual bool readVolFile(char * s);
 	bool readData(char * s);
