@@ -172,6 +172,7 @@ void volume::calHistogram()
 
 	max_data = 0;
 	min_data = 10000;
+	ofstream file("s.csv", std::ios::out);
 
 	histogram = (unsigned int * )malloc(range * sizeof(unsigned int));
 	if(histogram == NULL)
@@ -220,6 +221,12 @@ void volume::calHistogram()
 		acc_distribution[i] = float(total) / float(count);
 //		cout<<"acc_distribution [ "<<i<<" ]  = "<< acc_distribution[i]<<endl;
 	}
+
+	for(i = 0; i < range-1; ++i)
+	{
+		file<<histogram[i]<<","<<histogram[i]<<endl;		
+	}
+	file<<histogram[i];
 }
 
 unsigned int volume::getData(unsigned int x, unsigned int y, unsigned int z)
@@ -295,7 +302,8 @@ void volume::calGrad(void)
 	int x, y, z, index;
 	unsigned int i, j, k;
 	double df_dx, df_dy, df_dz, df;
-	
+	ofstream file("d4.csv", std::ios::out);
+
 	df_dx = df_dy = df_dz = 0.0;
 	gradient = (unsigned int *)malloc(count * sizeof(unsigned int));
 	if(gradient == NULL)
@@ -360,6 +368,8 @@ void volume::calGrad(void)
 						max_grad = int(df);
 					if(df < min_grad)
 						min_grad = int (df);
+					if(df != 0 && getData(x, y, z) != 0)
+						file<<getData(x, y, z)<<", "<<df<<endl;
 		//				cout<<"df_dx = "<<df_dx<<"   df_dy = "<<df_dy<<"    df_dz = "<<df_dz<<"    df ="<<gradient[index]<<endl;
 			}
 }
@@ -370,7 +380,8 @@ void volume::calGrad_ex()
 	unsigned int i, j, k;
 	double df_dx, df_dy, df_dz, df;
 	double f1, f2;
-	
+	ofstream file("d4_ex.csv", std::ios::out);
+
 	gradient = (unsigned int *)malloc(count * sizeof(unsigned int));
 	if(gradient == NULL)
 		fprintf(stderr, "not enough memory for grdient");
@@ -418,6 +429,8 @@ void volume::calGrad_ex()
 
 					df = sqrt(df_dx * df_dx + df_dy * df_dy + df_dz * df_dz);
 			//		df = pow(2.7182, double(df)) - 1;
+					if(df != 0 && getData(x, y, z) != 0)
+						file<<getData(x, y, z)<<", "<<df<<endl;
  					gradient[index] = int(df);
 					if(df > max_grad)
 						max_grad = int(df);
@@ -1069,4 +1082,169 @@ float volume::getSpatialDistribution(int i, int j)
 unsigned int volume::getIntensity_gradient_histogram(int i, int j)
 {
 	return intensity_gradient_histogram[i][j];
+}
+
+void volume::NormalDistributionTest()
+{
+	int x, y, z, i, j, k;
+	int index, number = 0;
+	int value[27], temp;
+	float a[13] = { 0.4366, 0.3018, 0.2522, 0.2152, 0.1848, 0.1584, 0.1346,
+		0.1128, 0.0923, 0.0728, 0.0540, 0.0358, 0.0178
+	};
+	float average, d1, d2, w;
+
+	for(x = 1; x <= getX() - 2; ++x)
+		for(y = 1;y <= getY() - 2; ++y)
+			for(z = 1; z  <= getZ() - 2; ++z)
+			{
+				index = 1;
+				for(i = x - 1; i <= x + 1; ++i)
+					for(j = y - 1; j <= y +1; ++j)
+						for(k = z - 1; k <= z + 1; ++k)
+						{
+							value[index] = getData(i, j, k);
+							index++;
+						}
+						for(i = 0; i < 27; ++i)
+							for(j = i + 1;j < 27; ++j)
+							{
+								if(value[j] < value[i])
+								{
+									temp = value[j];
+									value[j] = value[i];
+									value[i] = temp;
+								}
+							}
+							average = 0;
+							for(i = 0; i < 27;++i)
+							{
+								average += float(value[i]);
+								//		cout<<value[i]<<"\t";
+							}
+							average /= 27;
+							d1 = d2 = 0;
+							for(i = 0;i < 13; ++i)
+								d1 += a[i] * double(value[26 - i] - value[i]);
+							d1 = d1 * d1;
+							for(i = 0;i < 27;++i)
+								d2 += float(value[i] - average) * float(value[i] - average);
+							if(d2 == 0)
+								w = 0;
+							else
+								w = d1 / d2;
+					//			cout<<"w = "<<w<<endl;
+							if(w - 0.935 < 0)     
+							;	// 0.923 0.935
+				//						cout<<"不符合正态分布"<<endl;
+							else
+							{
+								number++;
+				//				cout<<"符合正态分布"<<endl;
+							}
+			}
+			cout<<float(number) /  float(getCount());
+			while(1);
+}
+
+void volume::filter()
+{
+	unsigned char * data_char;
+	unsigned short * data_short;
+	int i, j, k, index, p, q, r;
+	float tt;
+
+	if(strcmp(getFormat(), "UCHAR"))
+	{
+		data_char = (unsigned char *)malloc(sizeof(unsigned char) * getCount());
+		for(i = 0;i < getX(); ++i)
+			for(j = 0;j < getY(); ++j)
+				for(k = 0;k < getZ();++k)
+				{
+					index = getIndex(i ,j ,k);
+					if(i == 0 || i == getX() - 1|| j == 0 || j == getY() - 1 || k == 0 || k == getZ() - 1)
+					{						
+						data_char[index] = getData(i, j, k);
+					}
+					else
+					{
+						tt = 0;
+						for(p = i - 1;p <= i + 1;++p)
+							for(q = j - 1; q <= j + 1; ++q)
+								for(r = k - 1; r <= k + 1; ++r)
+									tt += int(getData(p, q, r));
+						tt /= 27;
+						data_char[index] = int(tt);
+					}
+				}
+		memcpy(data, data_char, sizeof(unsigned char) * getCount());
+	}
+	else if(strcmp(getFormat(), "USHORT"))
+	{
+		data_short = (unsigned short *)malloc(sizeof(unsigned short) * getCount());
+		for(i = 0;i < getX(); ++i)
+			for(j = 0;j < getY(); ++j)
+				for(k = 0;k < getZ();++k)
+				{
+					index = getIndex(i ,j ,k);
+					if(i == 0 || i == getX() - 1|| j == 0 || j == getY() - 1 || k == 0 || k == getZ() - 1)
+					{						
+						data_short[index] = getData(i, j, k);
+					}
+					else
+					{
+						tt = 0;
+						for(p = i - 1;p <= i + 1;++p)
+							for(q = j - 1; q <= j + 1; ++q)
+								for(r = k - 1; r <= k + 1; ++r)
+									tt += int(getData(p, q, r));
+						tt /= 27;
+						data_short[index] = int(tt);
+					}
+				}
+				memcpy(data, data_short, sizeof(unsigned short) * getCount());
+	}
+	else
+		;
+}
+
+void volume::average_deviation()
+{
+	int i, j, k, p, q, r;
+	float a, d, d_max = 0;
+
+	ofstream file("d4_ad.csv", std::ios::out);
+	for(i = 0;i < getX(); ++i)
+		for(j = 0; j < getY(); ++j)
+			for(k = 0; k < getZ(); ++k)
+			{
+				if(i == 0 || i == getX() - 1|| j == 0 || j == getY() - 1 || k == 0 || k == getZ() - 1)
+				{						
+					a = d = 0; 
+					file<<a<<", "<<d<<endl;
+				}
+				else
+				{
+					a = d = 0;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								a += float(getData(p, q, r));
+					a /= 27;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								d += pow(double(getData(p, q, r)) - a, 2.0);
+					d /= 27;
+					if(d > d_max)
+						d_max = d;
+		//			cout<<a<<d<<endl;
+					if(d > 0 && a != 0)
+						file<<a<<", "<<d<<endl;
+				
+			//		cout<<i<<", "<<j<<", "<<k<<",  a = "<<a<<", d = "<<d<<endl;
+					
+				}
+			}
+			cout<<d_max<<endl;
 }
