@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cctype>
 #include <cstring>
+#include <iostream>
 
 #include "../BenBenRaycasting/Volume.h"
 #include "../my_raycasting/reader.h"

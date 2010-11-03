@@ -13,42 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="../BenBenRaycasting">
+      <UniqueIdentifier>{5029f362-9375-4fa7-9ef4-d02b3a7b742f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LH_Histograms_Constructor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BenBenRaycasting.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\BenBenRaycasting\color.h">
+      <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
-    <ClInclude Include="color.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\BenBenRaycasting\Volume.h">
+      <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
-    <ClInclude Include="filename.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="filename_utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="reader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sysconf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VolumeReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="volume.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\my_raycasting\VolumeReader.h">
+      <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="volume.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\BenBenRaycasting\Volume.cpp">
+      <Filter>../BenBenRaycasting</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

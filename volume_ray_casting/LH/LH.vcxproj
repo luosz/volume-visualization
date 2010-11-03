@@ -11,19 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BenBenRaycasting.h" />
-    <ClInclude Include="color.h" />
-    <ClInclude Include="filename.h" />
-    <ClInclude Include="filename_utility.h" />
+    <ClInclude Include="..\BenBenRaycasting\color.h" />
+    <ClInclude Include="..\BenBenRaycasting\Volume.h" />
+    <ClInclude Include="..\my_raycasting\VolumeReader.h" />
     <ClInclude Include="LH_Histograms_Constructor.h" />
-    <ClInclude Include="reader.h" />
-    <ClInclude Include="sysconf.h" />
-    <ClInclude Include="volume.h" />
-    <ClInclude Include="VolumeReader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\BenBenRaycasting\Volume.cpp" />
     <ClCompile Include="test.cpp" />
-    <ClCompile Include="volume.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{769B3C2E-BE25-4658-9180-520AB5501675}</ProjectGuid>
