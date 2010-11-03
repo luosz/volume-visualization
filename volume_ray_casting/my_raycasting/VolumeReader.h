@@ -5,7 +5,7 @@
 #include <cctype>
 #include <cstring>
 
-#include "../BenBenRaycasting/volume.h"
+#include "../BenBenRaycasting/Volume.h"
 #include "reader.h"
 #include "filename_utility.h"
 
@@ -30,7 +30,7 @@ struct AccessGeneric : AccessBase
 	}
 };
 
-class VolumeReader : public volume
+class VolumeReader : public Volume
 {
 protected:
 	AccessBase * accessor;
@@ -107,7 +107,7 @@ public:
 		std::cout<<"VolumeReader::readVolFile - get the raw file path and filename"<<std::endl;
 		char str[MAX_STR_SIZE];
 		filename_utility::get_raw_filename_from_dat_filename(s, rawFilename, str);
-		volume::readData(str);
+		Volume::readData(str);
 
 		// create an accessor of the data type
 		if(strcmp(format, "UCHAR") == 0)

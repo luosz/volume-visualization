@@ -643,19 +643,19 @@ void create_volumetexture_a_cube()
 
 void create_transferfunc_Ben()
 {
-	VolumeReader Volume;
-	Volume.readVolFile(volume_filename);
-	Volume.calHistogram();
-	Volume.calGrad_ex();
-	Volume.calDf2();
-	Volume.calDf3();
-	Volume.statistics();
+	VolumeReader vr;
+	vr.readVolFile(volume_filename);
+	vr.calHistogram();
+	vr.calGrad_ex();
+	vr.calDf2();
+	vr.calDf3();
+	vr.statistics();
 
-	unsigned int dim_x = Volume.getX();
-	unsigned int dim_y = Volume.getY();
-	unsigned int dim_z = Volume.getZ();
+	unsigned int dim_x = vr.getX();
+	unsigned int dim_y = vr.getY();
+	unsigned int dim_z = vr.getZ();
 	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	setTransferfunc_Ben(tf, Volume);
+	setTransferfunc_Ben(tf, vr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
