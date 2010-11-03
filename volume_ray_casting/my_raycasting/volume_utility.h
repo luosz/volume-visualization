@@ -5,9 +5,9 @@
 #include <algorithm>
 //#include <functional>      // For greater<int>( )
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 #define _DEBUG_OUTPUT
-#endif
+//#endif
 
 #include "K_Means.h"
 #include "K_Means_PP_DIY.h"
@@ -227,7 +227,7 @@ namespace volume_utility
 	template <class T, int TYPE_SIZE>
 	void find_min_max_scalar_in_histogram(const unsigned int count, const unsigned int *histogram, float &scalar_min, float &scalar_max)
 	{
-		const unsigned int min_amount = static_cast<unsigned int>(count / 64.0);
+		const unsigned int min_amount = static_cast<unsigned int>(count * 0.023);
 		unsigned int amount = min_amount;
 		unsigned int min_index = 0;
 		for (unsigned int i=0; i<TYPE_SIZE; i++)
@@ -258,8 +258,8 @@ namespace volume_utility
 		scalar_max = static_cast<float>(max_index) / TYPE_SIZE;
 
 #ifdef _DEBUG_OUTPUT
-		std::cout<<"min max index\t"<<min_index<<"\t"<<max_index<<endl
-			<<"min max float\t"<<scalar_min<<"\t"<<scalar_max<<endl;
+		std::cout<<"min max index in the histogram\t"<<min_index<<"\t"<<max_index<<endl
+			<<"min max float in the histogram\t"<<scalar_min<<"\t"<<scalar_max<<endl;
 #endif
 	}
 

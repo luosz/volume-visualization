@@ -27,12 +27,12 @@ typedef struct
 	unsigned short FH;
 }LH;
 
-class volume
+class Volume
 {
 protected:
 	unsigned int length;               //体数据长度
 	unsigned int width;                //体数据宽度
-	unsigned int height;               //体数据高度
+	unsigned int height;               //体数??高度
 	unsigned int count;                  //体素数
 	char format[50];                     //数据格式
 	void * data;   
@@ -57,7 +57,7 @@ protected:
 	float spatial_distribution[12][12];
 	LH * LH_Histogram;
 public:
-	volume()
+	Volume()
 	{
 		length = width = height = count = range = dataTypeSize = max_data = min_data = threshold = 0;
 		max_frequency = 0;
@@ -104,7 +104,7 @@ public:
 	void calEp();
 	void calLH();
 	void Intensity_gradient_histogram();
-	unsigned int getData(unsigned int x, unsigned int y, unsigned int z);
+	virtual unsigned int getData(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getGrad(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getDf2(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getDf3(unsigned int x, unsigned int y, unsigned int z);
@@ -141,7 +141,9 @@ public:
 	void statistics();
 	float getMaxEp();
 	float getMinEp();
-	//void NormalTest();
+	void NormalDistributionTest();
+	void filter();
+	void average_deviation();
 };
 
 #endif

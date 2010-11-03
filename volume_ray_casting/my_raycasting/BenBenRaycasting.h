@@ -1,10 +1,7 @@
 #ifndef BenBenRaycasting_h
 #define BenBenRaycasting_h
 
-//////////////////////////////////////////////////////////////////////////
-// An adapter for ../BenBenRaycasting/volume.h
 #include "VolumeReader.h"
-//////////////////////////////////////////////////////////////////////////
 
 // This definition is for ../BenBenRaycasting/color.h
 #ifndef _WINDEF_
@@ -32,7 +29,7 @@ inline float norm(float min, float max, float x)  //convert data in range[min, m
 	return result;
 }
 
-void setTransferfunc_Ben(color_opacity *& tf, volume & Volume)
+void setTransferfunc_Ben(color_opacity *& tf, Volume & vr)
 {
 	int x, y, z, index;
 	float temp1, temp2,temp3, temp4;
@@ -46,30 +43,30 @@ void setTransferfunc_Ben(color_opacity *& tf, volume & Volume)
 	//dim_y = Volume.getY();
 	//dim_z = Volume.getZ();
 	//tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	unsigned int dim_x = Volume.getX();
-	unsigned int dim_y = Volume.getY();
-	unsigned int dim_z = Volume.getZ();
+	unsigned int dim_x = vr.getX();
+	unsigned int dim_y = vr.getY();
+	unsigned int dim_z = vr.getZ();
 
 	if(tf == NULL)
 	{
 		fprintf(stderr, "Not enough space for tf");
 	}
-	center_x = float(Volume.getX()) / 2.0; 
-	center_y = float(Volume.getY()) / 2.0;
-	center_z = float(Volume.getZ()) / 2.0;
+	center_x = float(vr.getX()) / 2.0; 
+	center_y = float(vr.getY()) / 2.0;
+	center_z = float(vr.getZ()) / 2.0;
 	for(z = 0; z < dim_z; ++z)
 		for(y = 0;y < dim_y; ++y)
 			for(x = 0; x < dim_x; ++x)
 			{
-				index = Volume.getIndex(x, y, z);
+				index = vr.getIndex(x, y, z);
 				d = 1 / 3.0 * (dim_x + dim_y + dim_z);				
-				range = Volume.getRange();
-				H = double(Volume.getData(x ,y ,z)) / double(range) * 360.0; 
+				range = vr.getRange();
+				H = double(vr.getData(x ,y ,z)) / double(range) * 360.0; 
 
 				//	S = 1 - pow(e , -1.0 * d *double(Volume.getData(x, y, z)));
 				//	S = exp()
-				S = norm(Volume.getMinData(), Volume.getMaxData(), Volume.getData(x, y, z));
-				L = norm(Volume.getMinGrad(), Volume.getMaxGrad(), Volume.getGrad(x, y, z));
+				S = norm(vr.getMinData(), vr.getMaxData(), vr.getData(x, y, z));
+				L = norm(vr.getMinGrad(), vr.getMaxGrad(), vr.getGrad(x, y, z));
 				//			L = double(x) + double(y) + double(z) / (3 * d);
 
 
@@ -84,15 +81,15 @@ void setTransferfunc_Ben(color_opacity *& tf, volume & Volume)
 
 
 
-				elasity = Volume.getEp(x, y, z);
-				gradient = Volume.getGrad(x, y, z);
+				elasity = vr.getEp(x, y, z);
+				gradient = vr.getGrad(x, y, z);
 				q = log(d);
-				if(gradient < 20 ||  Volume.getDf3(x ,y , z) < 10 || Volume.getDf2(x, y, z) < 10)
+				if(gradient < 20 ||  vr.getDf3(x ,y , z) < 10 || vr.getDf2(x, y, z) < 10)
 					opacity = 0;
 
 				else 
 				{
-					Ra = - double(Volume.getDf2(x, y, z)) / double(Volume.getGrad(x, y, z));
+					Ra = - double(vr.getDf2(x, y, z)) / double(vr.getGrad(x, y, z));
 
 					//		opacity = 1 - pow(e , -1.0 *  log(d)  * double(Volume.getMaxGrad() ) / gradient);
 					opacity = 1 - pow(e, -1.0  * Ra);

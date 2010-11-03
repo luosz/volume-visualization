@@ -119,7 +119,7 @@
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp" />
     <ClCompile Include="textfile.cpp" />
-    <ClCompile Include="volume.cpp" />
+    <ClCompile Include="Volume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\my_raycasting\VolumeReader.h" />
@@ -129,7 +129,7 @@
     <ClInclude Include="sysconf.h" />
     <ClInclude Include="textfile.h" />
     <ClInclude Include="Vector3.h" />
-    <ClInclude Include="volume.h" />
+    <ClInclude Include="Volume.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="my_raycasting.frag" />
