@@ -89,7 +89,7 @@ nv::GlutUIContext ui;
 
 //////////////////////////////////////////////////////////////////////////
 // ark @ 2010.10.15
-char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.dat";
+char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\head256.dat";
 //char file2[] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.raw";
 //////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +104,6 @@ inline void updateButtonState( const nv::ButtonState &bs, nv::GlutManipulator &m
 	if (bs.state & nv::ButtonFlags_Alt) modMask |= GLUT_ACTIVE_ALT;
 	if (bs.state & nv::ButtonFlags_Shift) modMask |= GLUT_ACTIVE_SHIFT;
 	if (bs.state & nv::ButtonFlags_Ctrl) modMask |= GLUT_ACTIVE_CTRL;
-
 	if (bs.state & nv::ButtonFlags_End)
 		manip.mouse( button, GLUT_UP, modMask, bs.cursor.x, height - bs.cursor.y);
 	if (bs.state & nv::ButtonFlags_Begin)
@@ -752,24 +751,24 @@ float ddd = sqrt(x / float(Volume.getX()) * x / (float)Volume.getX()
 
 }
 
-for(i = 1;i <= 11; ++i)
-		for(j = 1;j <= 11;++j)
-		{			
-				for(x = 0; x < dim_x;++x)
-					for(y = 0; y < dim_y; ++y)
-						for(z = 0; z < dim_z; ++z)
-						{
-							value = float(Volume.getData(x, y, z));
-							dF1 = float(Volume.getGrad(x, y, z));
-							value /= float(Volume.getMaxData());
-							dF1 /= float(Volume.getMaxGrad());
-							t1 = int(value * 10);
-							t2 = int(df1 * 10);
-							if((Volume.getIntensity_gradient_histogram(i, j) < 100) && 
-								(t1 >= i - 1) &&(t1 < i) && (t2 >= j - 1) && (t2 < j))
-								tf[Volume.getIndex(x, y, z)].a = 0;
-						}
-		}
+//for(i = 1;i <= 11; ++i)
+//		for(j = 1;j <= 11;++j)
+//		{			
+//				for(x = 0; x < dim_x;++x)
+//					for(y = 0; y < dim_y; ++y)
+//						for(z = 0; z < dim_z; ++z)
+//						{
+//							value = float(Volume.getData(x, y, z));
+//							dF1 = float(Volume.getGrad(x, y, z));
+//							value /= float(Volume.getMaxData());
+//							dF1 /= float(Volume.getMaxGrad());
+//							t1 = int(value * 10);
+//							t2 = int(df1 * 10);
+//							if((Volume.getIntensity_gradient_histogram(i, j) < 100) && 
+//								(t1 >= i - 1) &&(t1 < i) && (t2 >= j - 1) && (t2 < j))
+//								tf[Volume.getIndex(x, y, z)].a = 0;
+//						}
+//		}
 }
 
 void setTransferFunc3()
@@ -882,9 +881,100 @@ alpha = f / f_max * df1 / df1_max;
 }
 
 }
+
+void setTransferfunc5(void)
+{
+	 int x, y, z, i, j, k, p, q, r, index;
+	 float a, d, d_max = 0, gx, gy, gz, g;
+	 float alpha1, alpha2, beta;
+
+	 dim_x = Volume.getX();
+	 dim_y = Volume.getY();
+	 dim_z = Volume.getZ();
+	 beta = log((dim_x + dim_y + dim_z) / 3.0);
+
+	 tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
+	 if(tf == NULL)
+	 {
+		 fprintf(stderr, "Not enough space for tf");
+	 }
+	 for(i = 0;i < dim_x; ++i)
+		 for(j = 0; j < dim_y; ++j)
+			 for(k = 0; k < dim_z; ++k)
+			 {
+				index = Volume.getIndex(i, j, k);	
+				 if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
+				{						
+					a = d = 0; 
+					tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
+				}
+				else
+				{
+						 a = d = 0;
+						 for(p = i - 1;p <= i + 1;++p)
+							 for(q = j - 1; q <= j + 1; ++q)
+								 for(r = k - 1; r <= k + 1; ++r)
+									 a += float(Volume.getData(p, q, r));
+						 a /= 27;
+						for(p = i - 1;p <= i + 1;++p)
+							 for(q = j - 1; q <= j + 1; ++q)
+								 for(r = k - 1; r <= k + 1; ++r)
+									 d += pow(double(Volume.getData(p, q, r)) - a, 2.0);
+						d /= 27;
+						if(d == 0)
+							d = 1e-4;
+						 if(d > d_max)
+							 d_max = d;
+				}
+				
+			 }
+	for(i = 0;i < dim_x; ++i)
+		for(j = 0;j < dim_y; ++j)
+			for(k = 0;k < dim_z; ++k)
+			{
+				index = Volume.getIndex(i, j, k);	
+				if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
+				{						
+					a = d = 0; 
+					tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
+				}
+				else
+				{
+					a = d = 0;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								a += float(Volume.getData(p, q, r));
+					a /= 27;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								d += pow(double(Volume.getData(p, q, r)) - a, 2.0);
+					d /= 27;
+					if(d == 0)
+						d = 1e-4;
+				
+					alpha1 = exp(-1.0 * a / d);
+					alpha2 = ( exp(-beta * (1 - alpha1)) - exp(-beta) ) / (1 - exp(-beta));
+			//		if(d <  0.1 * d_max)
+				//		alpha2 = 0;
+					tf[index].a = unsigned char(alpha2 * 255);
+
+					gx = fabs(float(Volume.getData(i + 1, j, k)) - float(Volume.getData(i - 1, j, k)));
+					gy = fabs(float(Volume.getData(i , j + 1, k)) - float(Volume.getData(i , j - 1, k)));
+					gz = fabs(float(Volume.getData(i , j, k + 1)) - float(Volume.getData(i , j, k - 1)));
+					g = sqrt(gx * gx + gy * gy + gz * gz);
+
+					tf[index].r = unsigned char(gx / g * 255.0);
+					tf[index].g = unsigned char(gy / g * 255.0);
+					tf[index].b = unsigned char(gz / g * 255.0); 
+				}
+			}
+}
+
 void create_transferfunc()
 {
-	setTransferfunc2();
+	setTransferfunc5();
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -970,17 +1060,21 @@ void init()
 
 	Volume.readVolFile(file1);
 	cout<<"Data file name:"<<endl;
+//	Volume.filter();
 //	cin>>file;
 	//Volume.readData(file2);
-	Volume.calHistogram();
+//	Volume.calHistogram();
 //	Volume.calEp();
-	Volume.calGrad();
-	Volume.calDf2();
+//	Volume.NormalDistributionTest();
+//	Volume.calGrad();
+//	Volume.calGrad_ex();
+//	Volume.calDf2();
+//	Volume.average_deviation();
 //	NormalTest();
 //	Volume.calLH();
 //	Volume.calDf3();
 //	Volume.Intensity_gradient_histogram();
-	Volume.statistics();
+//	Volume.statistics();
 //	Volume.cluster();
 //	Volume.getInfo();
 	

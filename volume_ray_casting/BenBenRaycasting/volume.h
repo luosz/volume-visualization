@@ -133,7 +133,9 @@ public:
 	void statistics();
 	float getMaxEp();
 	float getMinEp();
-	//void NormalTest();
+	void NormalDistributionTest();
+	void filter();
+	void average_deviation();
 };
 
 #endif
