@@ -5,25 +5,51 @@
 #include <cctype>
 #include <cstring>
 
-#include "../BenBenRaycasting/volume.h"
+#include "../BenBenRaycasting/Volume.h"
 #include "../my_raycasting/reader.h"
 #include "../my_raycasting/filename_utility.h"
 
-class VolumeReader : public volume
+struct AccessBase
 {
+	virtual unsigned int getData(unsigned int index) = 0;
+};
+
+template<class T>
+struct AccessGeneric : AccessBase
+{
+	T * data;
+
+	AccessGeneric(void * d)
+	{
+		this->data = (T *)d;
+	}
+
+	virtual unsigned int getData(unsigned int index)
+	{
+		return (unsigned int)data[index];
+	}
+};
+
+class VolumeReader : public Volume
+{
+protected:
+	AccessBase * accessor;
+
 public:
 
 	VolumeReader(void)
 	{
+		accessor = NULL;
 	}
 
 	virtual ~VolumeReader(void)
 	{
-	}
+		if (accessor)
 
 	virtual void * getDataPointer()
-	{
-		return data;
+		{
+			delete accessor;
+		}
 	}
 
 	// get the .raw file name from the .dat file automatically
@@ -60,14 +86,14 @@ public:
 				{
 					strcpy(format, "UCHAR");
 					printf("Get data's format: Unsigned Char\n");
-					dataTypeSize = sizeof(char);
-					range = 256;				
+					dataTypeSize = sizeof(unsigned char);
+					range = 256;
 				}
 				else if(strstr(line, "USHORT"))
 				{
 					strcpy(format, "USHORT");
 					printf("Get data's format: Unsigned Short\n");
-					dataTypeSize = sizeof(short);
+					dataTypeSize = sizeof(unsigned short);
 					range = 65536;
 				}
 				else 
@@ -83,10 +109,30 @@ public:
 		//std::cout<<"VolumeReader::readVolFile - get the raw file path and filename"<<std::endl;
 		char str[MAX_STR_SIZE];
 		filename_utility::get_raw_filename_from_dat_filename(s, rawFilename, str);
-		volume::readData(str);
+		Volume::readData(str);
+
+		// create an accessor of the data type
+		if(strcmp(format, "UCHAR") == 0)
+		{
+			accessor = new AccessGeneric<unsigned char *>(data);
+		}else
+		{
+			if(strcmp(format, "USHORT") == 0)
+			{
+				accessor = new AccessGeneric<unsigned short *>(data);
+			}else 
+			{
+				std::cerr<<"Unsupported data type in "<<s<<std::endl;
+			}
+		}
 		//////////////////////////////////////////////////////////////////////////
 
 		return true;
+	}
+
+	virtual unsigned int getData(unsigned int x, unsigned int y, unsigned int z)
+	{
+		return accessor->getData(getIndex(x, y, z));
 	}
 
 	// read volume data from file using readData in reader.h
@@ -111,13 +157,15 @@ public:
 		{
 		case DATRAW_UCHAR:
 			strcpy(format, "UCHAR");
-			dataTypeSize = sizeof(char);
+			dataTypeSize = sizeof(unsigned char);
 			range = 256;
+			accessor = new AccessGeneric<unsigned char *>(data);
 			break;
 		case DATRAW_USHORT:
 			strcpy(format, "USHORT");
-			dataTypeSize = sizeof(short);
+			dataTypeSize = sizeof(unsigned short);
 			range = 65536;
+			accessor = new AccessGeneric<unsigned char *>(data);
 			break;
 		//default:
 			//std::cerr<<"Unsupported data type in "<<filename<<std::endl;

@@ -23,10 +23,10 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	for(int i = 0; i < count; i++)
 	{
 		color_sample = texture3D(transfer_texture, vec);
-		alpha_sample = color_sample.a * stepsize;
+		alpha_sample = color_sample.a * stepsize ;
 		//col_acc += (1.0 - alpha_acc) * color_sample * stepsize;
 		//col_acc   += (1.0 - alpha_acc) * color_sample * alpha_sample  * 15;
-		col_acc   -= (1.0 - alpha_acc) * color_sample * alpha_sample  * 15;
+		col_acc   -= (1.0 - alpha_acc) * color_sample * alpha_sample  * 10;
 		alpha_acc += alpha_sample;
 		//alpha_acc -= alpha_sample;
 		vec += delta_dir;

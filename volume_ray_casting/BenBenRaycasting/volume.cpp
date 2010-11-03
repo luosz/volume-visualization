@@ -1,13 +1,13 @@
-#include "volume.h"
 #include <iostream>
 #include <cstring>
 #include <string>
 #include <fstream>
 #include <cmath>
+#include "Volume.h"
 
 using namespace std;
 
-bool volume::readVolFile(char * s)
+bool Volume::readVolFile(char * s)
 {
 	char * cp, line[100], rawFilename[100];
 	FILE * fp = fopen(s, "r");
@@ -64,7 +64,7 @@ bool volume::readVolFile(char * s)
 	return true;
 }
 
-bool volume::readData(char * s)
+bool Volume::readData(char * s)
 {
 	FILE * fp = fopen(s, "rb");
 
@@ -93,7 +93,7 @@ bool volume::readData(char * s)
 	return true;
 }
 
-void volume::traverse()
+void Volume::traverse()
 {
 	int i, j, k;	
 	
@@ -151,27 +151,28 @@ void volume::traverse()
 	write.close();
 }
 
-unsigned int volume::getX(void)
+unsigned int Volume::getX(void)
 {
 	return length;
 }
 
-unsigned int volume::getY(void)
+unsigned int Volume::getY(void)
 {
 	return width;
 }
 
-unsigned int volume::getZ(void)
+unsigned int Volume::getZ(void)
 {
 	return height;
 }
 
-void volume::calHistogram()
+void Volume::calHistogram()
 {
 	int i, c, total;
 
 	max_data = 0;
 	min_data = 10000;
+	ofstream file("s.csv", std::ios::out);
 
 	histogram = (unsigned int * )malloc(range * sizeof(unsigned int));
 	if(histogram == NULL)
@@ -220,9 +221,15 @@ void volume::calHistogram()
 		acc_distribution[i] = float(total) / float(count);
 //		cout<<"acc_distribution [ "<<i<<" ]  = "<< acc_distribution[i]<<endl;
 	}
+
+	for(i = 0; i < range-1; ++i)
+	{
+		file<<histogram[i]<<","<<histogram[i]<<endl;		
+	}
+	file<<histogram[i];
 }
 
-unsigned int volume::getData(unsigned int x, unsigned int y, unsigned int z)
+unsigned int Volume::getData(unsigned int x, unsigned int y, unsigned int z)
 {
 	int index;
 	index = getIndex(x, y, z);
@@ -243,12 +250,12 @@ unsigned int volume::getData(unsigned int x, unsigned int y, unsigned int z)
 	}
 }
 
-unsigned int volume::getIndex(unsigned int x, unsigned int y, unsigned int z)
+unsigned int Volume::getIndex(unsigned int x, unsigned int y, unsigned int z)
 {
 	return (z * width * length + y * length + x);
 }
 
-void volume::calGradient()
+void Volume::calGradient()
 {
 	int x, y, z, index;
 	unsigned int df, i, j, k, df_dx, df_dy, df_dz;
@@ -290,12 +297,13 @@ void volume::calGradient()
 			}
 }
 
-void volume::calGrad(void)
+void Volume::calGrad(void)
 {
 	int x, y, z, index;
 	unsigned int i, j, k;
 	double df_dx, df_dy, df_dz, df;
-	
+	ofstream file("d4.csv", std::ios::out);
+
 	df_dx = df_dy = df_dz = 0.0;
 	gradient = (unsigned int *)malloc(count * sizeof(unsigned int));
 	if(gradient == NULL)
@@ -360,17 +368,20 @@ void volume::calGrad(void)
 						max_grad = int(df);
 					if(df < min_grad)
 						min_grad = int (df);
+					if(df != 0 && getData(x, y, z) != 0)
+						file<<getData(x, y, z)<<", "<<df<<endl;
 		//				cout<<"df_dx = "<<df_dx<<"   df_dy = "<<df_dy<<"    df_dz = "<<df_dz<<"    df ="<<gradient[index]<<endl;
 			}
 }
 
-void volume::calGrad_ex()
+void Volume::calGrad_ex()
 {
 	int x, y, z, index;
 	unsigned int i, j, k;
 	double df_dx, df_dy, df_dz, df;
 	double f1, f2;
-	
+	ofstream file("d4_ex.csv", std::ios::out);
+
 	gradient = (unsigned int *)malloc(count * sizeof(unsigned int));
 	if(gradient == NULL)
 		fprintf(stderr, "not enough memory for grdient");
@@ -418,6 +429,8 @@ void volume::calGrad_ex()
 
 					df = sqrt(df_dx * df_dx + df_dy * df_dy + df_dz * df_dz);
 			//		df = pow(2.7182, double(df)) - 1;
+					if(df != 0 && getData(x, y, z) != 0)
+						file<<getData(x, y, z)<<", "<<df<<endl;
  					gradient[index] = int(df);
 					if(df > max_grad)
 						max_grad = int(df);
@@ -427,7 +440,7 @@ void volume::calGrad_ex()
 			}
 }
 
-void volume::calDf2(void)
+void Volume::calDf2(void)
 {
 	int x, y, z, index, i, j, k;
 	double df2_dx, df2_dy, df2_dz, Df2;
@@ -500,7 +513,7 @@ void volume::calDf2(void)
 			}
 }
 
-void volume::calDf3(void)
+void Volume::calDf3(void)
 {
 	int x, y, z, index, i, j, k; 
 	double	df3_dx, df3_dy, df3_dz;
@@ -574,79 +587,79 @@ void volume::calDf3(void)
 }
 
 
-unsigned int volume::getGrad(unsigned int x, unsigned int y, unsigned int z)
+unsigned int Volume::getGrad(unsigned int x, unsigned int y, unsigned int z)
 {
 	int index = z * width * length + y * length + x;
 	
 	return gradient[index]; 
 }
 
-unsigned int volume::getMaxData(void)
+unsigned int Volume::getMaxData(void)
 {
 	return max_data;
 }
 
-unsigned int volume::getMinData(void)
+unsigned int Volume::getMinData(void)
 {
 	return min_data;
 }
 
-unsigned int volume::getMaxGrad(void)
+unsigned int Volume::getMaxGrad(void)
 {
 	return max_grad; 
 }
 
-unsigned int volume::getRange(void)
+unsigned int Volume::getRange(void)
 {
 	return range;
 }
 
-unsigned int volume::getMaxDf2(void)
+unsigned int Volume::getMaxDf2(void)
 {
 	return max_df2;
 }
 
-unsigned int volume::getMaxDf3(void)
+unsigned int Volume::getMaxDf3(void)
 {
 	return max_df3;
 }
 
-unsigned int volume::getDf2(unsigned int x, unsigned int y, unsigned int z)
+unsigned int Volume::getDf2(unsigned int x, unsigned int y, unsigned int z)
 {
 	return df2[getIndex(x, y, z)];
 }
 
-unsigned int volume::getDf3(unsigned int x, unsigned int y, unsigned int z)
+unsigned int Volume::getDf3(unsigned int x, unsigned int y, unsigned int z)
 {
 	return df3[getIndex(x, y, z)];
 }
 
-char * volume::getFormat(void)
+char * Volume::getFormat(void)
 {
 	return format;
 }
 
-void * volume::getDataAddr(void)
+void * Volume::getDataAddr(void)
 {
 	return data;
 }
 
-unsigned int volume::getMinGrad(void)
+unsigned int Volume::getMinGrad(void)
 {
 	return min_grad;
 }
 
-unsigned int volume::getMinDf2(void)
+unsigned int Volume::getMinDf2(void)
 {
 	return min_df2;
 }
 
-unsigned int volume::getMinDf3(void)
+unsigned int Volume::getMinDf3(void)
 {
 	return min_df3;
 }
 
-void volume::getInfo(void)
+void Volume::getInfo(void)
 {
 	int x, y, z;
 	cout<<"Dimension X = "<<length<<"\t Dimension Y = "<<width<<"\t Dimension Z = "<<height<<endl;
@@ -661,7 +674,7 @@ void volume::getInfo(void)
 				cout<<getGroup(x, y, z)<<"\t"<<endl;*/
 }
 
-bool volume::allTraverse(bool * tag)
+bool Volume::allTraverse(bool * tag)
 {
 	int i, count;
 
@@ -673,7 +686,7 @@ bool volume::allTraverse(bool * tag)
 	return true; 
 }
 
-void volume::setTag(unsigned int x, unsigned int y, unsigned int z)
+void Volume::setTag(unsigned int x, unsigned int y, unsigned int z)
 {
 	int index;
 	
@@ -681,22 +694,22 @@ void volume::setTag(unsigned int x, unsigned int y, unsigned int z)
 	tag[index] = true;
 }
 
-bool volume::getTag(unsigned int x, unsigned int y, unsigned int z)
+bool Volume::getTag(unsigned int x, unsigned int y, unsigned int z)
 {
 	return tag[getIndex(x, y, z)];
 }
 
-void volume::setGroup(unsigned int x, unsigned int y, unsigned int z, unsigned int id)
+void Volume::setGroup(unsigned int x, unsigned int y, unsigned int z, unsigned int id)
 {
 	group[getIndex(x, y, z)] = id;	
 }
 
-unsigned int volume::getGroup(unsigned int x, unsigned int y, unsigned int z)
+unsigned int Volume::getGroup(unsigned int x, unsigned int y, unsigned int z)
 {
 	return group[getIndex(x, y, z)];
 }
 
-bool volume::visit(grid a, grid seed)
+bool Volume::visit(grid a, grid seed)
 {
 	grid next;
 	if(getTag(a.x, a.y, a.z) || a.x < 0 || a.x >= length || a.y < 0 || a.y >= width || a.z < 0 || a.z >= height)
@@ -718,7 +731,7 @@ bool volume::visit(grid a, grid seed)
 	}	
 }
 
-void volume::visitNeighbor(grid seed)
+void Volume::visitNeighbor(grid seed)
 {
 	grid next;
 	
@@ -747,7 +760,7 @@ void volume::visitNeighbor(grid seed)
 	visit(next, seed);
 }
 
-void volume::cluster()
+void Volume::cluster()
 {
 	int i;
 	int x, y, z, index;
@@ -777,7 +790,7 @@ void volume::cluster()
 	}
 }
 
-void volume::statistics(void)
+void Volume::statistics(void)
 {
 	int x, y, z;
 	int dim_x, dim_y, dim_z;
@@ -810,12 +823,12 @@ void volume::statistics(void)
 	
 }
 
-unsigned int volume::getHistogram(unsigned int intensity)
+unsigned int Volume::getHistogram(unsigned int intensity)
 {
 	return histogram[intensity];
 }
 
-unsigned int volume::getMaxFrequency(void)
+unsigned int Volume::getMaxFrequency(void)
 {
 	int i, result = 0;
 	for(i = 0;i < range;++i)
@@ -825,7 +838,7 @@ unsigned int volume::getMaxFrequency(void)
 	return result;
 }
 
-void volume::calEp(void)
+void Volume::calEp(void)
 {
 	int x, y, z, index;
 	double f, f1, f2, df_dx, df_dy, df_dz, ep_x, ep_y, ep_z;
@@ -878,27 +891,27 @@ void volume::calEp(void)
 			}
 }
 
-float volume::getEp(unsigned int x, unsigned int y, unsigned int z)
+float Volume::getEp(unsigned int x, unsigned int y, unsigned int z)
 {
 	return ep[getIndex(x, y, z)];
 }
 
-float volume::getMaxEp()
+float Volume::getMaxEp()
 {
 	return max_ep;
 }
 
-float volume::getMinEp()
+float Volume::getMinEp()
 {
 	return min_ep;
 }
 
-unsigned int volume::getCount()
+unsigned int Volume::getCount()
 {
 	return length * width * height;
 }
 
-void volume::calLH()
+void Volume::calLH()
 {
 	int x, y, z, index;
 	int i, j, k, H, L;
@@ -1014,7 +1027,7 @@ void volume::calLH()
 					}
 }
 
-void volume::Intensity_gradient_histogram()
+void Volume::Intensity_gradient_histogram()
 {
 	int i, j;
 	int x, y, z, temp1, temp2;
@@ -1061,12 +1074,177 @@ void volume::Intensity_gradient_histogram()
 		
 }
 
-float volume::getSpatialDistribution(int i, int j)
+float Volume::getSpatialDistribution(int i, int j)
 {
 	return spatial_distribution[i][j];
 }
 
-unsigned int volume::getIntensity_gradient_histogram(int i, int j)
+unsigned int Volume::getIntensity_gradient_histogram(int i, int j)
 {
 	return intensity_gradient_histogram[i][j];
+}
+
+void Volume::NormalDistributionTest()
+{
+	int x, y, z, i, j, k;
+	int index, number = 0;
+	int value[27], temp;
+	float a[13] = { 0.4366, 0.3018, 0.2522, 0.2152, 0.1848, 0.1584, 0.1346,
+		0.1128, 0.0923, 0.0728, 0.0540, 0.0358, 0.0178
+	};
+	float average, d1, d2, w;
+
+	for(x = 1; x <= getX() - 2; ++x)
+		for(y = 1;y <= getY() - 2; ++y)
+			for(z = 1; z  <= getZ() - 2; ++z)
+			{
+				index = 1;
+				for(i = x - 1; i <= x + 1; ++i)
+					for(j = y - 1; j <= y +1; ++j)
+						for(k = z - 1; k <= z + 1; ++k)
+						{
+							value[index] = getData(i, j, k);
+							index++;
+						}
+						for(i = 0; i < 27; ++i)
+							for(j = i + 1;j < 27; ++j)
+							{
+								if(value[j] < value[i])
+								{
+									temp = value[j];
+									value[j] = value[i];
+									value[i] = temp;
+								}
+							}
+							average = 0;
+							for(i = 0; i < 27;++i)
+							{
+								average += float(value[i]);
+								//		cout<<value[i]<<"\t";
+							}
+							average /= 27;
+							d1 = d2 = 0;
+							for(i = 0;i < 13; ++i)
+								d1 += a[i] * double(value[26 - i] - value[i]);
+							d1 = d1 * d1;
+							for(i = 0;i < 27;++i)
+								d2 += float(value[i] - average) * float(value[i] - average);
+							if(d2 == 0)
+								w = 0;
+							else
+								w = d1 / d2;
+					//			cout<<"w = "<<w<<endl;
+							if(w - 0.935 < 0)     
+							;	// 0.923 0.935
+				//						cout<<"不符合正态分布"<<endl;
+							else
+							{
+								number++;
+				//				cout<<"符合正态分布"<<endl;
+							}
+			}
+			cout<<float(number) /  float(getCount());
+			while(1);
+}
+
+void Volume::filter()
+{
+	unsigned char * data_char;
+	unsigned short * data_short;
+	int i, j, k, index, p, q, r;
+	float tt;
+
+	if(strcmp(getFormat(), "UCHAR"))
+	{
+		data_char = (unsigned char *)malloc(sizeof(unsigned char) * getCount());
+		for(i = 0;i < getX(); ++i)
+			for(j = 0;j < getY(); ++j)
+				for(k = 0;k < getZ();++k)
+				{
+					index = getIndex(i ,j ,k);
+					if(i == 0 || i == getX() - 1|| j == 0 || j == getY() - 1 || k == 0 || k == getZ() - 1)
+					{						
+						data_char[index] = getData(i, j, k);
+					}
+					else
+					{
+						tt = 0;
+						for(p = i - 1;p <= i + 1;++p)
+							for(q = j - 1; q <= j + 1; ++q)
+								for(r = k - 1; r <= k + 1; ++r)
+									tt += int(getData(p, q, r));
+						tt /= 27;
+						data_char[index] = int(tt);
+					}
+				}
+		memcpy(data, data_char, sizeof(unsigned char) * getCount());
+	}
+	else if(strcmp(getFormat(), "USHORT"))
+	{
+		data_short = (unsigned short *)malloc(sizeof(unsigned short) * getCount());
+		for(i = 0;i < getX(); ++i)
+			for(j = 0;j < getY(); ++j)
+				for(k = 0;k < getZ();++k)
+				{
+					index = getIndex(i ,j ,k);
+					if(i == 0 || i == getX() - 1|| j == 0 || j == getY() - 1 || k == 0 || k == getZ() - 1)
+					{						
+						data_short[index] = getData(i, j, k);
+					}
+					else
+					{
+						tt = 0;
+						for(p = i - 1;p <= i + 1;++p)
+							for(q = j - 1; q <= j + 1; ++q)
+								for(r = k - 1; r <= k + 1; ++r)
+									tt += int(getData(p, q, r));
+						tt /= 27;
+						data_short[index] = int(tt);
+					}
+				}
+				memcpy(data, data_short, sizeof(unsigned short) * getCount());
+	}
+	else
+		;
+}
+
+void Volume::average_deviation()
+{
+	int i, j, k, p, q, r;
+	float a, d, d_max = 0;
+
+	ofstream file("d4_ad.csv", std::ios::out);
+	for(i = 0;i < getX(); ++i)
+		for(j = 0; j < getY(); ++j)
+			for(k = 0; k < getZ(); ++k)
+			{
+				if(i == 0 || i == getX() - 1|| j == 0 || j == getY() - 1 || k == 0 || k == getZ() - 1)
+				{						
+					a = d = 0; 
+					file<<a<<", "<<d<<endl;
+				}
+				else
+				{
+					a = d = 0;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								a += float(getData(p, q, r));
+					a /= 27;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								d += pow(double(getData(p, q, r)) - a, 2.0);
+					d /= 27;
+					if(d > d_max)
+						d_max = d;
+		//			cout<<a<<d<<endl;
+					if(d > 0 && a != 0)
+						file<<a<<", "<<d<<endl;
+				
+			//		cout<<i<<", "<<j<<", "<<k<<",  a = "<<a<<", d = "<<d<<endl;
+					
+				}
+			}
+			cout<<d_max<<endl;
 }

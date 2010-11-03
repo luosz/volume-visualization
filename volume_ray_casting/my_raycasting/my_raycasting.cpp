@@ -643,19 +643,19 @@ void create_volumetexture_a_cube()
 
 void create_transferfunc_Ben()
 {
-	VolumeReader Volume;
-	Volume.readVolFile(volume_filename);
-	Volume.calHistogram();
-	Volume.calGrad_ex();
-	Volume.calDf2();
-	Volume.calDf3();
-	Volume.statistics();
+	VolumeReader vr;
+	vr.readVolFile(volume_filename);
+	vr.calHistogram();
+	vr.calGrad_ex();
+	vr.calDf2();
+	vr.calDf3();
+	vr.statistics();
 
-	unsigned int dim_x = Volume.getX();
-	unsigned int dim_y = Volume.getY();
-	unsigned int dim_z = Volume.getZ();
+	unsigned int dim_x = vr.getX();
+	unsigned int dim_y = vr.getY();
+	unsigned int dim_z = vr.getZ();
 	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	setTransferfunc_Ben(tf, Volume);
+	setTransferfunc_Ben(tf, vr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -742,17 +742,15 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 
 	// draw quadrangle strips to make a histogram
 	glBegin(GL_QUAD_STRIP);
-	float x, y, min = 0.125, height = (1/(1-0.618)) * float(count) / TYPE_SIZE;
+	float x, y, height = (1/(1-0.618)) * float(count) / TYPE_SIZE;
 	for (unsigned int i = 0; i<TYPE_SIZE; i++)
 	{
 		x = float(i) / TYPE_SIZE;
 		y = float(histogram[i]) / height;
 		glColor3f(x, x, x);
+		glColor3f(1.0, 1.0, 1.0);
 		glVertex2f(x, 0);
-		if (x < min)
-			glColor3f(min, min, min);
-		else
-			glColor3f(x, x, x);
+		glColor3f(1.0, 1.0, 1.0);
 		glVertex2f(x, y);
 	}
 	glEnd();
