@@ -73,7 +73,7 @@ public:
 		df3 = NULL;
 		little_epsilon = 10;
 	}
-	virtual ~volume()
+	virtual ~Volume()
 	{
 		if(data)
 			free(data);

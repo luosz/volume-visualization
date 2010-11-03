@@ -45,8 +45,6 @@ public:
 	virtual ~VolumeReader(void)
 	{
 		if (accessor)
-
-	virtual void * getDataPointer()
 		{
 			delete accessor;
 		}
