@@ -9,16 +9,59 @@
 #include "reader.h"
 #include "filename_utility.h"
 
+struct AccessBase
+{
+	virtual unsigned int getData(unsigned int index) = 0;
+};
+
+struct AccessUnsignedChar : AccessBase
+{
+	unsigned char * data;
+
+	AccessUnsignedChar(void * d)
+	{
+		this->data = (unsigned char *)d;
+	}
+
+	virtual unsigned int getData(unsigned int index)
+	{
+		return (unsigned int)data[index];
+	}
+};
+
+struct AccessUnsignedShort : AccessBase
+{
+	unsigned short * data;
+
+	AccessUnsignedShort(void * d)
+	{
+		this->data = (unsigned short *)d;
+	}
+
+	virtual unsigned int getData(unsigned int index)
+	{
+		return (unsigned int)data[index];
+	}
+};
+
 class VolumeReader : public volume
 {
+protected:
+	AccessBase * accessor;
+
 public:
 
 	VolumeReader(void)
 	{
+		accessor = NULL;
 	}
 
 	virtual ~VolumeReader(void)
 	{
+		if (accessor)
+		{
+			delete accessor;
+		}
 	}
 
 	// get the .raw file name from the .dat file automatically
@@ -56,7 +99,7 @@ public:
 					strcpy(format, "UCHAR");
 					printf("Get data's format: Unsigned Char\n");
 					dataTypeSize = sizeof(char);
-					range = 256;				
+					range = 256;
 				}
 				else if(strstr(line, "USHORT"))
 				{
@@ -79,9 +122,27 @@ public:
 		char str[MAX_STR_SIZE];
 		filename_utility::get_raw_filename_from_dat_filename(s, rawFilename, str);
 		volume::readData(str);
+
+		// create an accessor of the data type
+		switch(dataTypeSize)
+		{
+		case sizeof(char):
+			accessor = new AccessUnsignedChar(data);
+			break;
+		case sizeof(short):
+			accessor = new AccessUnsignedShort(data);
+			break;
+		default:
+			std::cerr<<"Unsupported data type in "<<s<<std::endl;
+		}
 		//////////////////////////////////////////////////////////////////////////
 
 		return true;
+	}
+
+	virtual unsigned int getData(unsigned int x, unsigned int y, unsigned int z)
+	{
+		return accessor->getData(getIndex(x, y, z));
 	}
 
 	// read volume data from file using readData in reader.h
@@ -108,11 +169,13 @@ public:
 			strcpy(format, "UCHAR");
 			dataTypeSize = sizeof(char);
 			range = 256;
+			accessor = new AccessUnsignedChar(data);
 			break;
 		case DATRAW_USHORT:
 			strcpy(format, "USHORT");
 			dataTypeSize = sizeof(short);
 			range = 65536;
+			accessor = new AccessUnsignedShort(data);
 			break;
 		default:
 			std::cerr<<"Unsupported data type in "<<filename<<std::endl;
