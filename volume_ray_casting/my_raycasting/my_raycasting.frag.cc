@@ -1,6 +1,6 @@
 // volume data and transfer functions
 uniform sampler2D back, front, transfer_function_2D;
-uniform sampler3D volume, transfer_texture, cluster_texture;
+uniform sampler3D volume, transfer_texture, cluster_texture, importance_texture;
 
 // for raycasting
 uniform float stepsize, luminance, clip;
@@ -568,6 +568,20 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				color_sample
 					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
 					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
+				break;
+			case 9:
+				// Simple 2D transfer function with importance
+				c = texture3D(volume, ray);
+				c.rgb = equalize(c.rgb);
+				color_sample
+					= mask.xxxw * texture2D(transfer_function_2D, c.xw)
+					+ mask.wwwx * sum3(c.rgb) * texture3D(importance_texture, ray).x;
+				break;
+			case 10:
+				// k-means equalized with importance
+				color_sample
+					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
+					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb)) * texture3D(importance_texture, ray).x;
 				break;
 			default:
 				// Raw scalar values without a transfer function
