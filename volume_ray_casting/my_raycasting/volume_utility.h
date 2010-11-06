@@ -5,9 +5,9 @@
 #include <algorithm>
 //#include <functional>      // For greater<int>( )
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 #define _DEBUG_OUTPUT
-//#endif
+#endif
 
 #include "K_Means.h"
 #include "K_Means_PP_DIY.h"
@@ -192,15 +192,26 @@ namespace volume_utility
 		std::cout<<"K-means++..."<<std::endl;
 		K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
 
+		//std::ofstream label_file_before("d:/label_before.txt");
+		//for (unsigned int i=0; i<count; i++)
+		//{
+		//	label_file_before<<(int)label_ptr_before[i];
+		//}
+
 		// the bandwagon effect filter
 		std::cout<<"The bandwagon effect filter..."<<std::endl;
 		bandwagon_effect_filter(k, label_ptr_before, label_ptr, width, height, depth);
 		delete[] label_ptr_before;
 
-		std::cout<<"Shifting labels..."<<std::endl;
-		shift_labels(k, count, label_ptr);
+		//std::ofstream label_file("d:/label.txt");
+		//for (unsigned int i=0; i<count; i++)
+		//{
+		//	label_file<<(int)label_ptr[i];
+		//}
 
-		std::cout<<"The k_means routine is done."<<std::endl<<std::endl;
+		//std::cout<<"Shifting labels..."<<std::endl;
+		//shift_labels(k, count, label_ptr);
+		//std::cout<<"The k_means routine is done."<<std::endl<<std::endl;
 	}
 
 	// calculate scalar histogram
@@ -283,9 +294,9 @@ namespace volume_utility
 						gradient_magnitude[index] = gradient[index].x = gradient[index].y = gradient[index].z = 0;
 					}else
 					{
-						gradient[index].x = scalar_value[((i + 1) * height + j) * width + k] - scalar_value[((i - 1) * height + j) * width + k];
+						gradient[index].z = scalar_value[((i + 1) * height + j) * width + k] - scalar_value[((i - 1) * height + j) * width + k];
 						gradient[index].y = scalar_value[((i) * height + j + 1) * width + k] - scalar_value[((i) * height + j - 1) * width + k];
-						gradient[index].z = scalar_value[((i) * height + j) * width + k + 1] - scalar_value[((i) * height + j) * width + k - 1];
+						gradient[index].x = scalar_value[((i) * height + j) * width + k + 1] - scalar_value[((i) * height + j) * width + k - 1];
 						gradient_magnitude[index] = length(gradient[index]);
 						max_gradient_magnitude = std::max(gradient_magnitude[index], max_gradient_magnitude);
 					}
@@ -305,9 +316,9 @@ namespace volume_utility
 						second_derivative_magnitude[index] = 0;
 					}else
 					{
-						second_derivative[index].x = gradient[((i + 1) * height + j) * width + k].x - gradient[((i - 1) * height + j) * width + k].x;
+						second_derivative[index].z = gradient[((i + 1) * height + j) * width + k].x - gradient[((i - 1) * height + j) * width + k].x;
 						second_derivative[index].y = gradient[((i) * height + j + 1) * width + k].y - gradient[((i) * height + j - 1) * width + k].y;
-						second_derivative[index].z = gradient[((i) * height + j) * width + k + 1].z - gradient[((i) * height + j) * width + k - 1].z;
+						second_derivative[index].x = gradient[((i) * height + j) * width + k + 1].z - gradient[((i) * height + j) * width + k - 1].z;
 						second_derivative_magnitude[index] = length(second_derivative[index]);
 						max_second_derivative_magnitude = std::max(second_derivative_magnitude[index], max_second_derivative_magnitude);
 					}

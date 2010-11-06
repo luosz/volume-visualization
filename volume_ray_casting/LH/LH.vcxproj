@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\BenBenRaycasting\color.h" />
     <ClInclude Include="..\BenBenRaycasting\Volume.h" />
     <ClInclude Include="..\my_raycasting\VolumeReader.h" />
     <ClInclude Include="LH_Histograms_Constructor.h" />

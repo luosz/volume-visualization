@@ -56,6 +56,10 @@ GLuint loc_scalar_max_normalized;
 GLuint cluster_texture;
 GLuint loc_cluster_texture;
 
+// for importance peeling
+GLuint importance_texture;
+GLuint loc_importance_texture;
+
 // for feature peeling
 float slope_threshold = 0;
 GLuint loc_slope_threshold;
@@ -148,6 +152,7 @@ bool button_cluster = false;
 bool button_generate_Ben_transfer_function = false;
 bool button_all = false;
 bool button_show_alpha_blending = false;
+bool button_load_importance = false;
 
 enum RenderOption
 {
@@ -185,6 +190,8 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_SOBEL_3D,
 	TRANSFER_FUNCTION_K_MEANS,
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED,
+	TRANSFER_FUNCTION_K_MEANS_IMPORTANCE,
+	TRANSFER_FUNCTION_K_MEANS_EQUALIZED_IMPORTANCE,
 	TRANSFER_FUNCTION_COUNT
 };
 int transfer_function_option = 0;
@@ -208,13 +215,16 @@ inline void updateButtonState(const nv::ButtonState &bs, nv::GlutManipulator &ma
 	if (bs.state & nv::ButtonFlags_Begin)
 		manip.mouse(button, GLUT_DOWN, modMask, bs.cursor.x, WINDOW_SIZE - bs.cursor.y);
 }
+
+//char text[MAX_STR_SIZE] = "Hello\n";
+//int chars_returned;
 float picked = 0.5;
 void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
 	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ equalized importance"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -225,7 +235,7 @@ void doUI()
 		ui.beginGroup();
 
 		ui.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
-		ui.doCheckButton(none, "Test cube", &button_show_generated_cube);
+		//ui.doCheckButton(none, "Test cube", &button_show_generated_cube);
 		ui.doCheckButton(none, "Rotate", &button_auto_rotate);
 		ui.doCheckButton(none, "Lock view", &button_lock_viewpoint);
 		ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
@@ -233,11 +243,14 @@ void doUI()
 		ui.doButton(none, "Cluster", &button_cluster);
 		ui.doButton(none, "Generate Ben TF", &button_generate_Ben_transfer_function);
 		ui.doButton(none, "Do all", &button_all);
+		ui.doButton(none, "Load label", &button_load_importance);
 		ui.endGroup();
 
 		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
 		ui.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
 		ui.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
+
+		//ui.doLineEdit(none, text, MAX_STR_SIZE, &chars_returned);
 
 		ui.endGroup();
 
@@ -462,6 +475,7 @@ void set_shaders() {
 	add_texture_uniform(p, "transfer_function_2D", 4, GL_TEXTURE_2D, transfer_function_2D_buffer);
 	loc_transfer_texture = add_texture_uniform(p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
 	loc_cluster_texture =  add_texture_uniform(p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
+	loc_importance_texture =  add_texture_uniform(p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
 
 	// disable the shader program
 	glUseProgram(0);
@@ -695,13 +709,90 @@ void resize(int w, int h)
 	manipulator.reshape(w, h);
 }
 
+bool load_importance_label(const unsigned int count)
+{
+	unsigned char *label_ptr = new unsigned char[count];
+	int k = static_cast<int>(cluster_quantity);
+	unsigned char *replacement = new unsigned char[k];
+
+	std::cout<<"Input replacement list"<<std::endl;
+	for (int i=0; i<k; i++)
+	{
+		std::cin>>replacement[i];
+	}
+
+	std::ifstream label_file("d:/label.txt");
+	if (label_file.bad())
+	{
+		return false;
+	}
+
+	for (unsigned int i=0; i<count; i++)
+	{
+		label_file>>label_ptr[i];
+		//label_ptr[i] = label_file.get();
+		//std::cout<<label_ptr[i];
+		label_ptr[i] = replacement[label_ptr[i] - '0'];
+	}
+	//std::cout<<endl;
+	label_file.close();
+
+	std::ofstream label_file_ram("d:/label_ram.txt");
+	if (label_file_ram.bad())
+	{
+		return false;
+	}
+	for (unsigned int i=0; i<count; i++)
+	{
+		label_file_ram<<label_ptr[i];
+	}
+	label_file_ram.close();
+
+	std::cout<<"Shifting labels..."<<std::endl;
+	volume_utility::shift_labels(static_cast<int>(cluster_quantity), count, label_ptr);
+	std::cout<<"Importance labels are loaded"<<std::endl<<std::endl;
+
+	// set importance texture
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &importance_texture);
+	glBindTexture(GL_TEXTURE_3D, importance_texture);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(GL_TEXTURE_3D, 0, 1, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, label_ptr);
+
+	set_texture_uniform(loc_importance_texture, p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
+
+	delete [] label_ptr;
+	return true;
+}
+
 // cluster the volume data
 template <class T, int TYPE_SIZE>
 void cluster(const T *data, const unsigned int count)
 {
 	unsigned char *label_ptr = new unsigned char[count];
-	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, static_cast<int>(cluster_quantity), label_ptr, sizes[0], sizes[1], sizes[2]);
+	int k = static_cast<int>(cluster_quantity);
+	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
 
+	//unsigned char *label_ptr_shift = new unsigned char[count];
+	//memcpy(label_ptr_shift, label_ptr, count * sizeof(unsigned char));
+
+	std::ofstream label_file("d:/label.txt");
+	for (unsigned int i=0; i<count; i++)
+	{
+		label_file<<(int)label_ptr[i];
+	}
+	label_file.close();
+
+	std::cout<<"Shifting labels..."<<std::endl;
+	volume_utility::shift_labels(k, count, label_ptr);
+	std::cout<<"The k_means routine is done."<<std::endl<<std::endl;
+
+	// set cluster texture
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &cluster_texture);
 	glBindTexture(GL_TEXTURE_3D, cluster_texture);
@@ -713,9 +804,24 @@ void cluster(const T *data, const unsigned int count)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0, 1, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, label_ptr);
 
-	delete [] label_ptr;
-
 	set_texture_uniform(loc_cluster_texture, p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
+
+	// set importance texture
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &importance_texture);
+	glBindTexture(GL_TEXTURE_3D, importance_texture);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(GL_TEXTURE_3D, 0, 1, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, label_ptr);
+
+	set_texture_uniform(loc_importance_texture, p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
+
+	//delete [] label_ptr_shift;
+	delete [] label_ptr;
 }
 
 // render the histogram
@@ -1115,6 +1221,9 @@ void key_release(unsigned char key, int x, int y)
 			peeling_option = (peeling_option + 1) % PEELING_COUNT;
 		}
 		break;
+	//case 'c':
+	//	std::cout<<chars_returned<<"\t"<<text<<std::endl;
+	//	break;
 	}
 }
 
@@ -1319,6 +1428,19 @@ void display()
 	resize(WINDOW_SIZE,WINDOW_SIZE);
 	enable_renderbuffers();
 	render_transfer_function_2D();
+
+	// load importance label
+	if(data_ptr && button_load_importance)
+	{
+		button_load_importance = false;
+		if(load_importance_label(sizes[0]*sizes[1]*sizes[2]))
+		{
+			std::cout<<"load importance label success"<<std::endl;
+		}else
+		{
+			std::cout<<"load importance label failed"<<std::endl;
+		}
+	}
 
 	// do it all
 	if(data_ptr && button_all)
