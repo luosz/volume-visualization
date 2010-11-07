@@ -16,6 +16,21 @@
 
 namespace volume_utility
 {
+	// convert a char to a hex number, the cluster number is represented in 0~9 and a~f
+	unsigned char char_to_number(unsigned char c)
+	{
+		c = tolower(c);
+		if (c >= '0' && c <= '9')
+		{
+			return c - '0';
+		}
+		if (c >= 'a' && c <= 'f')
+		{
+			return 10 + c - 'a';
+		}
+		return c;
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// estimate the interval among clusters
 	// interval = (2^int(log(2, 256/k)))/256
