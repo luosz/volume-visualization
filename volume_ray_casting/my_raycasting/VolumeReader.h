@@ -5,6 +5,7 @@
 #include <cctype>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 #include "../BenBenRaycasting/Volume.h"
 #include "../my_raycasting/reader.h"
@@ -18,16 +19,31 @@ struct AccessBase
 template<class T>
 struct AccessGeneric : AccessBase
 {
-	T * data;
+	T  datatransfered;
 
 	AccessGeneric(void * d)
 	{
-		this->data = (T *)d;
+		datatransfered = (T)d;
 	}
 
 	virtual unsigned int getData(unsigned int index)
 	{
-		return (unsigned int)data[index];
+		return (unsigned int)datatransfered[index];
+	}
+};
+
+struct AccessChar : AccessBase
+{
+	unsigned char * datatransfered;
+
+	AccessChar(void * d)
+	{
+		datatransfered = (unsigned char *)d;
+	}
+
+	virtual unsigned int getData(unsigned int index)
+	{
+		return (unsigned int)datatransfered[index];
 	}
 };
 
@@ -110,7 +126,6 @@ public:
 		filename_utility::get_raw_filename_from_dat_filename(s, rawFilename, str);
 		Volume::readData(str);
 
-		// create an accessor of the data type
 		if(strcmp(format, "UCHAR") == 0)
 		{
 			accessor = new AccessGeneric<unsigned char *>(data);
@@ -118,14 +133,14 @@ public:
 		{
 			if(strcmp(format, "USHORT") == 0)
 			{
-				accessor = new AccessGeneric<unsigned short *>(data);
+				accessor = new AccessGeneric<unsigned short *>(data);	
 			}else 
 			{
 				std::cerr<<"Unsupported data type in "<<s<<std::endl;
 			}
 		}
 		//////////////////////////////////////////////////////////////////////////
-
+		
 		return true;
 	}
 
@@ -164,7 +179,7 @@ public:
 			strcpy(format, "USHORT");
 			dataTypeSize = sizeof(unsigned short);
 			range = 65536;
-			accessor = new AccessGeneric<unsigned char *>(data);
+			accessor = new AccessGeneric<unsigned short *>(data);
 			break;
 		//default:
 			//std::cerr<<"Unsupported data type in "<<filename<<std::endl;

@@ -69,7 +69,7 @@ bool Volume::readData(char * s)
 	FILE * fp = fopen(s, "rb");
 
 	printf("Loading data file: %s ......\n", s);
-	cout<<fp;
+	//cout<<fp;
 	if(fp == NULL)
 	{
 		fprintf(stderr, "ERROR: Could not open file %s\n", s);

@@ -69,6 +69,7 @@ public:
 		opacity = NULL;
 		group = NULL;
 		tag = NULL;
+		gradient = NULL;
 		df2 = NULL;
 		df3 = NULL;
 		little_epsilon = 10;

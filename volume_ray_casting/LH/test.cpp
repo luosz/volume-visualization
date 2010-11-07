@@ -63,7 +63,7 @@ using namespace std;
 //	}
 //}
 
-void generate_gradient(Volume &vv,const unsigned int datalength,const unsigned int datawidth,const unsigned int dataheight, std::vector<nv::vec3f> &gradient, std::vector<float> &gradient_magnitude, float &max_gradient_magnitude, std::vector<nv::vec3f> &second_derivative, std::vector<float> &second_derivative_magnitude, float &max_second_derivative_magnitude)
+void generate_gradient(VolumeReader &vv,const unsigned int datalength,const unsigned int datawidth,const unsigned int dataheight, std::vector<nv::vec3f> &gradient, std::vector<float> &gradient_magnitude, float &max_gradient_magnitude, std::vector<nv::vec3f> &second_derivative, std::vector<float> &second_derivative_magnitude, float &max_second_derivative_magnitude)
 {
 	//std::cout<<"gradient vector address = "<<&gradient<<std::endl;
 	unsigned int index;
@@ -128,6 +128,7 @@ void main()
 	char *volume_filename = "../my_raycasting/data/nucleon.dat";
 	volume.readVolFile(volume_filename);
 	unsigned int count = volume.getCount();
+
 	std::vector<nv::vec3f> gradient(count);
 	std::vector<float> grandient_magnitude(count);
 	std::vector<nv::vec3f> second_derivative(count);
@@ -135,7 +136,8 @@ void main()
 	float maxGradientMagnitude;
 	float maxSecondDerivativeMagnitude;
 	generate_gradient(volume,volume.getX(),volume.getY(),volume.getZ(),gradient,grandient_magnitude,maxGradientMagnitude,second_derivative,second_derivative_magnitude,maxSecondDerivativeMagnitude);
-	
+
+
 	std::ofstream out("D:/result.txt");
 	for(int i = 0; i <= volume.getX()-1; i++){
 		for(int j = 0; j <= volume.getY()-1; j++ ){
@@ -143,7 +145,7 @@ void main()
 				unsigned int index = volume.getIndex(i,j,k);
 				out<<"voxel coordinate = ("<< i <<","<<j<<","<<k<<");\t";
 				out<<"voxel Index = "<<index<<";\t";
-				out<<"voxel data = "<<volume.getData(i,j,k)<<";\t";
+				out<<"voxel data = "<<volume.getData(i,j,k)<<";\t"<<std::endl;;
 				out<<"voxel gradient = ("<<gradient[index].x<<","<<gradient[index].y<<","<<gradient[index].z<<");\t";
 				out<<"voxel gradient magnitude = "<<grandient_magnitude[index]<<";\t";
 				out<<"voxel second derivative = ("<<second_derivative[index].x<<","<<second_derivative[index].y<<","<<second_derivative[index].z<<");\t";
@@ -151,6 +153,7 @@ void main()
 			}
 		}
 	}
+
 	LH_Histograms LHHistograms = LH_Histograms();
 	LHHistograms.constructor(volume,gradient,grandient_magnitude,second_derivative,second_derivative_magnitude);
 	out.close();
