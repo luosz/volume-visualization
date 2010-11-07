@@ -75,9 +75,11 @@ const float LAYER_MIN = 0;
 const float LAYER_INC = 1;
 
 // for opacity peeling and gradient peeling
-int peeling_option = 0;
 float threshold_low = 0.3;
 float threshold_high = 0;
+GLuint loc_threshold_high;
+GLuint loc_threshold_low;
+GLuint loc_peeling_option;
 
 const float OPACITY_THRESHOLD_MAX = 1;
 const float OPACITY_THRESHOLD_MIN = 0;
@@ -91,16 +93,12 @@ const float GRADIENT_SAMPLE_THRESHOLD_MAX = 5;
 const float GRADIENT_SAMPLE_THRESHOLD_MIN = 0;
 const float GRADIENT_SAMPLE_THRESHOLD_INC = 0.05;
 
-GLuint loc_threshold_high;
-GLuint loc_threshold_low;
-GLuint loc_peeling_option;
-
 // for linear interpolation of alpha in the transfer function
 GLuint loc_alpha_opacity;
 float alpha_opacity = 0;
 
 // the parameter k for k-means
-float cluster_quantity = 8;
+float cluster_quantity = 8; // 16 clusters at most, since the cluster number is represented in 0~9 and a~f
 int cluster_quantity_int_old = -1; // to be initialized
 float cluster_interval;
 GLuint loc_cluster_interval;
@@ -152,8 +150,9 @@ bool button_cluster = false;
 bool button_generate_Ben_transfer_function = false;
 bool button_all = false;
 bool button_show_alpha_blending = false;
-bool button_load_importance = false;
+bool button_load_importance_label = false;
 
+// for output image
 enum RenderOption
 {
 	RENDER_FINAL_IMAGE,
@@ -164,7 +163,7 @@ enum RenderOption
 	RENDER_HISTOGRAM_GRADIENT,
 	RENDER_COUNT
 };
-int render_option = RENDER_FINAL_IMAGE;
+int render_option = RenderOption::RENDER_FINAL_IMAGE;
 
 // for peeling
 enum PeelingOption
@@ -175,8 +174,10 @@ enum PeelingOption
 	PEELING_BACK,
 	PEELING_FRONT,
 	PEELING_GRADIENT,
+	PEELING_IMPORTANCE,
 	PEELING_COUNT
 };
+int peeling_option = PeelingOption::PEELING_NONE;
 
 // for transfer function
 enum TransferFunctionOption
@@ -194,7 +195,7 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED_IMPORTANCE,
 	TRANSFER_FUNCTION_COUNT
 };
-int transfer_function_option = 0;
+int transfer_function_option = TransferFunctionOption::TRANSFER_FUNCTION_NONE;
 GLuint loc_transfer_function_option;
 
 /// Implementation ----------------------------------------
@@ -222,9 +223,9 @@ float picked = 0.5;
 void doUI()
 {
 	nv::Rect none;
-	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ equalized importance"};
+	const char *render_str[RenderOption::RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
+	const char *peeling_str[PeelingOption::PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Importance peeling"};
+	const char *transfer_function_str[TransferFunctionOption::TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -243,12 +244,12 @@ void doUI()
 		ui.doButton(none, "Cluster", &button_cluster);
 		ui.doButton(none, "Generate Ben TF", &button_generate_Ben_transfer_function);
 		ui.doButton(none, "Do all", &button_all);
-		ui.doButton(none, "Load label", &button_load_importance);
+		ui.doButton(none, "Load label", &button_load_importance_label);
 		ui.endGroup();
 
-		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
-		ui.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
-		ui.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
+		ui.doComboBox(none, RenderOption::RENDER_COUNT, render_str, &render_option);
+		ui.doComboBox(none, PeelingOption::PEELING_COUNT, peeling_str, &peeling_option);
+		ui.doComboBox(none, TransferFunctionOption::TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
 
 		//ui.doLineEdit(none, text, MAX_STR_SIZE, &chars_returned);
 
@@ -265,19 +266,20 @@ void doUI()
 		// show peeling widgets
 		switch(peeling_option)
 		{
-		case PEELING_OPACITY:
+		case PeelingOption::PEELING_IMPORTANCE:
+		case PeelingOption::PEELING_OPACITY:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_low);
 			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_high);
 			break;
-		case PEELING_FEATURE:
+		case PeelingOption::PEELING_FEATURE:
 			sprintf(str, "slope threshold: %f", slope_threshold);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
 			break;
-		case PEELING_GRADIENT:
+		case PeelingOption::PEELING_GRADIENT:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
 			ui.doLabel(none, str);
@@ -287,11 +289,12 @@ void doUI()
 		}
 		switch(peeling_option)
 		{
-		case PEELING_OPACITY:
-		case PEELING_FEATURE:
-		case PEELING_BACK:
-		case PEELING_FRONT:
-		case PEELING_GRADIENT:
+		case PeelingOption::PEELING_OPACITY:
+		case PeelingOption::PEELING_FEATURE:
+		case PeelingOption::PEELING_BACK:
+		case PeelingOption::PEELING_FRONT:
+		case PeelingOption::PEELING_GRADIENT:
+		case PeelingOption::PEELING_IMPORTANCE:
 			sprintf(str, "peeling_layer: %f", peeling_layer);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
@@ -299,14 +302,14 @@ void doUI()
 		}
 
 		// show transfer function widgets
-		if (transfer_function_option == TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
+		if (transfer_function_option == TransferFunctionOption::TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TransferFunctionOption::TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
 		{
 			sprintf(str, "k-means k=%f", cluster_quantity);
 			ui.doLabel(none, str);
-			ui.doHorizontalSlider(rect_slider, 1, 32, &cluster_quantity);
+			ui.doHorizontalSlider(rect_slider, 1, 16, &cluster_quantity);
 		}else
 		{
-			if (button_show_alpha_blending && (transfer_function_option == TRANSFER_FUNCTION_SOBEL || transfer_function_option == TRANSFER_FUNCTION_SOBEL_3D))
+			if (button_show_alpha_blending && (transfer_function_option == TransferFunctionOption::TRANSFER_FUNCTION_SOBEL || transfer_function_option == TransferFunctionOption::TRANSFER_FUNCTION_SOBEL_3D))
 			{
 				sprintf(str, "opacity=mix(gradient,scalar,alpha)    alpha=%f", alpha_opacity);
 				ui.doLabel(none, str);
@@ -324,7 +327,7 @@ void doUI()
 		ui.doHorizontalSlider(full_slider, CLIP_MIN, CLIP_MAX, &clip);
 		sprintf(str, "Clip: %f", clip);
 		ui.doLabel(none, str);
-		if (render_option == RENDER_HISTOGRAM)
+		if (render_option == RenderOption::RENDER_HISTOGRAM)
 		{
 			ui.doHorizontalSlider(full_slider, 0.00001, 1.0, &picked);
 			sprintf(str, "Histogram value picked: %f", picked);
@@ -709,65 +712,80 @@ void resize(int w, int h)
 	manipulator.reshape(w, h);
 }
 
-bool load_importance_label(const unsigned int count)
+void load_importance_label_texture(unsigned char *label_ptr, GLuint location, GLuint program, const char* name, int number, GLuint texture)
 {
+	GLenum target = GL_TEXTURE_3D;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &texture);
+	glBindTexture(target, texture);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(target, 0, 1, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, label_ptr);
+
+	set_texture_uniform(location, program, name, number, target, texture);
+}
+
+char label_file_name[MAX_STR_SIZE] = "d:/label.txt";
+char label_file_name_replaced[MAX_STR_SIZE] = "d:/label_replaced.txt";
+
+void load_importance_label(const unsigned int count)
+{
+	unsigned char *label_ptr_replaced = new unsigned char[count];
 	unsigned char *label_ptr = new unsigned char[count];
 	int k = static_cast<int>(cluster_quantity);
 	unsigned char *replacement = new unsigned char[k];
 
-	std::cout<<"Input replacement list"<<std::endl;
+	std::cout<<"Input a replacement list (e.g. 01234567 for k=8, 0123456789abcdef for k=16)"<<std::endl;
 	for (int i=0; i<k; i++)
 	{
 		std::cin>>replacement[i];
+		replacement[i] = volume_utility::char_to_number(replacement[i]);
 	}
 
-	std::ifstream label_file("d:/label.txt");
+	std::cout<<"Load labels from "<<label_file_name<<std::endl;
+	std::ifstream label_file(label_file_name);
 	if (label_file.bad())
 	{
-		return false;
+		std::cout<<"Failed to open "<<label_file_name<<std::endl;
+		return;
 	}
 
 	for (unsigned int i=0; i<count; i++)
 	{
 		label_file>>label_ptr[i];
-		//label_ptr[i] = label_file.get();
-		//std::cout<<label_ptr[i];
-		label_ptr[i] = replacement[label_ptr[i] - '0'];
+		label_ptr[i] = volume_utility::char_to_number(label_ptr[i]);
+		label_ptr_replaced[i] = replacement[label_ptr[i]];
 	}
-	//std::cout<<endl;
 	label_file.close();
 
-	std::ofstream label_file_ram("d:/label_ram.txt");
-	if (label_file_ram.bad())
+	std::cout<<"Write replaced label to "<<label_file_name_replaced<<std::endl;
+	std::ofstream label_file_replaced(label_file_name_replaced);
+	if (label_file_replaced.bad())
 	{
-		return false;
+		std::cout<<"Failed to open "<<label_file_name_replaced<<std::endl;
+		return;
 	}
 	for (unsigned int i=0; i<count; i++)
 	{
-		label_file_ram<<label_ptr[i];
+		label_file_replaced<<std::hex<<(int)label_ptr_replaced[i];
 	}
-	label_file_ram.close();
+	label_file_replaced.close();
 
 	std::cout<<"Shifting labels..."<<std::endl;
 	volume_utility::shift_labels(static_cast<int>(cluster_quantity), count, label_ptr);
+	volume_utility::shift_labels(static_cast<int>(cluster_quantity), count, label_ptr_replaced);
 	std::cout<<"Importance labels are loaded"<<std::endl<<std::endl;
 
-	// set importance texture
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &importance_texture);
-	glBindTexture(GL_TEXTURE_3D, importance_texture);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0, 1, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, label_ptr);
+	load_importance_label_texture(label_ptr, loc_cluster_texture, p, "cluster_texture", 6, cluster_texture);
+	load_importance_label_texture(label_ptr_replaced, loc_importance_texture, p, "importance_texture", 7, importance_texture);
 
-	set_texture_uniform(loc_importance_texture, p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
-
+	delete [] label_ptr_replaced;
 	delete [] label_ptr;
-	return true;
 }
 
 // cluster the volume data
@@ -778,13 +796,10 @@ void cluster(const T *data, const unsigned int count)
 	int k = static_cast<int>(cluster_quantity);
 	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
 
-	//unsigned char *label_ptr_shift = new unsigned char[count];
-	//memcpy(label_ptr_shift, label_ptr, count * sizeof(unsigned char));
-
-	std::ofstream label_file("d:/label.txt");
+	std::ofstream label_file(label_file_name);
 	for (unsigned int i=0; i<count; i++)
 	{
-		label_file<<(int)label_ptr[i];
+		label_file<<std::hex<<(int)label_ptr[i];
 	}
 	label_file.close();
 
@@ -792,35 +807,9 @@ void cluster(const T *data, const unsigned int count)
 	volume_utility::shift_labels(k, count, label_ptr);
 	std::cout<<"The k_means routine is done."<<std::endl<<std::endl;
 
-	// set cluster texture
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &cluster_texture);
-	glBindTexture(GL_TEXTURE_3D, cluster_texture);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0, 1, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, label_ptr);
+	load_importance_label_texture(label_ptr, loc_cluster_texture, p, "cluster_texture", 6, cluster_texture);
+	load_importance_label_texture(label_ptr, loc_importance_texture, p, "importance_texture", 7, importance_texture);
 
-	set_texture_uniform(loc_cluster_texture, p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
-
-	// set importance texture
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &importance_texture);
-	glBindTexture(GL_TEXTURE_3D, importance_texture);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0, 1, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, label_ptr);
-
-	set_texture_uniform(loc_importance_texture, p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
-
-	//delete [] label_ptr_shift;
 	delete [] label_ptr;
 }
 
@@ -1095,13 +1084,14 @@ void key_hold()
 		case 'h':
 			switch(peeling_option)
 			{
-			case PEELING_OPACITY:
+			case PeelingOption::PEELING_IMPORTANCE:
+			case PeelingOption::PEELING_OPACITY:
 				threshold_low = decrease(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
 				break;
-			case PEELING_GRADIENT:
+			case PeelingOption::PEELING_GRADIENT:
 				threshold_low = decrease(threshold_low, GRADIENT_SAMPLE_THRESHOLD_INC, GRADIENT_SAMPLE_THRESHOLD_MIN);
 				break;
-			case PEELING_FEATURE:
+			case PeelingOption::PEELING_FEATURE:
 				slope_threshold = decrease(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MIN);
 				break;
 			}
@@ -1109,13 +1099,14 @@ void key_hold()
 		case 'j':
 			switch(peeling_option)
 			{
-			case PEELING_OPACITY:
+			case PeelingOption::PEELING_IMPORTANCE:
+			case PeelingOption::PEELING_OPACITY:
 				threshold_low = increase(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
 				break;
-			case PEELING_GRADIENT:
+			case PeelingOption::PEELING_GRADIENT:
 				threshold_low = increase(threshold_low, GRADIENT_SAMPLE_THRESHOLD_INC, GRADIENT_SAMPLE_THRESHOLD_MAX);
 				break;
-			case PEELING_FEATURE:
+			case PeelingOption::PEELING_FEATURE:
 				slope_threshold = increase(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MAX);
 				break;
 			}
@@ -1123,10 +1114,11 @@ void key_hold()
 		case 'n':
 			switch(peeling_option)
 			{
-			case PEELING_OPACITY:
+			case PeelingOption::PEELING_IMPORTANCE:
+			case PeelingOption::PEELING_OPACITY:
 				threshold_high = decrease(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
 				break;
-			case PEELING_GRADIENT:
+			case PeelingOption::PEELING_GRADIENT:
 				threshold_high = decrease(threshold_high, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MIN);
 				break;
 			}
@@ -1134,10 +1126,11 @@ void key_hold()
 		case 'm':
 			switch(peeling_option)
 			{
-			case PEELING_OPACITY:
+			case PeelingOption::PEELING_IMPORTANCE:
+			case PeelingOption::PEELING_OPACITY:
 				threshold_high = increase(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
 				break;
-			case PEELING_GRADIENT:
+			case PeelingOption::PEELING_GRADIENT:
 				threshold_high = increase(threshold_high, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MAX);
 				break;
 			}
@@ -1145,11 +1138,12 @@ void key_hold()
 		case 'k':
 			switch(peeling_option)
 			{
-			case PEELING_OPACITY:
-			case PEELING_FEATURE:
-			case PEELING_BACK:
-			case PEELING_FRONT:
-			case PEELING_GRADIENT:
+			case PeelingOption::PEELING_OPACITY:
+			case PeelingOption::PEELING_FEATURE:
+			case PeelingOption::PEELING_BACK:
+			case PeelingOption::PEELING_FRONT:
+			case PeelingOption::PEELING_GRADIENT:
+			case PeelingOption::PEELING_IMPORTANCE:
 				peeling_layer = decrease(peeling_layer, LAYER_INC, LAYER_MIN);
 				break;
 			}
@@ -1157,11 +1151,12 @@ void key_hold()
 		case 'l':
 			switch(peeling_option)
 			{
-			case PEELING_OPACITY:
-			case PEELING_FEATURE:
-			case PEELING_BACK:
-			case PEELING_FRONT:
-			case PEELING_GRADIENT:
+			case PeelingOption::PEELING_OPACITY:
+			case PeelingOption::PEELING_FEATURE:
+			case PeelingOption::PEELING_BACK:
+			case PeelingOption::PEELING_FRONT:
+			case PeelingOption::PEELING_GRADIENT:
+			case PeelingOption::PEELING_IMPORTANCE:
 				peeling_layer = increase(peeling_layer, LAYER_INC, LAYER_MAX);
 				break;
 			}
@@ -1191,10 +1186,10 @@ void key_release(unsigned char key, int x, int y)
 		// image to render
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
-			render_option = (render_option - 1 + RENDER_COUNT) % RENDER_COUNT;
+			render_option = (render_option - 1 + RenderOption::RENDER_COUNT) % RenderOption::RENDER_COUNT;
 		}else
 		{
-			render_option = (render_option + 1) % RENDER_COUNT;
+			render_option = (render_option + 1) % RenderOption::RENDER_COUNT;
 		}
 		break;
 	case 'u':
@@ -1205,20 +1200,20 @@ void key_release(unsigned char key, int x, int y)
 		// transfer function
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
-			transfer_function_option = (transfer_function_option - 1 + TRANSFER_FUNCTION_COUNT) % TRANSFER_FUNCTION_COUNT;
+			transfer_function_option = (transfer_function_option - 1 + TransferFunctionOption::TRANSFER_FUNCTION_COUNT) % TransferFunctionOption::TRANSFER_FUNCTION_COUNT;
 		}else
 		{
-			transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
+			transfer_function_option = (transfer_function_option + 1) % TransferFunctionOption::TRANSFER_FUNCTION_COUNT;
 		}
 		break;
 	case 'p':
 		// peeling
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
-			peeling_option = (peeling_option - 1 + PEELING_COUNT) % PEELING_COUNT;
+			peeling_option = (peeling_option - 1 + PeelingOption::PEELING_COUNT) % PeelingOption::PEELING_COUNT;
 		}else
 		{
-			peeling_option = (peeling_option + 1) % PEELING_COUNT;
+			peeling_option = (peeling_option + 1) % PeelingOption::PEELING_COUNT;
 		}
 		break;
 	//case 'c':
@@ -1271,22 +1266,22 @@ void render_buffer_to_screen()
 	// choose the buffer to render 
 	switch(render_option)
 	{
-	case RENDER_FINAL_IMAGE:
+	case RenderOption::RENDER_FINAL_IMAGE:
 		glBindTexture(GL_TEXTURE_2D, final_image);
 		break;
-	case RENDER_BACK_FACE:
+	case RenderOption::RENDER_BACK_FACE:
 		glBindTexture(GL_TEXTURE_2D, backface_buffer);
 		break;
-	case RENDER_FRONT_FACE:
+	case RenderOption::RENDER_FRONT_FACE:
 		glBindTexture(GL_TEXTURE_2D, frontface_buffer);
 		break;
-	case RENDER_TRANSFER_FUNCTION_2D:
+	case RenderOption::RENDER_TRANSFER_FUNCTION_2D:
 		glBindTexture(GL_TEXTURE_2D, transfer_function_2D_buffer);
 		break;
-	case RENDER_HISTOGRAM:
+	case RenderOption::RENDER_HISTOGRAM:
 		glBindTexture(GL_TEXTURE_2D, histogram_buffer);
 		break;
-	case RENDER_HISTOGRAM_GRADIENT:
+	case RenderOption::RENDER_HISTOGRAM_GRADIENT:
 		glBindTexture(GL_TEXTURE_2D, histogram_gradient_buffer);
 		break;
 	default:
@@ -1429,19 +1424,6 @@ void display()
 	enable_renderbuffers();
 	render_transfer_function_2D();
 
-	// load importance label
-	if(data_ptr && button_load_importance)
-	{
-		button_load_importance = false;
-		if(load_importance_label(sizes[0]*sizes[1]*sizes[2]))
-		{
-			std::cout<<"load importance label success"<<std::endl;
-		}else
-		{
-			std::cout<<"load importance label failed"<<std::endl;
-		}
-	}
-
 	// do it all
 	if(data_ptr && button_all)
 	{
@@ -1471,6 +1453,13 @@ void display()
 			cluster<unsigned short, 65536>((unsigned short*)*data_ptr, count);
 		else
 			cluster<unsigned char, 256>((unsigned char*)*data_ptr, count);
+	}
+
+	// load importance label
+	if(data_ptr && button_load_importance_label)
+	{
+		button_load_importance_label = false;
+		load_importance_label(sizes[0]*sizes[1]*sizes[2]);
 	}
 
 	glLoadIdentity();
