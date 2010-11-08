@@ -13,6 +13,9 @@
       <UniqueIdentifier>{366d3452-ca34-4724-b89c-333c3423d26c}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="../my_raycasting">
+      <UniqueIdentifier>{5ab2225e-ddf9-42c4-ab31-8e62216499d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp">
@@ -46,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="Volume.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\VolumeReader.h">
+      <Filter>../my_raycasting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
