@@ -730,11 +730,15 @@ void load_importance_label_texture(unsigned char *label_ptr, GLuint location, GL
 	set_texture_uniform(location, program, name, number, target, texture);
 }
 
-char label_file_name[MAX_STR_SIZE] = "d:/label.txt";
-char label_file_name_replaced[MAX_STR_SIZE] = "d:/label_replaced.txt";
 
 void load_importance_label(const unsigned int count)
 {
+	char label_filename[MAX_STR_SIZE];
+	strcpy(label_filename, volume_filename);
+	strcat(label_filename, ".txt");
+	char label_filename_replaced[MAX_STR_SIZE];
+	strcpy(label_filename_replaced, volume_filename);
+	strcat(label_filename_replaced, ".replaced.txt");
 	unsigned char *label_ptr_replaced = new unsigned char[count];
 	unsigned char *label_ptr = new unsigned char[count];
 	int k = static_cast<int>(cluster_quantity);
@@ -747,11 +751,11 @@ void load_importance_label(const unsigned int count)
 		replacement[i] = volume_utility::char_to_number(replacement[i]);
 	}
 
-	std::cout<<"Load labels from "<<label_file_name<<std::endl;
-	std::ifstream label_file(label_file_name);
+	std::cout<<"Load labels from "<<label_filename<<std::endl;
+	std::ifstream label_file(label_filename);
 	if (label_file.bad())
 	{
-		std::cout<<"Failed to open "<<label_file_name<<std::endl;
+		std::cout<<"Failed to open "<<label_filename<<std::endl;
 		return;
 	}
 
@@ -763,11 +767,11 @@ void load_importance_label(const unsigned int count)
 	}
 	label_file.close();
 
-	std::cout<<"Write replaced label to "<<label_file_name_replaced<<std::endl;
-	std::ofstream label_file_replaced(label_file_name_replaced);
+	std::cout<<"Write replaced label to "<<label_filename_replaced<<std::endl;
+	std::ofstream label_file_replaced(label_filename_replaced);
 	if (label_file_replaced.bad())
 	{
-		std::cout<<"Failed to open "<<label_file_name_replaced<<std::endl;
+		std::cout<<"Failed to open "<<label_filename_replaced<<std::endl;
 		return;
 	}
 	for (unsigned int i=0; i<count; i++)
@@ -792,11 +796,14 @@ void load_importance_label(const unsigned int count)
 template <class T, int TYPE_SIZE>
 void cluster(const T *data, const unsigned int count)
 {
+	char label_filename[MAX_STR_SIZE];
+	strcpy(label_filename, volume_filename);
+	strcat(label_filename, ".txt");
 	unsigned char *label_ptr = new unsigned char[count];
 	int k = static_cast<int>(cluster_quantity);
 	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
 
-	std::ofstream label_file(label_file_name);
+	std::ofstream label_file(label_filename);
 	for (unsigned int i=0; i<count; i++)
 	{
 		label_file<<std::hex<<(int)label_ptr[i];
