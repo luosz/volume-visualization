@@ -665,8 +665,8 @@ void Volume::getInfo(void)
 	cout<<"Dimension X = "<<length<<"\t Dimension Y = "<<width<<"\t Dimension Z = "<<height<<endl;
 	cout<<"Data max = "<<max_data<<"\t Data min = "<<min_data<<endl;
 	cout<<"Grad max = "<<max_grad<<"\t Grad min = "<<min_grad<<endl;
-	cout<<"Df2 max = "<<max_df2<<"\t Df2 min = "<<min_df2<<endl;
-	cout<<"Df3 max = "<<max_df3<<"\t Df3 min = "<<min_df3<<endl;
+//	cout<<"Df2 max = "<<max_df2<<"\t Df2 min = "<<min_df2<<endl;
+//	cout<<"Df3 max = "<<max_df3<<"\t Df3 min = "<<min_df3<<endl;
 
 	/*for(x = 0; x < length; ++x)
 		for(y = 0;y < width; ++y)
