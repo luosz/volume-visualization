@@ -98,7 +98,7 @@ GLuint loc_alpha_opacity;
 float alpha_opacity = 0;
 
 // the parameter k for k-means
-float cluster_quantity = 8; // 16 clusters at most, since the cluster number is represented in 0~9 and a~f
+float cluster_quantity = 16; // 16 clusters at most, since the cluster number is represented in 0~9 and a~f
 int cluster_quantity_int_old = -1; // to be initialized
 float cluster_interval;
 GLuint loc_cluster_interval;
@@ -163,7 +163,7 @@ enum RenderOption
 	RENDER_HISTOGRAM_GRADIENT,
 	RENDER_COUNT
 };
-int render_option = RenderOption::RENDER_FINAL_IMAGE;
+int render_option = RENDER_FINAL_IMAGE;
 
 // for peeling
 enum PeelingOption
@@ -177,7 +177,7 @@ enum PeelingOption
 	PEELING_IMPORTANCE,
 	PEELING_COUNT
 };
-int peeling_option = PeelingOption::PEELING_NONE;
+int peeling_option = PEELING_NONE;
 
 // for transfer function
 enum TransferFunctionOption
@@ -195,7 +195,7 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED_IMPORTANCE,
 	TRANSFER_FUNCTION_COUNT
 };
-int transfer_function_option = TransferFunctionOption::TRANSFER_FUNCTION_NONE;
+int transfer_function_option = TRANSFER_FUNCTION_NONE;
 GLuint loc_transfer_function_option;
 
 /// Implementation ----------------------------------------
@@ -223,9 +223,9 @@ float picked = 0.5;
 void doUI()
 {
 	nv::Rect none;
-	const char *render_str[RenderOption::RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PeelingOption::PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Importance peeling"};
-	const char *transfer_function_str[TransferFunctionOption::TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance"};
+	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
+	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Importance peeling"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -247,9 +247,9 @@ void doUI()
 		ui.doButton(none, "Load label", &button_load_importance_label);
 		ui.endGroup();
 
-		ui.doComboBox(none, RenderOption::RENDER_COUNT, render_str, &render_option);
-		ui.doComboBox(none, PeelingOption::PEELING_COUNT, peeling_str, &peeling_option);
-		ui.doComboBox(none, TransferFunctionOption::TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
+		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
+		ui.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
+		ui.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
 
 		//ui.doLineEdit(none, text, MAX_STR_SIZE, &chars_returned);
 
@@ -266,20 +266,20 @@ void doUI()
 		// show peeling widgets
 		switch(peeling_option)
 		{
-		case PeelingOption::PEELING_IMPORTANCE:
-		case PeelingOption::PEELING_OPACITY:
+		case PEELING_IMPORTANCE:
+		case PEELING_OPACITY:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_low);
 			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_high);
 			break;
-		case PeelingOption::PEELING_FEATURE:
+		case PEELING_FEATURE:
 			sprintf(str, "slope threshold: %f", slope_threshold);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
 			break;
-		case PeelingOption::PEELING_GRADIENT:
+		case PEELING_GRADIENT:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
 			ui.doLabel(none, str);
@@ -289,12 +289,12 @@ void doUI()
 		}
 		switch(peeling_option)
 		{
-		case PeelingOption::PEELING_OPACITY:
-		case PeelingOption::PEELING_FEATURE:
-		case PeelingOption::PEELING_BACK:
-		case PeelingOption::PEELING_FRONT:
-		case PeelingOption::PEELING_GRADIENT:
-		case PeelingOption::PEELING_IMPORTANCE:
+		case PEELING_OPACITY:
+		case PEELING_FEATURE:
+		case PEELING_BACK:
+		case PEELING_FRONT:
+		case PEELING_GRADIENT:
+		case PEELING_IMPORTANCE:
 			sprintf(str, "peeling_layer: %f", peeling_layer);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
@@ -302,14 +302,14 @@ void doUI()
 		}
 
 		// show transfer function widgets
-		if (transfer_function_option == TransferFunctionOption::TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TransferFunctionOption::TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
+		if (transfer_function_option == TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
 		{
 			sprintf(str, "k-means k=%f", cluster_quantity);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, 1, 16, &cluster_quantity);
 		}else
 		{
-			if (button_show_alpha_blending && (transfer_function_option == TransferFunctionOption::TRANSFER_FUNCTION_SOBEL || transfer_function_option == TransferFunctionOption::TRANSFER_FUNCTION_SOBEL_3D))
+			if (button_show_alpha_blending && (transfer_function_option == TRANSFER_FUNCTION_SOBEL || transfer_function_option == TRANSFER_FUNCTION_SOBEL_3D))
 			{
 				sprintf(str, "opacity=mix(gradient,scalar,alpha)    alpha=%f", alpha_opacity);
 				ui.doLabel(none, str);
@@ -327,7 +327,7 @@ void doUI()
 		ui.doHorizontalSlider(full_slider, CLIP_MIN, CLIP_MAX, &clip);
 		sprintf(str, "Clip: %f", clip);
 		ui.doLabel(none, str);
-		if (render_option == RenderOption::RENDER_HISTOGRAM)
+		if (render_option == RENDER_HISTOGRAM)
 		{
 			ui.doHorizontalSlider(full_slider, 0.00001, 1.0, &picked);
 			sprintf(str, "Histogram value picked: %f", picked);
@@ -733,16 +733,15 @@ void load_importance_label_texture(unsigned char *label_ptr, GLuint location, GL
 
 void load_importance_label(const unsigned int count)
 {
-	char label_filename[MAX_STR_SIZE];
-	strcpy(label_filename, volume_filename);
-	strcat(label_filename, ".txt");
-	char label_filename_replaced[MAX_STR_SIZE];
-	strcpy(label_filename_replaced, volume_filename);
-	strcat(label_filename_replaced, ".replaced.txt");
 	unsigned char *label_ptr_replaced = new unsigned char[count];
 	unsigned char *label_ptr = new unsigned char[count];
 	int k = static_cast<int>(cluster_quantity);
 	unsigned char *replacement = new unsigned char[k];
+
+	char label_filename[MAX_STR_SIZE];
+	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
+	char label_filename_replaced[MAX_STR_SIZE];
+	sprintf(label_filename_replaced, "%s.%d.replaced.txt", volume_filename, k);
 
 	std::cout<<"Input a replacement list (e.g. 01234567 for k=8, 0123456789abcdef for k=16)"<<std::endl;
 	for (int i=0; i<k; i++)
@@ -751,7 +750,7 @@ void load_importance_label(const unsigned int count)
 		replacement[i] = volume_utility::char_to_number(replacement[i]);
 	}
 
-	std::cout<<"Load labels from "<<label_filename<<std::endl;
+	std::cout<<"Read labels from file "<<label_filename<<std::endl;
 	std::ifstream label_file(label_filename);
 	if (label_file.bad())
 	{
@@ -767,7 +766,7 @@ void load_importance_label(const unsigned int count)
 	}
 	label_file.close();
 
-	std::cout<<"Write replaced labels to "<<label_filename_replaced<<std::endl;
+	std::cout<<"Write replaced labels to file "<<label_filename_replaced<<std::endl;
 	std::ofstream label_file_replaced(label_filename_replaced);
 	if (label_file_replaced.bad())
 	{
@@ -796,13 +795,15 @@ void load_importance_label(const unsigned int count)
 template <class T, int TYPE_SIZE>
 void cluster(const T *data, const unsigned int count)
 {
-	char label_filename[MAX_STR_SIZE];
-	strcpy(label_filename, volume_filename);
-	strcat(label_filename, ".txt");
 	unsigned char *label_ptr = new unsigned char[count];
 	int k = static_cast<int>(cluster_quantity);
+
 	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
 
+	char label_filename[MAX_STR_SIZE];
+	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
+
+	std::cout<<"Write labels to file "<<label_filename<<std::endl;
 	std::ofstream label_file(label_filename);
 	for (unsigned int i=0; i<count; i++)
 	{
@@ -812,10 +813,11 @@ void cluster(const T *data, const unsigned int count)
 
 	std::cout<<"Shifting labels..."<<std::endl;
 	volume_utility::shift_labels(k, count, label_ptr);
-	std::cout<<"The k_means routine is done."<<std::endl<<std::endl;
 
 	load_importance_label_texture(label_ptr, loc_cluster_texture, p, "cluster_texture", 6, cluster_texture);
 	load_importance_label_texture(label_ptr, loc_importance_texture, p, "importance_texture", 7, importance_texture);
+
+	std::cout<<"Clustering finished."<<std::endl;
 
 	delete [] label_ptr;
 }
@@ -1091,14 +1093,14 @@ void key_hold()
 		case 'h':
 			switch(peeling_option)
 			{
-			case PeelingOption::PEELING_IMPORTANCE:
-			case PeelingOption::PEELING_OPACITY:
+			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY:
 				threshold_low = decrease(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
 				break;
-			case PeelingOption::PEELING_GRADIENT:
+			case PEELING_GRADIENT:
 				threshold_low = decrease(threshold_low, GRADIENT_SAMPLE_THRESHOLD_INC, GRADIENT_SAMPLE_THRESHOLD_MIN);
 				break;
-			case PeelingOption::PEELING_FEATURE:
+			case PEELING_FEATURE:
 				slope_threshold = decrease(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MIN);
 				break;
 			}
@@ -1106,14 +1108,14 @@ void key_hold()
 		case 'j':
 			switch(peeling_option)
 			{
-			case PeelingOption::PEELING_IMPORTANCE:
-			case PeelingOption::PEELING_OPACITY:
+			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY:
 				threshold_low = increase(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
 				break;
-			case PeelingOption::PEELING_GRADIENT:
+			case PEELING_GRADIENT:
 				threshold_low = increase(threshold_low, GRADIENT_SAMPLE_THRESHOLD_INC, GRADIENT_SAMPLE_THRESHOLD_MAX);
 				break;
-			case PeelingOption::PEELING_FEATURE:
+			case PEELING_FEATURE:
 				slope_threshold = increase(slope_threshold, SLOPE_THRESHOLD_INC, SLOPE_THRESHOLD_MAX);
 				break;
 			}
@@ -1121,11 +1123,11 @@ void key_hold()
 		case 'n':
 			switch(peeling_option)
 			{
-			case PeelingOption::PEELING_IMPORTANCE:
-			case PeelingOption::PEELING_OPACITY:
+			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY:
 				threshold_high = decrease(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
 				break;
-			case PeelingOption::PEELING_GRADIENT:
+			case PEELING_GRADIENT:
 				threshold_high = decrease(threshold_high, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MIN);
 				break;
 			}
@@ -1133,11 +1135,11 @@ void key_hold()
 		case 'm':
 			switch(peeling_option)
 			{
-			case PeelingOption::PEELING_IMPORTANCE:
-			case PeelingOption::PEELING_OPACITY:
+			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY:
 				threshold_high = increase(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
 				break;
-			case PeelingOption::PEELING_GRADIENT:
+			case PEELING_GRADIENT:
 				threshold_high = increase(threshold_high, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MAX);
 				break;
 			}
@@ -1145,12 +1147,12 @@ void key_hold()
 		case 'k':
 			switch(peeling_option)
 			{
-			case PeelingOption::PEELING_OPACITY:
-			case PeelingOption::PEELING_FEATURE:
-			case PeelingOption::PEELING_BACK:
-			case PeelingOption::PEELING_FRONT:
-			case PeelingOption::PEELING_GRADIENT:
-			case PeelingOption::PEELING_IMPORTANCE:
+			case PEELING_OPACITY:
+			case PEELING_FEATURE:
+			case PEELING_BACK:
+			case PEELING_FRONT:
+			case PEELING_GRADIENT:
+			case PEELING_IMPORTANCE:
 				peeling_layer = decrease(peeling_layer, LAYER_INC, LAYER_MIN);
 				break;
 			}
@@ -1158,12 +1160,12 @@ void key_hold()
 		case 'l':
 			switch(peeling_option)
 			{
-			case PeelingOption::PEELING_OPACITY:
-			case PeelingOption::PEELING_FEATURE:
-			case PeelingOption::PEELING_BACK:
-			case PeelingOption::PEELING_FRONT:
-			case PeelingOption::PEELING_GRADIENT:
-			case PeelingOption::PEELING_IMPORTANCE:
+			case PEELING_OPACITY:
+			case PEELING_FEATURE:
+			case PEELING_BACK:
+			case PEELING_FRONT:
+			case PEELING_GRADIENT:
+			case PEELING_IMPORTANCE:
 				peeling_layer = increase(peeling_layer, LAYER_INC, LAYER_MAX);
 				break;
 			}
@@ -1193,10 +1195,10 @@ void key_release(unsigned char key, int x, int y)
 		// image to render
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
-			render_option = (render_option - 1 + RenderOption::RENDER_COUNT) % RenderOption::RENDER_COUNT;
+			render_option = (render_option - 1 + RENDER_COUNT) % RENDER_COUNT;
 		}else
 		{
-			render_option = (render_option + 1) % RenderOption::RENDER_COUNT;
+			render_option = (render_option + 1) % RENDER_COUNT;
 		}
 		break;
 	case 'u':
@@ -1207,20 +1209,20 @@ void key_release(unsigned char key, int x, int y)
 		// transfer function
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
-			transfer_function_option = (transfer_function_option - 1 + TransferFunctionOption::TRANSFER_FUNCTION_COUNT) % TransferFunctionOption::TRANSFER_FUNCTION_COUNT;
+			transfer_function_option = (transfer_function_option - 1 + TRANSFER_FUNCTION_COUNT) % TRANSFER_FUNCTION_COUNT;
 		}else
 		{
-			transfer_function_option = (transfer_function_option + 1) % TransferFunctionOption::TRANSFER_FUNCTION_COUNT;
+			transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
 		}
 		break;
 	case 'p':
 		// peeling
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
-			peeling_option = (peeling_option - 1 + PeelingOption::PEELING_COUNT) % PeelingOption::PEELING_COUNT;
+			peeling_option = (peeling_option - 1 + PEELING_COUNT) % PEELING_COUNT;
 		}else
 		{
-			peeling_option = (peeling_option + 1) % PeelingOption::PEELING_COUNT;
+			peeling_option = (peeling_option + 1) % PEELING_COUNT;
 		}
 		break;
 	//case 'c':
@@ -1273,22 +1275,22 @@ void render_buffer_to_screen()
 	// choose the buffer to render 
 	switch(render_option)
 	{
-	case RenderOption::RENDER_FINAL_IMAGE:
+	case RENDER_FINAL_IMAGE:
 		glBindTexture(GL_TEXTURE_2D, final_image);
 		break;
-	case RenderOption::RENDER_BACK_FACE:
+	case RENDER_BACK_FACE:
 		glBindTexture(GL_TEXTURE_2D, backface_buffer);
 		break;
-	case RenderOption::RENDER_FRONT_FACE:
+	case RENDER_FRONT_FACE:
 		glBindTexture(GL_TEXTURE_2D, frontface_buffer);
 		break;
-	case RenderOption::RENDER_TRANSFER_FUNCTION_2D:
+	case RENDER_TRANSFER_FUNCTION_2D:
 		glBindTexture(GL_TEXTURE_2D, transfer_function_2D_buffer);
 		break;
-	case RenderOption::RENDER_HISTOGRAM:
+	case RENDER_HISTOGRAM:
 		glBindTexture(GL_TEXTURE_2D, histogram_buffer);
 		break;
-	case RenderOption::RENDER_HISTOGRAM_GRADIENT:
+	case RENDER_HISTOGRAM_GRADIENT:
 		glBindTexture(GL_TEXTURE_2D, histogram_gradient_buffer);
 		break;
 	default:
