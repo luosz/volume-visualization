@@ -145,7 +145,7 @@ void main()
 				unsigned int index = volume.getIndex(i,j,k);
 				out<<"voxel coordinate = ("<< i <<","<<j<<","<<k<<");\t";
 				out<<"voxel Index = "<<index<<";\t";
-				out<<"voxel data = "<<volume.getData(i,j,k)<<";\t"<<std::endl;;
+				out<<"voxel data = "<<volume.getData(i,j,k)<<";\t";
 				out<<"voxel gradient = ("<<gradient[index].x<<","<<gradient[index].y<<","<<gradient[index].z<<");\t";
 				out<<"voxel gradient magnitude = "<<grandient_magnitude[index]<<";\t";
 				out<<"voxel second derivative = ("<<second_derivative[index].x<<","<<second_derivative[index].y<<","<<second_derivative[index].z<<");\t";

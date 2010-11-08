@@ -32,21 +32,6 @@ struct AccessGeneric : AccessBase
 	}
 };
 
-struct AccessChar : AccessBase
-{
-	unsigned char * datatransfered;
-
-	AccessChar(void * d)
-	{
-		datatransfered = (unsigned char *)d;
-	}
-
-	virtual unsigned int getData(unsigned int index)
-	{
-		return (unsigned int)datatransfered[index];
-	}
-};
-
 class VolumeReader : public Volume
 {
 protected:
