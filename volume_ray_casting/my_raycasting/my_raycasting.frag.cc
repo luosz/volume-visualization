@@ -764,15 +764,18 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 								if (peeling_option == 6)
 								{
 									// opacity peeling with importance
-									if(average(col_acc * texture3D(importance_texture, ray).x) > threshold_high && average(color_sample) < threshold_low)
+									if (texture3D(importance_texture, ray).x > 0)
 									{
-										if (peeling_counter == peeling_layer)
+										if(average(col_acc) > threshold_high && average(color_sample) < threshold_low)
 										{
-											break;
-										}else
-										{
-											col_acc = vec4(0,0,0,0);
-											peeling_counter++;
+											if (peeling_counter == peeling_layer)
+											{
+												break;
+											}else
+											{
+												col_acc = vec4(0,0,0,0);
+												peeling_counter++;
+											}
 										}
 									}
 								}

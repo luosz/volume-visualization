@@ -98,6 +98,7 @@
     <ClInclude Include="..\BenBenRaycasting\Volume.h" />
     <ClInclude Include="BenBenRaycasting.h" />
     <ClInclude Include="filename_utility.h" />
+    <ClInclude Include="K_Means_PP_Generic.h" />
     <ClInclude Include="volume_utility.h" />
     <ClInclude Include="K_Means_Local.h" />
     <ClInclude Include="kmlocal\KCtree.h" />
