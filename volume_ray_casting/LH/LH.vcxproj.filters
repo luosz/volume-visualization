@@ -24,9 +24,6 @@
     <ClInclude Include="LH_Histograms_Constructor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\BenBenRaycasting\color.h">
-      <Filter>../BenBenRaycasting</Filter>
-    </ClInclude>
     <ClInclude Include="..\BenBenRaycasting\Volume.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>

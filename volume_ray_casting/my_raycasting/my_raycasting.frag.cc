@@ -1,6 +1,6 @@
 // volume data and transfer functions
 uniform sampler2D back, front, transfer_function_2D;
-uniform sampler3D volume, transfer_texture, cluster_texture;
+uniform sampler3D volume, transfer_texture, cluster_texture, importance_texture;
 
 // for raycasting
 uniform float stepsize, luminance, clip;
@@ -569,6 +569,20 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
 					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
 				break;
+			case 9:
+				// Simple 2D transfer function with importance
+				c = texture3D(volume, ray);
+				c.rgb = equalize(c.rgb);
+				color_sample
+					= mask.xxxw * texture2D(transfer_function_2D, c.xw)
+					+ mask.wwwx * sum3(c.rgb) * texture3D(importance_texture, ray).x;
+				break;
+			case 10:
+				// k-means equalized with importance
+				color_sample
+					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
+					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb)) * texture3D(importance_texture, ray).x;
+				break;
 			default:
 				// Raw scalar values without a transfer function
 				color_sample = texture3D(volume, ray);
@@ -743,6 +757,23 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 										col_acc = vec4(0,0,0,0);
 										gradient_acc = vec3(0,0,0);
 										peeling_counter++;
+									}
+								}
+							}else
+							{
+								if (peeling_option == 6)
+								{
+									// opacity peeling with importance
+									if(average(col_acc * texture3D(importance_texture, ray).x) > threshold_high && average(color_sample) < threshold_low)
+									{
+										if (peeling_counter == peeling_layer)
+										{
+											break;
+										}else
+										{
+											col_acc = vec4(0,0,0,0);
+											peeling_counter++;
+										}
 									}
 								}
 							}
