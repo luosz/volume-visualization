@@ -755,7 +755,7 @@ void load_importance_label(const unsigned int count)
 	std::ifstream label_file(label_filename);
 	if (label_file.bad())
 	{
-		std::cout<<"Failed to open "<<label_filename<<std::endl;
+		std::cout<<"Failed to open file "<<label_filename<<std::endl;
 		return;
 	}
 
@@ -767,11 +767,11 @@ void load_importance_label(const unsigned int count)
 	}
 	label_file.close();
 
-	std::cout<<"Write replaced label to "<<label_filename_replaced<<std::endl;
+	std::cout<<"Write replaced labels to "<<label_filename_replaced<<std::endl;
 	std::ofstream label_file_replaced(label_filename_replaced);
 	if (label_file_replaced.bad())
 	{
-		std::cout<<"Failed to open "<<label_filename_replaced<<std::endl;
+		std::cout<<"Failed to open file "<<label_filename_replaced<<std::endl;
 		return;
 	}
 	for (unsigned int i=0; i<count; i++)

@@ -158,6 +158,9 @@
     <ClInclude Include="..\BenBenRaycasting\Volume.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
+    <ClInclude Include="K_Means_PP_Generic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="kmlocal\ReadMe.txt">
