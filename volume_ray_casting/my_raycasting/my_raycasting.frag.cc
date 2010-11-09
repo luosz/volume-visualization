@@ -764,7 +764,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 								if (peeling_option == 6)
 								{
 									// opacity peeling with importance
-									if (texture3D(importance_texture, ray).x > 0)
+									if (texture3D(importance_texture, ray).x > 0.5)
 									{
 										if(average(col_acc) > threshold_high && average(color_sample) < threshold_low)
 										{
@@ -775,6 +775,58 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 											{
 												col_acc = vec4(0,0,0,0);
 												peeling_counter++;
+											}
+										}
+									}
+								}else
+								{
+									if (peeling_option == 7)
+									{
+										// graident peeling with importance
+										if (texture3D(importance_texture, ray).x > 0.5)
+										{
+											if (transfer_function_option != 5 && transfer_function_option != 6)
+											{
+												g_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+													+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
+													+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
+													+ abs(texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
+													+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy));
+
+												g_y = 2.0 * abs(texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+													+ abs(texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
+													+ abs(texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
+													+ abs(texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
+													+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy));
+
+												g_z = 2.0 * abs(texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+													+ abs(texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
+													+ abs(texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
+													+ abs(texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
+													+ abs(texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx));
+											}
+
+											vec4 gradient_sample
+												= mask.xwww * g_x
+												+ mask.wxww * g_y
+												+ mask.wwxw * g_z;
+											gradient_acc += abs(gradient_sample).xyz;
+
+											// opacity peeling
+											//if(!threshold_reached && isReacheThreshold(col_acc, color_sample))
+											//threshold_reached = true;
+											if(length(gradient_acc) > threshold_high && length(gradient_sample.xyz) < threshold_low)
+											{
+												if (peeling_counter == peeling_layer)
+												{
+													break;
+												}else
+												{
+													// clear the accumulated color and gradient
+													col_acc = vec4(0,0,0,0);
+													gradient_acc = vec3(0,0,0);
+													peeling_counter++;
+												}
 											}
 										}
 									}

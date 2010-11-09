@@ -98,7 +98,7 @@ GLuint loc_alpha_opacity;
 float alpha_opacity = 0;
 
 // the parameter k for k-means
-float cluster_quantity = 16; // 16 clusters at most, since the cluster number is represented in 0~9 and a~f
+float cluster_quantity = 8; // 16 clusters at most, since the cluster number is represented in 0~9 and a~f
 int cluster_quantity_int_old = -1; // to be initialized
 float cluster_interval;
 GLuint loc_cluster_interval;
@@ -174,7 +174,8 @@ enum PeelingOption
 	PEELING_BACK,
 	PEELING_FRONT,
 	PEELING_GRADIENT,
-	PEELING_IMPORTANCE,
+	PEELING_OPACITY_IMPORTANCE,
+	PEELING_GRADIENT_IMPORTANCE,
 	PEELING_COUNT
 };
 int peeling_option = PEELING_NONE;
@@ -224,7 +225,7 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Importance peeling"};
+	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Opacity with Importance", "Gradient with Importance"};
 	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance"};
 
 	glDisable(GL_CULL_FACE);
@@ -266,7 +267,7 @@ void doUI()
 		// show peeling widgets
 		switch(peeling_option)
 		{
-		case PEELING_IMPORTANCE:
+		case PEELING_OPACITY_IMPORTANCE:
 		case PEELING_OPACITY:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
@@ -279,6 +280,7 @@ void doUI()
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
 			break;
+		case PEELING_GRADIENT_IMPORTANCE:
 		case PEELING_GRADIENT:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
@@ -294,7 +296,8 @@ void doUI()
 		case PEELING_BACK:
 		case PEELING_FRONT:
 		case PEELING_GRADIENT:
-		case PEELING_IMPORTANCE:
+		case PEELING_OPACITY_IMPORTANCE:
+		case PEELING_GRADIENT_IMPORTANCE:
 			sprintf(str, "peeling_layer: %f", peeling_layer);
 			ui.doLabel(none, str);
 			ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
@@ -1093,10 +1096,11 @@ void key_hold()
 		case 'h':
 			switch(peeling_option)
 			{
-			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY_IMPORTANCE:
 			case PEELING_OPACITY:
 				threshold_low = decrease(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
 				break;
+			case PEELING_GRADIENT_IMPORTANCE:
 			case PEELING_GRADIENT:
 				threshold_low = decrease(threshold_low, GRADIENT_SAMPLE_THRESHOLD_INC, GRADIENT_SAMPLE_THRESHOLD_MIN);
 				break;
@@ -1108,10 +1112,11 @@ void key_hold()
 		case 'j':
 			switch(peeling_option)
 			{
-			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY_IMPORTANCE:
 			case PEELING_OPACITY:
 				threshold_low = increase(threshold_low, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
 				break;
+			case PEELING_GRADIENT_IMPORTANCE:
 			case PEELING_GRADIENT:
 				threshold_low = increase(threshold_low, GRADIENT_SAMPLE_THRESHOLD_INC, GRADIENT_SAMPLE_THRESHOLD_MAX);
 				break;
@@ -1123,10 +1128,11 @@ void key_hold()
 		case 'n':
 			switch(peeling_option)
 			{
-			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY_IMPORTANCE:
 			case PEELING_OPACITY:
 				threshold_high = decrease(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MIN);
 				break;
+			case PEELING_GRADIENT_IMPORTANCE:
 			case PEELING_GRADIENT:
 				threshold_high = decrease(threshold_high, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MIN);
 				break;
@@ -1135,10 +1141,11 @@ void key_hold()
 		case 'm':
 			switch(peeling_option)
 			{
-			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY_IMPORTANCE:
 			case PEELING_OPACITY:
 				threshold_high = increase(threshold_high, OPACITY_THRESHOLD_INC, OPACITY_THRESHOLD_MAX);
 				break;
+			case PEELING_GRADIENT_IMPORTANCE:
 			case PEELING_GRADIENT:
 				threshold_high = increase(threshold_high, GRADIENT_THRESHOLD_INC, GRADIENT_THRESHOLD_MAX);
 				break;
@@ -1152,7 +1159,8 @@ void key_hold()
 			case PEELING_BACK:
 			case PEELING_FRONT:
 			case PEELING_GRADIENT:
-			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY_IMPORTANCE:
+			case PEELING_GRADIENT_IMPORTANCE:
 				peeling_layer = decrease(peeling_layer, LAYER_INC, LAYER_MIN);
 				break;
 			}
@@ -1165,7 +1173,8 @@ void key_hold()
 			case PEELING_BACK:
 			case PEELING_FRONT:
 			case PEELING_GRADIENT:
-			case PEELING_IMPORTANCE:
+			case PEELING_OPACITY_IMPORTANCE:
+			case PEELING_GRADIENT_IMPORTANCE:
 				peeling_layer = increase(peeling_layer, LAYER_INC, LAYER_MAX);
 				break;
 			}
@@ -1188,7 +1197,10 @@ void key_release(unsigned char key, int x, int y)
 	//	// escape to exit
 	//	exit(0);
 	//	break;
-	case 'o':
+	case 'r':
+		button_auto_rotate = !button_auto_rotate;
+		break;
+	case 'v':
 		button_lock_viewpoint = !button_lock_viewpoint;
 		break;
 	case 'i':
