@@ -583,6 +583,50 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
 					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb)) * texture3D(importance_texture, ray).x;
 				break;
+			case 11:
+				// Sobel 3D operator
+				g_x = abs(
+					4.0 * (texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
+					+ 2.0 * (texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
+					+ 2.0 * (texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.xyw)) 
+					+ 2.0 * (texture3D(volume, ray+e.ywx)-texture3D(volume, ray+e.xwx))
+					+ 2.0 * (texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.xwy))
+					+ (texture3D(volume, ray+e.yxx)-texture3D(volume, ray+e.xxx))
+					+ (texture3D(volume, ray+e.yyy)-texture3D(volume, ray+e.xyy)) 
+					+ (texture3D(volume, ray+e.yyx)-texture3D(volume, ray+e.xyx))
+					+ (texture3D(volume, ray+e.yxy)-texture3D(volume, ray+e.xxy))
+					);
+
+				g_y = abs(
+					4.0 * (texture3D(volume, ray+e.wyw)-texture3D(volume, ray+e.wxw))
+					+ 2.0 * (texture3D(volume, ray+e.xyw)-texture3D(volume, ray+e.xxw)) 
+					+ 2.0 * (texture3D(volume, ray+e.yyw)-texture3D(volume, ray+e.yxw))
+					+ 2.0 * (texture3D(volume, ray+e.wyx)-texture3D(volume, ray+e.wxx))
+					+ 2.0 * (texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wxy))
+					+ (texture3D(volume, ray+e.xyx)-texture3D(volume, ray+e.xxx)) 
+					+ (texture3D(volume, ray+e.yyy)-texture3D(volume, ray+e.yxy))
+					+ (texture3D(volume, ray+e.yyx)-texture3D(volume, ray+e.yxx))
+					+ (texture3D(volume, ray+e.xyy)-texture3D(volume, ray+e.xxy))
+					);
+
+				g_z = abs(
+					4.0 * (texture3D(volume, ray+e.wwy)-texture3D(volume, ray+e.wwx))
+					+ 2.0 * (texture3D(volume, ray+e.xwy)-texture3D(volume, ray+e.xwx)) 
+					+ 2.0 * (texture3D(volume, ray+e.ywy)-texture3D(volume, ray+e.ywx))
+					+ 2.0 * (texture3D(volume, ray+e.wxy)-texture3D(volume, ray+e.wxx))
+					+ 2.0 * (texture3D(volume, ray+e.wyy)-texture3D(volume, ray+e.wyx))
+					+ (texture3D(volume, ray+e.xxy)-texture3D(volume, ray+e.xxx)) 
+					+ (texture3D(volume, ray+e.yyy)-texture3D(volume, ray+e.yyx))
+					+ (texture3D(volume, ray+e.yxy)-texture3D(volume, ray+e.yxx))
+					+ (texture3D(volume, ray+e.xyy)-texture3D(volume, ray+e.xyx))
+					);
+
+				color_sample
+					= mask.xwww * g_x
+					+ mask.wxww * g_y
+					+ mask.wwxw * g_z
+					+ mask.wwwx * texture3D(importance_texture, ray).x * (alpha_opacity > 0.0 ? mix((g_x.x + g_y.y + g_z.z) * 0.125, sum3(equalize(texture3D(volume, ray).rgb)), alpha_opacity) : (g_x.x + g_y.y + g_z.z) * 0.125);
+				break;
 			default:
 				// Raw scalar values without a transfer function
 				color_sample = texture3D(volume, ray);
@@ -716,7 +760,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 							if (peeling_option == 5)
 							{
 								// graident peeling
-								if (transfer_function_option != 5 && transfer_function_option != 6)
+								if (transfer_function_option != 5 && transfer_function_option != 6 && transfer_function_option != 11)
 								{
 									g_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
 										+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))
@@ -785,7 +829,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 										// graident peeling with importance
 										if (texture3D(importance_texture, ray).x > 0.5)
 										{
-											if (transfer_function_option != 5 && transfer_function_option != 6)
+											if (transfer_function_option != 5 && transfer_function_option != 6 && transfer_function_option != 11)
 											{
 												g_x = 2.0 * abs(texture3D(volume, ray+e.yww)-texture3D(volume, ray+e.xww))
 													+ abs(texture3D(volume, ray+e.yxw)-texture3D(volume, ray+e.xxw))

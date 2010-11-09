@@ -194,6 +194,7 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED,
 	TRANSFER_FUNCTION_K_MEANS_IMPORTANCE,
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED_IMPORTANCE,
+	TRANSFER_FUNCTION_SOBEL_3D_IMPORTANCE,
 	TRANSFER_FUNCTION_COUNT
 };
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
@@ -225,8 +226,8 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Opacity with Importance", "Gradient with Importance"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance"};
+	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Opacity with importance", "Gradient with importance"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance", "Sobel 3D importance"};
 
 	glDisable(GL_CULL_FACE);
 
