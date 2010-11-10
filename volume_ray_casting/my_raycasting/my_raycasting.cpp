@@ -15,6 +15,7 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+using namespace std;
 
 // NVIDIA OpenGL SDK
 #include <nvGlutManipulators.h>
@@ -22,9 +23,9 @@
 
 #include "filename.h"
 #include "textfile.h"
-#include "reader.h"
 #include "BenBenRaycasting.h"
 #include "volume_utility.h"
+#include "reader.h"
 using namespace reader;
 
 // call finailize() to free the memory before exit
