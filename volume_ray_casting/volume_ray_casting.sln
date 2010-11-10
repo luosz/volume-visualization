@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BenBenRaycasting", "BenBenR
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LH", "LH\LH.vcxproj", "{769B3C2E-BE25-4658-9180-520AB5501675}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "second_derivative_calculation", "second_derivative_calculation\second_derivative_calculation.vcxproj", "{7054C8C5-7FD9-44BA-B885-067B17E13034}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -75,6 +77,12 @@ Global
 		{769B3C2E-BE25-4658-9180-520AB5501675}.Release|Win32.ActiveCfg = Release|Win32
 		{769B3C2E-BE25-4658-9180-520AB5501675}.Release|Win32.Build.0 = Release|Win32
 		{769B3C2E-BE25-4658-9180-520AB5501675}.Release|x64.ActiveCfg = Release|Win32
+		{7054C8C5-7FD9-44BA-B885-067B17E13034}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7054C8C5-7FD9-44BA-B885-067B17E13034}.Debug|Win32.Build.0 = Debug|Win32
+		{7054C8C5-7FD9-44BA-B885-067B17E13034}.Debug|x64.ActiveCfg = Debug|Win32
+		{7054C8C5-7FD9-44BA-B885-067B17E13034}.Release|Win32.ActiveCfg = Release|Win32
+		{7054C8C5-7FD9-44BA-B885-067B17E13034}.Release|Win32.Build.0 = Release|Win32
+		{7054C8C5-7FD9-44BA-B885-067B17E13034}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
