@@ -82,6 +82,7 @@
     <ClInclude Include="..\my_raycasting\K_Means_Local.h" />
     <ClInclude Include="..\my_raycasting\K_Means_PlusPlus.h" />
     <ClInclude Include="..\my_raycasting\K_Means_PP_DIY.h" />
+    <ClInclude Include="..\my_raycasting\K_Means_PP_Generic.h" />
     <ClInclude Include="..\my_raycasting\reader.h" />
     <ClInclude Include="..\my_raycasting\sysconf.h" />
     <ClInclude Include="..\my_raycasting\volume_utility.h" />

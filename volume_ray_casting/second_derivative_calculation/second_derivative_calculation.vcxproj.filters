@@ -47,5 +47,8 @@
     <ClInclude Include="..\my_raycasting\filename_utility.h">
       <Filter>../my_raycasting</Filter>
     </ClInclude>
+    <ClInclude Include="..\my_raycasting\K_Means_PP_Generic.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

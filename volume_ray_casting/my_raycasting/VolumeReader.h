@@ -16,7 +16,7 @@ struct AccessBase
 	virtual unsigned int getData(unsigned int index) = 0;
 };
 
-template<class T>
+template <class T>
 struct AccessGeneric : AccessBase
 {
 	T  datatransfered;
