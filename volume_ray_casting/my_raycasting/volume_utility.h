@@ -5,17 +5,18 @@
 #include <algorithm>
 //#include <functional>      // For greater<int>( )
 
-#ifdef _DEBUG
-#define _DEBUG_OUTPUT
-#endif
-
-#include "K_Means.h"
-#include "K_Means_PP_DIY.h"
-#include "K_Means_Local.h"
-#include "K_Means_PlusPlus.h"
+//#include "K_Means.h"
+//#include "K_Means_PP_DIY.h"
+//#include "K_Means_Local.h"
+//#include "K_Means_PlusPlus.h"
+#include "K_Means_PP_Generic.h"
 
 namespace volume_utility
 {
+//#ifdef _DEBUG
+//#define _DEBUG_OUTPUT
+//#endif
+
 	// convert a char to a hex number, the cluster number is represented in 0~9 and a~f
 	unsigned char char_to_number(unsigned char c)
 	{
@@ -201,11 +202,20 @@ namespace volume_utility
 		std::cout<<"Gradients and second derivatives..."<<std::endl;
 		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
-		unsigned char *label_ptr_before = new unsigned char[count];
+		unsigned char *label_ptr_before_filter = new unsigned char[count];
 
+		// adapt to K_Means_PP_Generic::k_means()
+		std::vector<nv::vec3f> v(count);
+		for (unsigned int i=0; i<count; i++)
+		{
+			v[i].x = scalar_value[i];
+			v[i].y = gradient_magnitude[i];
+			v[i].z = second_derivative_magnitude[i];
+		}
 		// call the clustering routine
 		std::cout<<"K-means++..."<<std::endl;
-		K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
+		//K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
+		K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, K_Means_PP_Generic::get_distance<nv::vec3f>, K_Means_PP_Generic::get_centroid<nv::vec3f>);
 
 		//std::ofstream label_file_before("d:/label_before.txt");
 		//for (unsigned int i=0; i<count; i++)
@@ -215,8 +225,8 @@ namespace volume_utility
 
 		// the bandwagon effect filter
 		std::cout<<"The bandwagon effect filter..."<<std::endl;
-		bandwagon_effect_filter(k, label_ptr_before, label_ptr, width, height, depth);
-		delete[] label_ptr_before;
+		bandwagon_effect_filter(k, label_ptr_before_filter, label_ptr, width, height, depth);
+		delete[] label_ptr_before_filter;
 
 		//std::ofstream label_file("d:/label.txt");
 		//for (unsigned int i=0; i<count; i++)

@@ -15,13 +15,14 @@ using namespace std;
 #include "../my_raycasting/filename_utility.h"
 #include "../my_raycasting/volume_utility.h"
 #include "../my_raycasting/reader.h"
+#include "../my_raycasting/K_Means_PP_Generic.h"
 using namespace reader;
 
 char filename[MAX_STR_SIZE] = "D:\\_data\\data\\nucleon.dat";
 int sizes[3];
 
 template <class T, int TYPE_SIZE>
-void calculate_derivatives(const T *data, const unsigned int count, const unsigned int components, int width, int height, int depth)
+void k_means_on_derivatives(const T *data, const unsigned int count, const unsigned int components, int width, int height, int depth)
 {
 	unsigned int histogram[TYPE_SIZE] = {0};
 	vector<float> scalar_value(count); // the scalar data in const T *data
@@ -31,6 +32,7 @@ void calculate_derivatives(const T *data, const unsigned int count, const unsign
 	vector<float> second_derivative_magnitude(count);
 	float max_gradient_magnitude, max_second_derivative_magnitude;
 
+	// calculate scalar histogram, gradients and second derivatives
 	std::cout<<"Scalar histogram..."<<std::endl;
 	volume_utility::generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value);
 
@@ -39,12 +41,37 @@ void calculate_derivatives(const T *data, const unsigned int count, const unsign
 
 	char derivative_filename[MAX_STR_SIZE];
 	sprintf(derivative_filename, "%s.derivatives.txt", filename);
-	ofstream out(derivative_filename);
+	ofstream derivative_file(derivative_filename);
 	for (unsigned int i=0; i<count; i++)
 	{
-		out<<scalar_value[i]<<","<<gradient_magnitude[i]<<","<<second_derivative_magnitude[i]<<endl;
+		derivative_file<<scalar_value[i]<<","<<gradient_magnitude[i]<<","<<second_derivative_magnitude[i]<<endl;
 	}
-	out.close();
+	derivative_file.close();
+
+	// test the generic k-means
+	vector<nv::vec3f> scalar(count);
+	for (unsigned int i=0; i<count; i++)
+	{
+		scalar[i].x = scalar_value[i];
+		scalar[i].y = gradient_magnitude[i];
+		scalar[i].z = second_derivative_magnitude[i];
+	}
+
+	const int k = 8;
+	unsigned char * label_ptr = new unsigned char[count];
+	K_Means_PP_Generic::k_means<nv::vec3f>(scalar, k, label_ptr, K_Means_PP_Generic::get_distance<nv::vec3f>, K_Means_PP_Generic::get_centroid<nv::vec3f>);
+
+	char label_filename[MAX_STR_SIZE];
+	sprintf(label_filename, "%s.%d.generic.txt", filename, k);
+	std::cout<<"Write labels to file "<<label_filename<<std::endl;
+	std::ofstream label_file(label_filename);
+	for (unsigned int i=0; i<count; i++)
+	{
+		label_file<<std::hex<<(int)label_ptr[i];
+	}
+	label_file.close();
+
+	delete label_ptr;
 }
 
 void main(int argc, char* argv[])
@@ -83,11 +110,11 @@ void main(int argc, char* argv[])
 	if (type == reader::DATRAW_USHORT)
 	{
 		//cluster<unsigned short, 65536>((unsigned short*)*data_ptr, count);
-		calculate_derivatives<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_omponent_number, sizes[0], sizes[1], sizes[2]);
+		k_means_on_derivatives<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_omponent_number, sizes[0], sizes[1], sizes[2]);
 	}else
 	{
 		//cluster<unsigned char, 256>((unsigned char*)*data_ptr, count);
-		calculate_derivatives<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number, sizes[0], sizes[1], sizes[2]);
+		k_means_on_derivatives<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number, sizes[0], sizes[1], sizes[2]);
 	}
 
 	cout<<"Done."<<endl;
