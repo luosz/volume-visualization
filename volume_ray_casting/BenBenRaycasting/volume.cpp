@@ -302,7 +302,7 @@ void Volume::calGrad(void)
 	int x, y, z, index;
 	unsigned int i, j, k;
 	double df_dx, df_dy, df_dz, df;
-	ofstream file("d4.csv", std::ios::out);
+	ofstream file("E:\\bucky.csv", std::ios::out);
 
 	df_dx = df_dy = df_dz = 0.0;
 	gradient = (unsigned int *)malloc(count * sizeof(unsigned int));
@@ -324,32 +324,32 @@ void Volume::calGrad(void)
 					if(x == 0)
 					{
 						df_dx = float(getData(x + 1, y, z)) - float(getData(x, y, z));
-						df_dx *= 0.5;
+					//	df_dx *= 0.5;
 					}	
 					else if(x == length - 1)
 					{
 						df_dx = float(getData(x, y, z)) - float(getData(x - 1, y, z));
-						df_dx *= 0.5;
+				//		df_dx *= 0.5;
 					}					
 					else if(y == 0)
 					{
 						df_dy = float(getData(x, y + 1, z)) - float(getData(x, y, z));
-						df_dy *= 0.5;
+				//		df_dy *= 0.5;
 					}					
 					else if(y == width - 1)
 					{
 						df_dy = float(getData(x, y, z)) - float(getData(x, y - 1, z));
-						df_dy *= 0.5;
+				//		df_dy *= 0.5;
 					}	
 					else if(z == 0)
 					{
 						df_dz = float(getData(x, y, z + 1)) - float(getData(x, y, z));
-						df_dz *= 0.5;
+				//		df_dz *= 0.5;
 					}					
 					else 
 					{
 						df_dz = float(getData(x, y, z)) - float(getData(x, y, z - 1));
-						df_dz *= 0.5;
+				//		df_dz *= 0.5;
 					}
 				}
 				else
@@ -357,19 +357,19 @@ void Volume::calGrad(void)
 					df_dx = float(getData(x + 1, y, z)) - float(getData(x - 1, y, z));
 					df_dy = float(getData(x, y + 1, z)) - float(getData(x, y - 1, z));
 					df_dz = float(getData(x, y, z + 1)) - float(getData(x, y, z - 1));
-					df_dx *= 0.5;
-					df_dy *= 0.5;
-					df_dz *= 0.5;				
+				//	df_dx *= 0.5;
+				//	df_dy *= 0.5;
+				//	df_dz *= 0.5;				
 				}				
 				df = sqrt(df_dx * df_dx + df_dy * df_dy + df_dz * df_dz);
-				
+				if(df != 0 && getData(x, y, z) != 0)
+					file<<getData(x, y, z)<<", "<<df<<endl;
  					gradient[index] = int(df);
 					if(df > max_grad)
 						max_grad = int(df);
 					if(df < min_grad)
 						min_grad = int (df);
-					if(df != 0 && getData(x, y, z) != 0)
-						file<<getData(x, y, z)<<", "<<df<<endl;
+					
 		//				cout<<"df_dx = "<<df_dx<<"   df_dy = "<<df_dy<<"    df_dz = "<<df_dz<<"    df ="<<gradient[index]<<endl;
 			}
 }
@@ -380,7 +380,7 @@ void Volume::calGrad_ex()
 	unsigned int i, j, k;
 	double df_dx, df_dy, df_dz, df;
 	double f1, f2;
-	ofstream file("d4_ex.csv", std::ios::out);
+	ofstream file("E:\\d4_ex.csv", std::ios::out);
 
 	gradient = (unsigned int *)malloc(count * sizeof(unsigned int));
 	if(gradient == NULL)
@@ -396,7 +396,59 @@ void Volume::calGrad_ex()
 				df = 0;
 				if(x == 0 || x == length - 1 || y == 0 || y == width - 1 || z == 0 || z == height -1)
 				{
-					gradient[index] = 0;
+					if(x == 0)
+					{
+						f1 =getData(x, y, z);
+						f2 = getData(x + 1,y ,z);
+					}	
+					if(x == length - 1)
+					{
+						f1 = getData(x - 1, y, z);
+						f2 = getData(x, y, z);
+					}
+					if(int(f1) == 0)
+						f1 = 1e-10;
+					if(int(f2) == 0)
+						f2 = 1e-10;
+					df_dx = 0.5 * sqrt(f1 * f2) * log(f2 / f1);
+
+					if(y == 0)
+					{
+						f1 =getData(x, y, z);
+						f2 = getData(x, y +1,z);
+					}	
+					if(y == width - 1)
+					{
+						f1 = getData(x, y - 1, z);
+						f2 = getData(x, y, z);
+					}
+					if(int(f1) == 0)
+						f1 = 1e-10;
+					if(int(f2) == 0)
+						f2 = 1e-10;
+					df_dy = 0.5 * sqrt(f1 * f2) * log(f2 / f1);					
+
+					if(z == 0)
+					{
+						f1 =getData(x, y, z);
+						f2 = getData(x, y, z + 1);
+					}	
+					if(z == height - 1)
+					{
+						f1 = getData(x, y, z - 1);
+						f2 = getData(x, y, z);
+					}
+					if(int(f1) == 0)
+						f1 = 1e-10;
+					if(int(f2) == 0)
+						f2 = 1e-10;
+					df_dz = 0.5 * sqrt(f1 * f2) * log(f2 / f1);	
+
+					df = sqrt(df_dx * df_dx + df_dy * df_dy + df_dz * df_dz);
+					//		df = pow(2.7182, double(df)) - 1;
+					if(df != 0 && getData(x, y, z) != 0)
+						file<<getData(x, y, z)<<", "<<df<<endl;
+					gradient[index] = int(df);
 				}	
 				else
 				{
@@ -429,6 +481,7 @@ void Volume::calGrad_ex()
 
 					df = sqrt(df_dx * df_dx + df_dy * df_dy + df_dz * df_dz);
 			//		df = pow(2.7182, double(df)) - 1;
+					
 					if(df != 0 && getData(x, y, z) != 0)
 						file<<getData(x, y, z)<<", "<<df<<endl;
  					gradient[index] = int(df);
@@ -437,7 +490,7 @@ void Volume::calGrad_ex()
 					if(df < min_grad)
 						min_grad = int (df);
 				}				
-			}
+			}			
 }
 
 void Volume::calDf2(void)
@@ -1213,7 +1266,7 @@ void Volume::average_deviation()
 	int i, j, k, p, q, r;
 	float a, d, d_max = 0;
 
-	ofstream file("d4_ad.csv", std::ios::out);
+	ofstream file("E:\\d4_ad.csv", std::ios::out);
 	for(i = 0;i < getX(); ++i)
 		for(j = 0; j < getY(); ++j)
 			for(k = 0; k < getZ(); ++k)

@@ -774,30 +774,12 @@ void setTransferFunc3()
 				temp4 =	exp(- d / g);
 				alpha = temp4;
 				//alpha = 1.0 + 1 / a * log((1.0 - pow(e, -a)) * temp4 + pow(e, -a)) / log(e);
-				//alpha = (exp(-a * (1.0 - temp4)) - exp(-a)) / (1 - exp(-a));
-				alpha = f / f_max * df1 / df1_max;
+				alpha = (exp(-a * (1.0 - temp4)) - exp(-a)) / (1 - exp(-a));
+	//	alpha = f / f_max * df1 / df1_max;
 
 				tf[index].a =  unsigned char(alpha * 255);
 
-				for(i = 1;i <= 11; ++i)
-					for(j = 1;j <= 11;++j)
-					{			
-						for(x = 0; x < dim_x;++x)
-							for(y = 0; y < dim_y; ++y)
-								for(z = 0; z < dim_z; ++z)
-								{
-									value = float(volume.getData(x, y, z));
-									dF1 = float(volume.getGrad(x, y, z));
-									value /= float(volume.getMaxData());
-									dF1 /= float(volume.getMaxGrad());
-									t1 = int(value * 10);
-									t2 = int(df1 * 10);
-									//	if((Volume.getSpatialDistribution(i, j) > 50) && 
-									//		(t1 >= i - 1) &&(t1 < i) && (t2 >= j - 1) && (t2 < j))
-									//		tf[Volume.getIndex(x, y, z)].a = 0;
-								}
-					}
-
+			
 
 			}
 
@@ -919,13 +901,13 @@ void setTransferfunc6(void)
 	int x, y, z, i, j, k, p, q, r, index, intensity, num = 0;
 	float a, d, d_max = 0, gx, gy, gz, g, g_magnitude, t1, t2, t3;
 	float alpha1, alpha2, alpha3, alpha4, beta;
-	float theta1, theta2, bounding_angle;
-	float v_x, v_y, v_z;
+	float theta1, theta2, bounding_angle, center_x, center_y, center_z;
+	float v_x, v_y, v_z, dis;
 	float g1, g2;
 
 	Vector3 v;
 
-	ofstream file("grad_direction.csv", std::ios::out);
+	ofstream file("E:\\grad_direction.csv", std::ios::out);
 
 	dim_x = volume.getX();
 	dim_y = volume.getY();
@@ -974,8 +956,8 @@ void setTransferfunc6(void)
 						index = volume.getIndex(i, j, k);	
 						if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 						{						
-							a = d = 0; 
-							tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
+						a = d = 0; 
+						tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
 						}
 						else
 						{
@@ -993,64 +975,112 @@ void setTransferfunc6(void)
 							if(d == 0)
 								d = 1e-4;
 
-							//		intensity = Volume.getData(i, j, k);
-							//		g_magnitude = Volume.getGrad(i, j, k);
+									//intensity = volume.getData(i, j, k);
+									//g_magnitude = volume.getGrad(i, j, k);
 
 							alpha1 = exp(-1.0 * a / d);
 							alpha2 = ( exp(-beta * (1 - alpha1)) - exp(-beta) ) / (1 - exp(-beta));
 
-							//		alpha3 = exp(-1.0 * float(intensity) / g_magnitude);
-							//		alpha4 = ( exp(-beta * (1 - alpha3)) - exp(-beta) ) / (1 - exp(-beta));
+									//alpha3 = exp(-1.0 * float(intensity) / g_magnitude);
+									//alpha4 = ( exp(-beta * (1 - alpha3)) - exp(-beta) ) / (1 - exp(-beta));
 
-							//		if(d <  0.01 * d_max)
-							//			alpha2 = 0;
+									if(d < 0.54 * d_max)
+									{
+										alpha2 = 0;
 
-							tf[index].a = unsigned char(alpha2 * 255);
+									}	
+									else
+										alpha2 *= 2.5;
+
+					//		tf[index].a = unsigned char(alpha2 * 255);
 
 							/*if(alpha4 < 0.2)
-							alpha4 = 0;
-							tf[index].a  = unsigned char(alpha4 * 255);*/
+							alpha4 = 0;*/
+							tf[index].a  = unsigned char(alpha2 * 255);
 
-							gx = fabs(float(volume.getData(i + 1, j, k)) - float(volume.getData(i - 1, j, k)));
-							gy = fabs(float(volume.getData(i , j + 1, k)) - float(volume.getData(i , j - 1, k)));
-							gz = fabs(float(volume.getData(i , j, k + 1)) - float(volume.getData(i , j, k - 1)));
-							g = sqrt(gx * gx + gy * gy + gz * gz);
-							t1 = float(volume.getData(i + 1, j, k)) - float(volume.getData(i - 1, j, k));
-							t2 = float(volume.getData(i , j + 1, k)) - float(volume.getData(i , j - 1, k));
-							t3 = float(volume.getData(i , j, k + 1)) - float(volume.getData(i , j, k - 1));
+							x = i;
+							y = j;
+							z = k;
+							if(x == 0)
+								gx = float(volume.getData(x + 1, y, z) - volume.getData(x, y, z));
+							else if(x == dim_x - 1)
+								gx = float(volume.getData(x, y, z) - volume.getData(x - 1, y, z));
+							else
+								gx = float(volume.getData(x + 1, y, z)) - float(volume.getData(x - 1, y, z));
 
-							if(volume.getData(i, j, k) >= 100 && volume.getData(i, j, k) <= 102)
+							if(y == 0)
+								gy = float(volume.getData(x , y + 1, z) - volume.getData(x, y, z));
+							else if(y == dim_y - 1)
+								gy = float(volume.getData(x, y, z) - volume.getData(x, y - 1, z));
+							else
+								gy = float(volume.getData(x , y + 1, z)) - float(volume.getData(x , y - 1, z));
+
+							if(z == 0)
+								gz = float(volume.getData(x, y, z + 1) - volume.getData(x, y, z));
+							else if(z == dim_z - 1)
+								gz =float(volume.getData(x, y, z) - volume.getData(x, y, z - 1));
+							else
+								gz = float(volume.getData(x , y, z + 1)) - float(volume.getData(x , y, z - 1));
+
+						/*	if(!(gx >=0 && gy >=0 && gz >= 0))
 							{
-								if(g >= 20 && g <= 30)
-									file<<"[" <<t1 / g<<", "<<t2 / g<<", "<<t3 / g<<"], ";
+								tf[index].a = 0;
 							}
-							tf[index].r = unsigned char(gx / g * 255.0);
-							tf[index].g = unsigned char(gy / g * 255.0);
-							tf[index].b = unsigned char(gz / g * 255.0); 
-						}
+							else
+								tf[index].a = 255;*/
+							g = sqrt(gx * gx + gy * gy + gz * gz);
+							file<<gx<<", "<<gy<<", "<<gz<<endl;
+								gx =fabs(gx);
+								gy =fabs(gy);
+								gz = fabs(gz);
+
+								
+
+								tf[index].r = unsigned char(gx / g * 255.0);
+								tf[index].g = unsigned char(gy / g * 255.0);
+								tf[index].b = unsigned char(gz / g * 255.0); 
+							
+						
+						
 					}
+				}
+					cout<<"theta 1 = :";
+					cin>>theta1;
+					cout<<endl<<"theta 2 = :";
+					cin>>theta2;
+					cout<<endl<<"bounding angle = :";
+					cin>>bounding_angle;
+					cout<<endl<<"g1 = :";
+					cin>>g1;
+					cout<<endl<<"g2 = :";
+					cin>>g2;
 
-		cout<<"theta 1 = :";
-		cin>>theta1;
-		cout<<endl<<"theta 2 = :";
-		cin>>theta2;
-		cout<<endl<<"bounding angle = :";
-		cin>>bounding_angle;
-		cout<<endl<<"g1 = :";
-		cin>>g1;
-		cout<<endl<<"g2 = :";
-		cin>>g2;
+					theta1 = theta1 / 180 * pi;
+					theta2 = theta2 / 180 * pi;
 
-		theta1 = theta1 / 180 * pi;
-		theta2 = theta2 / 180 * pi;
+					v_x = cos(theta1);
+					v_y = sin(theta1) * cos(theta2);
+					v_z = sin(theta1) * sin(theta2);
 
-		v_x = cos(theta1);
-		v_y = sin(theta1) * cos(theta2);
-		v_z = sin(theta1) * sin(theta2);
+					v = Vector3(v_x, v_y, v_z);
+			//		select_user_interested_area(v, bounding_angle, g1, g2);
+					
+					center_x =float(dim_x) / 2.0;
+					center_y = float(dim_y) / 2.0;
+					center_z = float(dim_z) / 2.0;
 
-		v = Vector3(v_x, v_y, v_z);
-		select_user_interested_area(v, bounding_angle, g1, g2);
-		cout<<float(num) / float(dim_x * dim_y * dim_z)<<endl;
+					for(i = 0;i < dim_x; ++i)
+						for(j = 0;j < dim_y; ++j)
+							for(k = 0;k < dim_z; ++k)
+							{
+								index = volume.getIndex(i, j, k);
+								dis = sqrt( pow(double(i - center_x), 2.0)
+									+ pow(double(j - center_y), 2.0)
+									+ pow(double(k - center_z), 2.0));
+								if(dis >= float(dim_x + dim_y + dim_z) / 6.0)
+									tf[index].a = 0;
+							}
+					cout<<float(num) / float(dim_x * dim_y * dim_z)<<endl;
 }
 
 void create_transferfunc()
@@ -1092,8 +1122,8 @@ void init()
 	}
 
 	glEnable(GL_CULL_FACE);
-		glClearColor(0, 0, 0, 0);
-	//glClearColor(1, 1, 1, 1);
+	glClearColor(0, 0, 0, 0);
+//	glClearColor(1, 1, 1, 1);
 	glGenFramebuffersEXT(1, &framebuffer);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,framebuffer);
 
@@ -1141,23 +1171,24 @@ void init()
 
 	volume.readVolFile(file1);
 	//cout<<"Data file name:"<<endl;
-	//	Volume.filter();
+//	volume.filter();
 	//	cin>>file;
 	//Volume.readData(file2);
 	//	Volume.calHistogram();
 	//	Volume.calEp();
 	//	Volume.NormalDistributionTest();
-	volume.calGrad();
-	//	Volume.calGrad_ex();
-	//	Volume.calDf2();
-	//	Volume.average_deviation();
+	//volume.calGrad();
+	//	volume.calGrad();
+	//	volume.calGrad_ex();
+	//	volume.calDf2();
+	//	volume.average_deviation();
 	//	NormalTest();
 	//	Volume.calLH();
 	//	Volume.calDf3();
 	//	Volume.Intensity_gradient_histogram();
 	//	Volume.statistics();
 	//	Volume.cluster();
-		volume.getInfo();
+	//	volume.getInfo();
 
 	/*lable = (char *) malloc(sizeof(char) * Volume.getCount());
 	if(lable == NULL)
@@ -1569,7 +1600,7 @@ void select_user_interested_area(Vector3 v, float bounding_angle, float r1, floa
 	float angle;
 	float dot_product;
 
-	angle = bounding_angle / 180 * pi;
+	angle = bounding_angle / 180.0 * pi;
 	dim_x = volume.getX();
 	dim_y = volume.getY();
 	dim_z = volume.getZ();
@@ -1578,14 +1609,29 @@ void select_user_interested_area(Vector3 v, float bounding_angle, float r1, floa
 		for(y = 0;y < dim_y; ++y)
 			for(z = 0; z < dim_z; ++z)
 			{
-				index = volume.getIndex(x, y, z);
-				if(x == 0 || x == dim_x - 1|| y == 0 || y == dim_y - 1 || z == 0 || z == dim_z - 1)
-					;
-				else
+				index = volume.getIndex(x, y, z);		
 				{
-					gx = float(volume.getData(x + 1, y, z)) - float(volume.getData(x - 1, y, z));
-					gy = float(volume.getData(x , y + 1, z)) - float(volume.getData(x , y - 1, z));
-					gz = float(volume.getData(x , y, z + 1)) - float(volume.getData(x , y, z - 1));
+					if(x == 0)
+						gx = float(volume.getData(x + 1, y, z) - volume.getData(x, y, z));
+					else if(x == dim_x - 1)
+						gx = float(volume.getData(x, y, z) - volume.getData(x - 1, y, z));
+					else
+						gx = float(volume.getData(x + 1, y, z)) - float(volume.getData(x - 1, y, z));
+
+					if(y == 0)
+						gy = float(volume.getData(x , y + 1, z) - volume.getData(x, y, z));
+					else if(y == dim_y - 1)
+						gy = float(volume.getData(x, y, z) - volume.getData(x, y - 1, z));
+					else
+						gy = float(volume.getData(x , y + 1, z)) - float(volume.getData(x , y - 1, z));
+					
+					if(z == 0)
+						gz = float(volume.getData(x, y, z + 1) - volume.getData(x, y, z));
+					else if(z == dim_z - 1)
+						gz =float(volume.getData(x, y, z) - volume.getData(x, y, z - 1));
+					else
+						gz = float(volume.getData(x , y, z + 1)) - float(volume.getData(x , y, z - 1));
+
 					g = sqrt(gx * gx + gy * gy + gz * gz);
 					gx /= g;
 					gy /= g;
@@ -1596,11 +1642,12 @@ void select_user_interested_area(Vector3 v, float bounding_angle, float r1, floa
 					if((dot_product <= cos(angle)) && (g >= r1) && (g <= r2))
 					{
 						;
-						tf[index].a *= 1.5;
+				//		tf[index].a =255;
 					}
 					else
 					{
 						tf[index].a = 0;
+				//		tf[index].r = tf[index].g = tf[index].b = 1;
 					}
 				}
 			}
