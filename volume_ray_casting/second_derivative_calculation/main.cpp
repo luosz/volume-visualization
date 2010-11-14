@@ -61,6 +61,7 @@ void k_means_on_derivatives(const T *data, const unsigned int count, const unsig
 	unsigned char * label_ptr = new unsigned char[count];
 	K_Means_PP_Generic::k_means<nv::vec3f>(scalar, k, label_ptr, K_Means_PP_Generic::get_distance<nv::vec3f>, K_Means_PP_Generic::get_centroid<nv::vec3f>);
 
+	// write labels to file
 	char label_filename[MAX_STR_SIZE];
 	sprintf(label_filename, "%s.%d.generic.txt", filename, k);
 	std::cout<<"Write labels to file "<<label_filename<<std::endl;
@@ -71,7 +72,20 @@ void k_means_on_derivatives(const T *data, const unsigned int count, const unsig
 	}
 	label_file.close();
 
+	// write data to file
+	char data_filename[MAX_STR_SIZE];
+	sprintf(data_filename, "%s.%d.data.txt", filename, k);
+	std::cout<<"Write data to file "<<data_filename<<std::endl;
+	std::ofstream data_file(data_filename);
+	for (unsigned int i=0; i<count; i++)
+	{
+		data_file<<std::hex<<(int)label_ptr[i]<<"\t"<<scalar.at(i).x<<","<<scalar.at(i).y<<","<<scalar.at(i).z<<endl;
+	}
+	data_file.close();
+
 	delete label_ptr;
+
+	cout<<"k_means_on_derivatives is done."<<endl;
 }
 
 void main(int argc, char* argv[])
@@ -116,8 +130,6 @@ void main(int argc, char* argv[])
 		//cluster<unsigned char, 256>((unsigned char*)*data_ptr, count);
 		k_means_on_derivatives<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number, sizes[0], sizes[1], sizes[2]);
 	}
-
-	cout<<"Done."<<endl;
 
 	if (data_ptr)
 	{
