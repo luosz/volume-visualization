@@ -984,7 +984,7 @@ void setTransferfunc6(void)
 									//alpha3 = exp(-1.0 * float(intensity) / g_magnitude);
 									//alpha4 = ( exp(-beta * (1 - alpha3)) - exp(-beta) ) / (1 - exp(-beta));
 
-									if(d < 0.54 * d_max)
+									if(d < 0.4 * d_max)
 									{
 										alpha2 = 0;
 
@@ -1040,7 +1040,8 @@ void setTransferfunc6(void)
 								tf[index].g = unsigned char(gy / g * 255.0);
 								tf[index].b = unsigned char(gz / g * 255.0); 
 							
-						
+						if(i * i + j * j + k * k > 150 * 150)
+							tf[index].a = 0;
 						
 					}
 				}
