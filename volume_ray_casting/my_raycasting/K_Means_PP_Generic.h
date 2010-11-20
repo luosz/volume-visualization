@@ -9,35 +9,21 @@
 namespace K_Means_PP_Generic
 {
 //#ifdef _DEBUG
-//#define _DEBUG_OUTPUT
+#define _DEBUG_OUTPUT
 //#endif
 
 	typedef float real; // This type definition make it flexible to switch between float and double
 
-	real get_distance_real(const real & v1, const real & v2)
+	nv::vec3f range_for_normalization = (1,1,1);
+	real get_distance_normailzed(const nv::vec3f & v1, const nv::vec3f & v2)
 	{
-		return abs(v1 - v2);
-	}
-
-	real get_distance_vec3f(const nv::vec3f & v1, const nv::vec3f & v2)
-	{
-		return nv::length(v1 - v2);
+		return nv::length((v2 - v1) / range_for_normalization);
 	}
 
 	template <class T>
 	real get_distance(const T & v1, const T & v2)
 	{
-		return nv::length(v1 - v2);
-	}
-
-	real get_centroid_real(const std::vector<real> & list)
-	{
-		real sum = 0;
-		for (std::vector<real>::const_iterator i=list.begin(); i!=list.end(); i++)
-		{
-			sum += *i;
-		}
-		return (sum / list.size());
+		return nv::length(v2 - v1);
 	}
 
 	nv::vec3f get_centroid_vec3f(const std::vector<nv::vec3f> & list)
@@ -54,15 +40,18 @@ namespace K_Means_PP_Generic
 	T get_centroid(const std::vector<T> & list)
 	{
 		T sum;
-		for (std::vector<T>::const_iterator i=list.begin(); i!=list.end(); i++)
+		std::vector<T>::const_iterator i=list.begin();
+		if (i != list.end())
 		{
-			if (i != list.begin())
-			{
-				sum += *i;
-			}else
-			{
-				sum = *i;
-			}
+			sum = *i;
+			i++;
+		}else
+		{
+			return sum;
+		}
+		for (; i!=list.end(); i++)
+		{
+			sum += *i;
 		}
 		return (sum / list.size());
 	}
