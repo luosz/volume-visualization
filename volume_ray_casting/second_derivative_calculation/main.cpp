@@ -49,6 +49,44 @@ void k_means_on_derivatives(const T *data, const unsigned int count, const unsig
 	derivative_file.close();
 
 	// test the generic k-means
+	nv::vec3f scalar_min, scalar_max;
+	scalar_min.x = scalar_max.x = scalar_value[0];
+	scalar_min.y = scalar_max.y = gradient_magnitude[0];
+	scalar_min.z = scalar_max.z = second_derivative_magnitude[0];
+	for (unsigned int i=1; i<count; i++)
+	{
+		if (scalar_value[i] < scalar_min.x)
+		{
+			scalar_min.x = scalar_value[i];
+		}
+		if (gradient_magnitude[i] < scalar_min.y)
+		{
+			scalar_min.y = gradient_magnitude[i];
+		}
+		if (second_derivative_magnitude[i] < scalar_min.z)
+		{
+			scalar_min.z = second_derivative_magnitude[i];
+		}
+		if (scalar_value[i] > scalar_max.x)
+		{
+			scalar_max.x = scalar_value[i];
+		}
+		if (gradient_magnitude[i] > scalar_max.y)
+		{
+			scalar_max.y = gradient_magnitude[i];
+		}
+		if (second_derivative_magnitude[i] > scalar_max.z)
+		{
+			scalar_max.z = second_derivative_magnitude[i];
+		}
+	}
+	K_Means_PP_Generic::range_for_normalization = scalar_max - scalar_min;
+	if (K_Means_PP_Generic::range_for_normalization.x < 1e-6 || K_Means_PP_Generic::range_for_normalization.y < 1e-6  || K_Means_PP_Generic::range_for_normalization.z < 1e-6)
+	{
+		std::cout<<"Range error!\t"<<K_Means_PP_Generic::range_for_normalization.x<<"\t"<<K_Means_PP_Generic::range_for_normalization.y<<"\t"<<K_Means_PP_Generic::range_for_normalization.z<<std::endl;
+		std::cout<<"Range error!\t"<<scalar_max.x<<"\t"<<scalar_max.y<<"\t"<<scalar_max.z<<std::endl;
+		std::cout<<"Range error!\t"<<scalar_min.x<<"\t"<<scalar_min.y<<"\t"<<scalar_min.z<<std::endl;
+	}
 	vector<nv::vec3f> scalar(count);
 	for (unsigned int i=0; i<count; i++)
 	{
@@ -59,7 +97,7 @@ void k_means_on_derivatives(const T *data, const unsigned int count, const unsig
 
 	const int k = 8;
 	unsigned char * label_ptr = new unsigned char[count];
-	K_Means_PP_Generic::k_means<nv::vec3f>(scalar, k, label_ptr, K_Means_PP_Generic::get_distance<nv::vec3f>, K_Means_PP_Generic::get_centroid<nv::vec3f>);
+	K_Means_PP_Generic::k_means<nv::vec3f>(scalar, k, label_ptr, K_Means_PP_Generic::get_distance_normailzed, K_Means_PP_Generic::get_centroid<nv::vec3f>);
 
 	// write labels to file
 	char label_filename[MAX_STR_SIZE];
@@ -74,7 +112,7 @@ void k_means_on_derivatives(const T *data, const unsigned int count, const unsig
 
 	// write data to file
 	char data_filename[MAX_STR_SIZE];
-	sprintf(data_filename, "%s.%d.data.txt", filename, k);
+	sprintf(data_filename, "%s.%d.clusters.txt", filename, k);
 	std::cout<<"Write data to file "<<data_filename<<std::endl;
 	std::ofstream data_file(data_filename);
 	for (unsigned int i=0; i<count; i++)
