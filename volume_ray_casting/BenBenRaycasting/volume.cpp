@@ -1301,3 +1301,84 @@ void Volume::average_deviation()
 			}
 			cout<<d_max<<endl;
 }
+
+void Volume::calLocalEntropy()
+{
+	int x, y, z, index, i, j, k, p;
+	float sum, prob;
+
+	local_entropy = (float *)malloc(sizeof(float) * getCount());
+
+	typedef struct 
+	{
+		int value;
+		int freq;
+	}vf;
+
+	vf a[27];
+
+	for(x = 0; x < 27; ++x)
+		a[x].freq = a[x].value = 0;
+
+	for(x = 0; x < getX(); ++x)
+		for(y = 0; y < getY(); ++y)
+			for(z = 0; z < getZ(); ++z)
+			{
+				index = getIndex(x, y, z);
+				if(x == 0 || x == getX() - 1 || y == 0 || y == getY() - 1 || z == 0 || z == getZ() - 1)
+					local_entropy[index] = 0;
+				else
+				{
+					for(p = 0; p < 27; ++p)
+						a[p].freq = a[p].value = 0;
+					sum = 0;
+					for(i = x - 1;i <= x + 1; ++i)
+						for(j = y - 1;j <= y + 1; ++j)
+							for(k = z - 1;k <= z + 1; ++k)
+							{
+								for(p = 0;p < 27;++p)
+								{
+									if(getData(i, j, k) == a[p].value)
+									{	
+										a[p].freq++;
+										break;
+									}
+									else if(a[p].freq == 0)
+									{
+										a[p].value = getData(i ,j, k);
+										a[p].freq++;
+										break;
+									}
+									else
+										;
+								}
+								
+							}
+							for(p = 0;p < 27;++p)
+							{
+								if(a[p].freq != 0)
+								{
+									prob =  float(a[p].freq) / 27.0;
+									sum += (-1.0) * prob * log(prob) / log(2.0);
+								}	
+							}
+							local_entropy[index] = sum;
+						//	cout<<sum<<endl;
+							if(local_entropy[index] > local_entropy_max)
+								local_entropy_max = local_entropy[index];
+				}
+
+			}
+}
+
+float Volume::getLocalEntropy(unsigned int x, unsigned int y, unsigned int z)
+{
+	int index = getIndex(x, y, z);
+
+	return local_entropy[index];
+}
+
+float Volume::getLocalEntropyMax()
+{
+	return local_entropy_max;
+}

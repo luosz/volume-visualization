@@ -89,7 +89,7 @@ nv::GlutUIContext ui;
 
 //////////////////////////////////////////////////////////////////////////
 // ark @ 2010.10.15
-char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Frog.dat";
+char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\walnut.dat";
 //char file2[] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.raw";
 //////////////////////////////////////////////////////////////////////////
 
@@ -949,6 +949,8 @@ void setTransferfunc6(void)
 				}
 
 			}
+		//	d_max = sqrt(d_max);
+		//	cout<<"d_max = "<<d_max<<endl;
 			for(i = 0;i < dim_x; ++i)
 				for(j = 0;j < dim_y; ++j)
 					for(k = 0;k < dim_z; ++k)
@@ -972,30 +974,34 @@ void setTransferfunc6(void)
 									for(r = k - 1; r <= k + 1; ++r)
 										d += pow(double(volume.getData(p, q, r)) - a, 2.0);
 							d /= 27;
+							d = sqrt(d);
 							if(d == 0)
 								d = 1e-4;
 
-									//intensity = volume.getData(i, j, k);
-									//g_magnitude = volume.getGrad(i, j, k);
-
+								/*	intensity = volume.getData(i, j, k);
+									g_magnitude = volume.getGrad(i, j, k);*/
+						//	cout<<"d =" <<d<<endl;
 							alpha1 = exp(-1.0 * a / d);
 							alpha2 = ( exp(-beta * (1 - alpha1)) - exp(-beta) ) / (1 - exp(-beta));
 
-									//alpha3 = exp(-1.0 * float(intensity) / g_magnitude);
-									//alpha4 = ( exp(-beta * (1 - alpha3)) - exp(-beta) ) / (1 - exp(-beta));
+				//			alpha3 = exp(-1.0 * float(intensity) / g_magnitude);
+							//			alpha4 = ( exp(-beta * (1 - alpha3)) - exp(-beta) ) / (1 - exp(-beta));
+				//			cout<<d<<endl;
+							/*if(d < (0.9 * d_max))
+								alpha2 = 0;
+							else
+								alpha2 *= 1.5;*/
+							/*	if(volume.getLocalEntropy(i, j, k) >= 0.7 * volume.getLocalEntropyMax())
+									alpha2 = 0;
+							*/
 
-									if(d < 0.4 * d_max)
-									{
-										alpha2 = 0;
-
-									}	
-									else
-										alpha2 *= 2.5;
+								
 
 					//		tf[index].a = unsigned char(alpha2 * 255);
 
-							/*if(alpha4 < 0.2)
-							alpha4 = 0;*/
+							//if(alpha4 < 0.2)
+							//alpha4 = 0;
+
 							tf[index].a  = unsigned char(alpha2 * 255);
 
 							x = i;
@@ -1039,13 +1045,14 @@ void setTransferfunc6(void)
 								tf[index].r = unsigned char(gx / g * 255.0);
 								tf[index].g = unsigned char(gy / g * 255.0);
 								tf[index].b = unsigned char(gz / g * 255.0); 
-							
+			/*				
 						if(i * i + j * j + k * k > 150 * 150)
-							tf[index].a = 0;
+							tf[index].a = 0;*/
 						
 					}
 				}
-					cout<<"theta 1 = :";
+					cout<<"d_max = "  <<d_max<<endl;
+					/*cout<<"theta 1 = :";
 					cin>>theta1;
 					cout<<endl<<"theta 2 = :";
 					cin>>theta2;
@@ -1061,27 +1068,28 @@ void setTransferfunc6(void)
 
 					v_x = cos(theta1);
 					v_y = sin(theta1) * cos(theta2);
-					v_z = sin(theta1) * sin(theta2);
+					v_z = sin(theta1) * sin(theta2);*/
 
 					v = Vector3(v_x, v_y, v_z);
 			//		select_user_interested_area(v, bounding_angle, g1, g2);
 					
-					center_x =float(dim_x) / 2.0;
+					/*center_x =float(dim_x) / 2.0;
 					center_y = float(dim_y) / 2.0;
-					center_z = float(dim_z) / 2.0;
+					center_z = float(dim_z) / 2.0;*/
 
-					for(i = 0;i < dim_x; ++i)
-						for(j = 0;j < dim_y; ++j)
-							for(k = 0;k < dim_z; ++k)
-							{
-								index = volume.getIndex(i, j, k);
-								dis = sqrt( pow(double(i - center_x), 2.0)
-									+ pow(double(j - center_y), 2.0)
-									+ pow(double(k - center_z), 2.0));
-								if(dis >= float(dim_x + dim_y + dim_z) / 6.0)
-									tf[index].a = 0;
-							}
-					cout<<float(num) / float(dim_x * dim_y * dim_z)<<endl;
+					//for(i = 0;i < dim_x; ++i)
+					//	for(j = 0;j < dim_y; ++j)
+					//		for(k = 0;k < dim_z; ++k)
+					//		{
+					//			index = volume.getIndex(i, j, k);
+					//			dis = sqrt( pow(double(i - center_x), 2.0)
+					//				+ pow(double(j - center_y), 2.0)
+					//				+ pow(double(k - center_z), 2.0));
+					//			if(dis >= float(dim_x + dim_y + dim_z) / 6.0)
+					//				tf[index].a = 0;
+					//		}
+			//		cout<<float(num) / float(dim_x * dim_y * dim_z)<<endl;
+					
 }
 
 void create_transferfunc()
@@ -1197,7 +1205,12 @@ void init()
 	memset(lable, '255', Volume.getCount());*/
 	//	k_means(&Volume, lable);
 	create_volume_texture();
+
+	volume.calLocalEntropy();
+	cout<<"local entropy max ="<<volume.getLocalEntropyMax()<<endl;
+
 	create_transferfunc();
+	
 	//	create_volumetexture();
 	// init shaders
 	setShaders();

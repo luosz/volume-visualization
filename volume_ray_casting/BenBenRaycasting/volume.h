@@ -44,6 +44,8 @@ protected:
 	unsigned int * df3;
 	Color * color;
 	float * opacity;
+	float * local_entropy;
+	float local_entropy_max;
 	float ex, var, cv;       //cv ±äÒìÏµÊý
 	unsigned char * group;             
 	bool * tag;
@@ -64,6 +66,8 @@ public:
 		max_grad =  min_grad = 0;
 		min_df2 = min_df3 = max_ep = min_ep = 0;
 		data = NULL;
+		local_entropy_max = 0;
+		local_entropy = NULL;
 		histogram = NULL;
 		color = NULL;
 		opacity = NULL;
@@ -104,6 +108,7 @@ public:
 	void calGrad_ex();                   //use f(x) = a * exp(bx)
 	void calEp();
 	void calLH();
+	void calLocalEntropy();
 	void Intensity_gradient_histogram();
 	virtual unsigned int getData(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getGrad(unsigned int x, unsigned int y, unsigned int z);
@@ -124,6 +129,8 @@ public:
 	unsigned int getMaxDf3(void);
 	unsigned int getMinDf3(void);
 	unsigned int getRange(void);
+	float getLocalEntropy(unsigned int x, unsigned int y, unsigned int z);
+	float getLocalEntropyMax();
 	unsigned int getHistogram(unsigned int intensity);
 	float getSpatialDistribution(int i, int j);
 	unsigned int getIntensity_gradient_histogram(int i, int j);
