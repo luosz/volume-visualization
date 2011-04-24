@@ -9,7 +9,7 @@
 namespace K_Means_PP_Generic
 {
 //#ifdef _DEBUG
-#define _DEBUG_OUTPUT
+//#define _DEBUG_OUTPUT
 //#endif
 
 	typedef float real; // This type definition make it flexible to switch between float and double
