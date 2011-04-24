@@ -205,17 +205,23 @@ namespace volume_utility
 		unsigned char *label_ptr_before_filter = new unsigned char[count];
 
 		// adapt to K_Means_PP_Generic::k_means()
-		std::vector<nv::vec3f> v(count);
+		//std::vector<nv::vec3f> v(count);
+		std::vector<nv::vec4f> v(count);
 		for (unsigned int i=0; i<count; i++)
 		{
-			v[i].x = scalar_value[i];
-			v[i].y = gradient_magnitude[i];
-			v[i].z = second_derivative_magnitude[i];
+			//v[i].x = scalar_value[i];
+			//v[i].y = gradient_magnitude[i];
+			//v[i].z = second_derivative_magnitude[i];
+			v[i].w = scalar_value[i];
+			v[i].x = gradient[i].x;
+			v[i].y = gradient[i].y;
+			v[i].z = gradient[i].z;
 		}
 		// call the clustering routine
 		std::cout<<"K-means++..."<<std::endl;
 		//K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
-		K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, K_Means_PP_Generic::get_distance<nv::vec3f>, K_Means_PP_Generic::get_centroid<nv::vec3f>);
+		//K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, K_Means_PP_Generic::get_distance<nv::vec3f>, K_Means_PP_Generic::get_centroid<nv::vec3f>);
+		K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, K_Means_PP_Generic::get_distance_with_direction, K_Means_PP_Generic::get_centroid<nv::vec4f>);
 
 		//std::ofstream label_file_before("d:/label_before.txt");
 		//for (unsigned int i=0; i<count; i++)
