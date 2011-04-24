@@ -204,6 +204,9 @@ namespace volume_utility
 
 		unsigned char *label_ptr_before_filter = new unsigned char[count];
 
+		//// wirte gradients to file
+		//std::ofstream gradient_file("d:\\gradients.txt");
+
 		// adapt to K_Means_PP_Generic::k_means()
 		std::vector<nv::vec3f> v(count);
 		for (unsigned int i=0; i<count; i++)
@@ -211,7 +214,12 @@ namespace volume_utility
 			v[i].x = scalar_value[i];
 			v[i].y = gradient_magnitude[i];
 			v[i].z = second_derivative_magnitude[i];
+			//v[i] = gradient[i];
+			//gradient_file<<gradient[i].x<<","<<gradient[i].y<<","<<gradient[i].z<<endl;
 		}
+
+		//gradient_file.close();
+
 		// call the clustering routine
 		std::cout<<"K-means++..."<<std::endl;
 		//K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
