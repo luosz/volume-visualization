@@ -152,14 +152,17 @@
     <ClInclude Include="filename_utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BenBenRaycasting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\BenBenRaycasting\Volume.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
     <ClInclude Include="K_Means_PP_Generic.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\Vector3.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\transfer_function.h">
+      <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
