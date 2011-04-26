@@ -15,12 +15,12 @@ const float PI = 3.1415926535;
 typedef struct  
   
 {   
+
+    unsigned char  red;              // [0,255]   
   
-    BYTE  red;              // [0,255]   
+    unsigned char  green;            // [0,255]   
   
-    BYTE  green;            // [0,255]   
-  
-    BYTE  blue;             // [0,255]   
+    unsigned char  blue;             // [0,255]   
   
 }COLOR_RGB;  
 

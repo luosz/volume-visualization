@@ -16,6 +16,9 @@
     <Filter Include="../my_raycasting">
       <UniqueIdentifier>{5ab2225e-ddf9-42c4-ab31-8e62216499d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{e16ed074-e8da-4089-bec8-314e922352a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp">
@@ -53,9 +56,16 @@
     <ClInclude Include="..\my_raycasting\VolumeReader.h">
       <Filter>../my_raycasting</Filter>
     </ClInclude>
+    <ClInclude Include="transfer_function.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="my_raycasting.frag" />
-    <None Include="simple_vertex.vert" />
+    <None Include="simple_vertex.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="my_raycasting.frag">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
