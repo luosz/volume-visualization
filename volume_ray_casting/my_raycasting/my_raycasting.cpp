@@ -114,7 +114,7 @@ const float STEPSIZE_MAX = 1.0/4.0;
 const float STEPSIZE_MIN = 1e-4;
 const float STEPSIZE_INC = STEPSIZE_MIN;
 float stepsize = 1.0/100.0;
-GLuint volume,f,p;//,f2 // the OpenGL shaders
+GLuint v,f,p;//,f2 // the OpenGL shaders
 GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture, loc_transfer_texture2;
@@ -449,7 +449,7 @@ void set_shaders() {
 
 	char *vs = NULL, *fs = NULL;
 
-	volume = glCreateShader(GL_VERTEX_SHADER);
+	v = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 
 	vs = textFileRead("simple_vertex.vert.cc");
@@ -458,19 +458,19 @@ void set_shaders() {
 	const char * vv = vs;
 	const char * ff = fs;
 
-	glShaderSource(volume, 1, &vv,NULL);
+	glShaderSource(v, 1, &vv,NULL);
 	glShaderSource(f, 1, &ff,NULL);
 
 	free(vs);free(fs);
 
-	glCompileShader(volume);
+	glCompileShader(v);
 	glCompileShader(f);
 
-	printShaderInfoLog(volume);
+	printShaderInfoLog(v);
 	printShaderInfoLog(f);
 
 	p = glCreateProgram();
-	glAttachShader(p,volume);
+	glAttachShader(p,v);
 	glAttachShader(p,f);
 
 	//Initial program setup.
