@@ -114,7 +114,7 @@ const float STEPSIZE_MAX = 1.0/4.0;
 const float STEPSIZE_MIN = 1e-4;
 const float STEPSIZE_INC = STEPSIZE_MIN;
 float stepsize = 1.0/100.0;
-GLuint v,f,p;//,f2 // the OpenGL shaders
+GLuint volume,f,p;//,f2 // the OpenGL shaders
 GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture, loc_transfer_texture2;
@@ -449,7 +449,7 @@ void set_shaders() {
 
 	char *vs = NULL, *fs = NULL;
 
-	v = glCreateShader(GL_VERTEX_SHADER);
+	volume = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 
 	vs = textFileRead("simple_vertex.vert.cc");
@@ -458,19 +458,19 @@ void set_shaders() {
 	const char * vv = vs;
 	const char * ff = fs;
 
-	glShaderSource(v, 1, &vv,NULL);
+	glShaderSource(volume, 1, &vv,NULL);
 	glShaderSource(f, 1, &ff,NULL);
 
 	free(vs);free(fs);
 
-	glCompileShader(v);
+	glCompileShader(volume);
 	glCompileShader(f);
 
-	printShaderInfoLog(v);
+	printShaderInfoLog(volume);
 	printShaderInfoLog(f);
 
 	p = glCreateProgram();
-	glAttachShader(p,v);
+	glAttachShader(p,volume);
 	glAttachShader(p,f);
 
 	//Initial program setup.
@@ -683,19 +683,16 @@ void create_volumetexture_a_cube()
 
 void create_transferfunc_Ben()
 {
-	VolumeReader vr;
-	vr.readVolFile(volume_filename);
-	vr.calHistogram();
-	vr.calGrad_ex();
-	vr.calDf2();
-	vr.calDf3();
-	vr.statistics();
+	VolumeReader volume;
+	volume.readVolFile(volume_filename);
+	volume.calHistogram();
+	volume.calGrad_ex();
+	volume.calDf2();
+	volume.calDf3();
+	volume.statistics();
 
-	unsigned int dim_x = vr.getX();
-	unsigned int dim_y = vr.getY();
-	unsigned int dim_z = vr.getZ();
-	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	setTransferfunc(tf, vr);
+	color_opacity * tf = NULL;
+	setTransferfunc(tf, volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -706,27 +703,23 @@ void create_transferfunc_Ben()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
+	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
 	free_transfer_function_pointer(tf);
 }
 
 void create_transferfunc_fusion()
 {
-	VolumeReader vr;
-	vr.readVolFile(volume_filename);
-	vr.calHistogram();
-	vr.calGrad_ex();
-	vr.calDf2();
-	vr.calDf3();
-	vr.statistics();
+	VolumeReader volume;
+	volume.readVolFile(volume_filename);
+	volume.calHistogram();
+	volume.calGrad_ex();
+	volume.calDf2();
+	volume.calDf3();
+	volume.statistics();
 
-	unsigned int dim_x = vr.getX();
-	unsigned int dim_y = vr.getY();
-	unsigned int dim_z = vr.getZ();
-
-	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	setTransferfunc3(tf, vr);
+	color_opacity * tf = NULL;
+	setTransferfunc3(tf, volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -737,12 +730,12 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
+	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
 	free_transfer_function_pointer(tf);
 
-	color_opacity * tf2 = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	setTransferfunc6(tf2, vr);
+	color_opacity * tf2 = NULL;
+	setTransferfunc6(tf2, volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture2);
@@ -753,7 +746,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf2);
+	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf2);
 
 	free_transfer_function_pointer(tf2);
 }
