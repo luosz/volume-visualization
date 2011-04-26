@@ -28,7 +28,21 @@ namespace K_Means_PP_Generic
 		return nv::length(v2 - v1);
 	}
 
-	real get_distance_with_direction(const nv::vec4f & v1, const nv::vec4f & v2)	{	/*	real d1 = fabs(v1.w - v2.w);		real len1 = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z);		real len2 = sqrt(v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);		real dot_product = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;		real d2 = dot_product / (len1 * len2);		d2 = (d2 + 1.0) / 2.0;		real result = d1 * d2;			return result;*/		nv::vec4f v;		v = v1 - v2;		return nv::length(v);	}
+	real get_distance_with_direction(const nv::vec4f & v1, const nv::vec4f & v2)
+	{
+	/*	real d1 = fabs(v1.w - v2.w);
+		real len1 = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z);
+		real len2 = sqrt(v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);
+		real dot_product = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+		real d2 = dot_product / (len1 * len2);
+		d2 = (d2 + 1.0) / 2.0;
+		real result = d1 * d2;	
+		return result;*/
+
+		nv::vec4f v;
+		v = v1 - v2;
+		return nv::length(v);
+	}
 
 	nv::vec3f get_centroid_vec3f(const std::vector<nv::vec3f> & list)
 	{
