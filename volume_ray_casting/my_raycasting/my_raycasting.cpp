@@ -45,7 +45,11 @@ GLuint histogram_buffer; // buffer for the histogram
 GLuint histogram_gradient_buffer; // buffer for the gradient histogram
 GLuint final_image;
 GLuint volume_texture_from_file; // the volume texture from files
-GLuint transfer_texture;
+GLuint transfer_texture, transfer_texture2;
+
+// for fusion of two transfer functions
+float fusion_factor = 0;
+GLuint loc_fusion_factor;
 
 // histogram equalization in shaders
 float scalar_min_normalized = 0;
@@ -112,7 +116,7 @@ float stepsize = 1.0/100.0;
 GLuint v,f,p;//,f2 // the OpenGL shaders
 GLuint loc_stepsize;
 GLuint loc_volume;
-GLuint loc_transfer_texture;
+GLuint loc_transfer_texture, loc_transfer_texture2;
 const float LUMINANCE_MAX = 50;
 const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
@@ -149,6 +153,7 @@ bool button_lock_viewpoint = false;
 bool button_generate_histogram = false;
 bool button_cluster = false;
 bool button_generate_Ben_transfer_function = false;
+bool button_generate_fusion_transfer_function = false;
 bool button_all = false;
 bool button_show_alpha_blending = false;
 bool button_load_importance_label = false;
@@ -196,6 +201,7 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_K_MEANS_IMPORTANCE,
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED_IMPORTANCE,
 	TRANSFER_FUNCTION_SOBEL_3D_IMPORTANCE,
+	TRANSFER_FUNCTION_FUSION,
 	TRANSFER_FUNCTION_COUNT
 };
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
@@ -228,7 +234,7 @@ void doUI()
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
 	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Opacity with importance", "Gradient with importance"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance", "Sobel 3D importance"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance", "Sobel 3D importance", "Fusion"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -245,7 +251,8 @@ void doUI()
 		ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
 		ui.doButton(none, "Generate histogram", &button_generate_histogram);
 		ui.doButton(none, "Cluster", &button_cluster);
-		ui.doButton(none, "Generate Ben TF", &button_generate_Ben_transfer_function);
+		ui.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
+		ui.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
 		ui.doButton(none, "Do all", &button_all);
 		ui.doButton(none, "Load label", &button_load_importance_label);
 		ui.endGroup();
@@ -319,6 +326,14 @@ void doUI()
 				sprintf(str, "opacity=mix(gradient,scalar,alpha)    alpha=%f", alpha_opacity);
 				ui.doLabel(none, str);
 				ui.doHorizontalSlider(rect_slider, 0, 1, &alpha_opacity);
+			}else
+			{
+				if (transfer_function_option == TRANSFER_FUNCTION_FUSION)
+				{
+					sprintf(str, "fusion factor = %f", fusion_factor);
+					ui.doLabel(none, str);
+					ui.doHorizontalSlider(rect_slider, 0, 1, &fusion_factor);
+				}
 			}
 		}
 
@@ -475,6 +490,7 @@ void set_shaders() {
 	loc_scalar_min_normalized = glGetUniformLocation(p, "scalar_min_normalized");
 	loc_scalar_max_normalized = glGetUniformLocation(p, "scalar_max_normalized");
 	loc_alpha_opacity = glGetUniformLocation(p, "alpha_opacity");
+	loc_fusion_factor = glGetUniformLocation(p, "fusion_factor");
 
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
@@ -484,6 +500,7 @@ void set_shaders() {
 	loc_transfer_texture = add_texture_uniform(p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
 	loc_cluster_texture =  add_texture_uniform(p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
 	loc_importance_texture =  add_texture_uniform(p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
+	loc_transfer_texture2 = add_texture_uniform(p, "transfer_texture2", 8, GL_TEXTURE_3D, transfer_texture2);
 
 	// disable the shader program
 	glUseProgram(0);
@@ -677,7 +694,7 @@ void create_transferfunc_Ben()
 	unsigned int dim_y = vr.getY();
 	unsigned int dim_z = vr.getZ();
 	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	setTransferfunc_Ben(tf, vr);
+	setTransferfunc(tf, vr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -691,6 +708,53 @@ void create_transferfunc_Ben()
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
 	free(tf);
+}
+
+void create_transferfunc_fusion()
+{
+	VolumeReader vr;
+	vr.readVolFile(volume_filename);
+	vr.calHistogram();
+	vr.calGrad_ex();
+	vr.calDf2();
+	vr.calDf3();
+	vr.statistics();
+
+	unsigned int dim_x = vr.getX();
+	unsigned int dim_y = vr.getY();
+	unsigned int dim_z = vr.getZ();
+
+	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
+	setTransferFunc3(tf, vr);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &transfer_texture);
+	glBindTexture(GL_TEXTURE_3D, transfer_texture);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
+
+	free(tf);
+
+	color_opacity * tf2 = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
+	setTransferfunc6(tf2, vr);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &transfer_texture2);
+	glBindTexture(GL_TEXTURE_3D, transfer_texture2);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf2);
+
+	free(tf2);
 }
 
 void reshape_ortho(int w, int h)
@@ -1406,6 +1470,7 @@ void raycasting_pass()
 	glUniform1f(loc_scalar_max_normalized, scalar_max_normalized);
 	glUniform1f(loc_slope_threshold, slope_threshold);
 	glUniform1f(loc_alpha_opacity, alpha_opacity);
+	glUniform1f(loc_fusion_factor, fusion_factor);
 
 	glUniform1i(loc_peeling_option, peeling_option);
 	glUniform1i(loc_transfer_function_option, transfer_function_option);
@@ -1416,6 +1481,14 @@ void raycasting_pass()
 		button_generate_Ben_transfer_function = false;
 		create_transferfunc_Ben();
 		set_texture_uniform(loc_transfer_texture, p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
+	}
+
+	if(button_generate_fusion_transfer_function)
+	{
+		button_generate_fusion_transfer_function = false;
+		create_transferfunc_fusion();
+		set_texture_uniform(loc_transfer_texture, p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
+		set_texture_uniform(loc_transfer_texture2, p, "transfer_texture2", 8, GL_TEXTURE_3D, transfer_texture2);
 	}
 
 	if(button_show_generated_cube != button_show_generated_cube_backup)
@@ -1453,7 +1526,8 @@ void display()
 		button_all = false;
 		button_generate_histogram = true;
 		button_cluster = true;
-		button_generate_Ben_transfer_function = true;
+		//button_generate_Ben_transfer_function = true;
+		button_generate_fusion_transfer_function = true;
 	}
 
 	// render the histogram

@@ -1,6 +1,7 @@
 // volume data and transfer functions
 uniform sampler2D back, front, transfer_function_2D;
-uniform sampler3D volume, transfer_texture, cluster_texture, importance_texture;
+uniform sampler3D volume, transfer_texture, cluster_texture, importance_texture, transfer_texture2;
+uniform float fusion_factor;
 
 // for raycasting
 uniform float stepsize, luminance, clip;
@@ -437,6 +438,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				// Raw scalar values without a transfer function
 				color_sample = texture3D(volume, ray);
 				break;
+
 			case 1:
 				// Simple 2D transfer function
 				c = texture3D(volume, ray);
@@ -445,10 +447,12 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					= mask.xxxw * texture2D(transfer_function_2D, c.xw)
 					+ mask.wwwx * sum3(c.rgb);
 				break;
+
 			case 2:
 				// Ben transfer function
 				color_sample = texture3D(transfer_texture, ray);
 				break;
+
 			case 3:
 				// Directional derivatives as RGB
 				g_x = abs(texture3D(volume, ray+d.xww)-texture3D(volume, ray-d.xww));
@@ -461,6 +465,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					+ mask.wwxw * g_z
 					+ mask.wwwx * (g_x.x + g_y.y + g_z.z);
 				break;
+
 			case 4:
 				// second derivatives
 				c = texture3D(volume, ray);
@@ -483,6 +488,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					+ mask.wwxw * g_z
 					+ mask.wwwx * sum3(equalize(c.rgb)) / second_derivative_magnitude;
 				break;
+
 			case 5:
 				// Sobel operator
 				g_x = abs(
@@ -515,6 +521,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					+ mask.wwxw * g_z
 					+ mask.wwwx * (alpha_opacity > 0.0 ? mix((g_x.x + g_y.y + g_z.z), sum3(equalize(texture3D(volume, ray).rgb)), alpha_opacity) : (g_x.x + g_y.y + g_z.z));
 				break;
+
 			case 6:
 				// Sobel 3D operator
 				g_x = abs(
@@ -559,16 +566,19 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					+ mask.wwxw * g_z
 					+ mask.wwwx * (alpha_opacity > 0.0 ? mix((g_x.x + g_y.y + g_z.z) * 0.125, sum3(equalize(texture3D(volume, ray).rgb)), alpha_opacity) : (g_x.x + g_y.y + g_z.z) * 0.125);
 				break;
+
 			case 7:
 				// k-means
 				color_sample = texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw);
 				break;
+
 			case 8:
 				// k-means equalized
 				color_sample
 					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
 					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb));
 				break;
+
 			case 9:
 				// Simple 2D transfer function with importance
 				c = texture3D(volume, ray);
@@ -577,12 +587,14 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					= mask.xxxw * texture2D(transfer_function_2D, c.xw)
 					+ mask.wwwx * sum3(c.rgb) * texture3D(importance_texture, ray).x;
 				break;
+
 			case 10:
 				// k-means equalized with importance
 				color_sample
 					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
 					+ mask.wwwx * sum3(equalize(texture3D(volume, ray).rgb)) * texture3D(importance_texture, ray).x;
 				break;
+
 			case 11:
 				// Sobel 3D operator
 				g_x = abs(
@@ -627,6 +639,12 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					+ mask.wwxw * g_z
 					+ mask.wwwx * texture3D(importance_texture, ray).x * (alpha_opacity > 0.0 ? mix((g_x.x + g_y.y + g_z.z) * 0.125, sum3(equalize(texture3D(volume, ray).rgb)), alpha_opacity) : (g_x.x + g_y.y + g_z.z) * 0.125);
 				break;
+
+			case 12:
+				// Fusion of two transfer functions
+				color_sample = mix(texture3D(transfer_texture, ray), texture3D(transfer_texture2, ray), fusion_factor);
+				break;
+
 			default:
 				// Raw scalar values without a transfer function
 				color_sample = texture3D(volume, ray);
