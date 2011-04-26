@@ -36,9 +36,10 @@
 #include <nvVector.h>
 
 //////////////////////////////////////////////////////////////////////////
-// ark @ 2010.10.15
+// added by ark @ 2010.10.15
 #include "../my_raycasting/VolumeReader.h"
-// ark @ 2011.04.26
+
+// added by ark @ 2011.04.26
 #include "transfer_function.h"
 //////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +81,7 @@ GLuint v,f,p;//,f2 // the OpenGL shaders
 GLuint loc_stepsize;
 
 //////////////////////////////////////////////////////////////////////////
-// ark @ 2010.10.15
+// added by ark @ 2010.10.15
 VolumeReader volume;
 //////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +89,7 @@ nv::GlutExamine manipulator;
 nv::GlutUIContext ui;
 
 //////////////////////////////////////////////////////////////////////////
-// ark @ 2010.10.15
+// added by ark @ 2010.10.15
 char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\nucleon.dat";
 //char file2[] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.raw";
 //////////////////////////////////////////////////////////////////////////
@@ -1036,8 +1037,8 @@ void NormalTest()
 int main(int argc, char* argv[])
 {
 	//////////////////////////////////////////////////////////////////////////
-	// ark @ 2010.10.15
 	// read filename from arguments if available
+	// added by ark @ 2010.10.15
 	if (argc > 1)
 	{
 		strcpy(file1, argv[1]);
@@ -1070,6 +1071,7 @@ int main(int argc, char* argv[])
 	init();
 	glutMainLoop();
 
+	// added by ark @ 2011.04.26
 	// free the transfer function pointer
 	free_transfer_function_pointer(tf);
 
