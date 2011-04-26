@@ -705,6 +705,7 @@ void create_transferfunc_Ben()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
+	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 }
 
@@ -732,6 +733,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
+	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 
 	color_opacity * tf2 = NULL;
@@ -748,6 +750,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf2);
 
+	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf2);
 }
 

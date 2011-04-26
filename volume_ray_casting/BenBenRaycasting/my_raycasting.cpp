@@ -571,7 +571,7 @@ void create_transferfunc()
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
 	// added by ark @ 2011.04.26
-	// free the transfer function pointer
+	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 }
 
@@ -1073,7 +1073,7 @@ int main(int argc, char* argv[])
 	glutMainLoop();
 
 	// added by ark @ 2011.04.26
-	// free the transfer function pointer
+	// free the transfer function pointer before exit
 	free_transfer_function_pointer(tf);
 
 	return 0;
