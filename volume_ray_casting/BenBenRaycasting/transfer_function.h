@@ -28,8 +28,8 @@ float norm(float min, float max, float x)  //convert data in range[min, max] to 
 	return result;
 }
 
-// check if the pointer is NULL. if not, free the pointer.
 // added by ark @ 2011.04.26
+// check if the pointer is NULL. if not, free the pointer.
 void free_transfer_function_pointer(color_opacity *& p)
 {
 	if (p != NULL)
@@ -39,8 +39,8 @@ void free_transfer_function_pointer(color_opacity *& p)
 	}
 }
 
-// free the pointer (if not NULL) and then allocate memory for it
 // added by ark @ 2011.04.26
+// free the pointer (if not NULL) and then allocate memory for it
 void alloc_transfer_function_pointer(color_opacity *& p, unsigned int dim_x, unsigned int dim_y, unsigned int dim_z)
 {
 	free_transfer_function_pointer(p);
@@ -59,7 +59,10 @@ void setTransferfunc(color_opacity *& tf, Volume & volume)
 	unsigned int dim_x = volume.getX();
 	unsigned int dim_y = volume.getY();
 	unsigned int dim_z = volume.getZ();
+
+	// added by ark @ 2011.04.26
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
+
 	if(tf == NULL)
 	{
 		fprintf(stderr, "Not enough space for tf");
@@ -135,7 +138,10 @@ void setTransferfunc2(color_opacity *& tf, Volume & volume)
 	unsigned int dim_x = volume.getX();
 	unsigned int dim_y = volume.getY();
 	unsigned int dim_z = volume.getZ();
+
+	// added by ark @ 2011.04.26
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
+
 	if(tf == NULL)
 	{
 		fprintf(stderr, "Not enough space for tf");
@@ -195,7 +201,10 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 	unsigned int dim_x = volume.getX();
 	unsigned int dim_y = volume.getY();
 	unsigned int dim_z = volume.getZ();
+
+	// added by ark @ 2011.04.26
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
+
 	if(tf == NULL)
 	{
 		fprintf(stderr, "Not enough space for tf");
@@ -279,7 +288,9 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 	unsigned int dim_z = volume.getZ();
 	beta = log((dim_x + dim_y + dim_z) / 3.0);
 
+	// added by ark @ 2011.04.26
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
+
 	if(tf == NULL)
 	{
 		fprintf(stderr, "Not enough space for tf");
@@ -400,7 +411,9 @@ void setTransferfunc6(color_opacity *& tf, Volume & volume)
 	unsigned int dim_z = volume.getZ();
 	beta = log((dim_x + dim_y + dim_z) / 3.0);
 
+	// added by ark @ 2011.04.26
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
+
 	if(tf == NULL)
 	{
 		fprintf(stderr, "Not enough space for tf");
