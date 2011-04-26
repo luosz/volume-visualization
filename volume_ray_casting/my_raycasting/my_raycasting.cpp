@@ -21,9 +21,10 @@ using namespace std;
 #include <nvGlutManipulators.h>
 #include <nvGlutWidgets.h>
 
+#include "../BenBenRaycasting/transfer_function.h"
+#include "VolumeReader.h"
 #include "filename.h"
 #include "textfile.h"
-#include "BenBenRaycasting.h"
 #include "volume_utility.h"
 #include "reader.h"
 using namespace reader;
@@ -707,7 +708,7 @@ void create_transferfunc_Ben()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	free(tf);
+	free_transfer_function_pointer(tf);
 }
 
 void create_transferfunc_fusion()
@@ -725,7 +726,7 @@ void create_transferfunc_fusion()
 	unsigned int dim_z = vr.getZ();
 
 	color_opacity * tf = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
-	setTransferFunc3(tf, vr);
+	setTransferfunc3(tf, vr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -738,7 +739,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	free(tf);
+	free_transfer_function_pointer(tf);
 
 	color_opacity * tf2 = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
 	setTransferfunc6(tf2, vr);
@@ -754,7 +755,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, dim_x, dim_y, dim_z, 0, GL_RGBA, GL_UNSIGNED_BYTE, tf2);
 
-	free(tf2);
+	free_transfer_function_pointer(tf2);
 }
 
 void reshape_ortho(int w, int h)
@@ -1259,10 +1260,10 @@ void key_release(unsigned char key, int x, int y)
 	gKeys[key] = false;
 	switch (key)
 	{
-	//case 27 :
-	//	// escape to exit
-	//	exit(0);
-	//	break;
+		//case 27 :
+		//	// escape to exit
+		//	exit(0);
+		//	break;
 	case 'r':
 		button_auto_rotate = !button_auto_rotate;
 		break;
@@ -1303,9 +1304,9 @@ void key_release(unsigned char key, int x, int y)
 			peeling_option = (peeling_option + 1) % PEELING_COUNT;
 		}
 		break;
-	//case 'c':
-	//	std::cout<<chars_returned<<"\t"<<text<<std::endl;
-	//	break;
+		//case 'c':
+		//	std::cout<<chars_returned<<"\t"<<text<<std::endl;
+		//	break;
 	}
 }
 

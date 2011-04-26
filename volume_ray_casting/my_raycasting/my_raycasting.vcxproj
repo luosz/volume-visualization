@@ -95,8 +95,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\BenBenRaycasting\color.h" />
+    <ClInclude Include="..\BenBenRaycasting\transfer_function.h" />
+    <ClInclude Include="..\BenBenRaycasting\Vector3.h" />
     <ClInclude Include="..\BenBenRaycasting\Volume.h" />
-    <ClInclude Include="BenBenRaycasting.h" />
     <ClInclude Include="filename_utility.h" />
     <ClInclude Include="K_Means_PP_Generic.h" />
     <ClInclude Include="volume_utility.h" />
