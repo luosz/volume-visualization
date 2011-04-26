@@ -570,8 +570,9 @@ void create_transferfunc()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	free(tf);
-	tf = NULL;
+	// added by ark @ 2011.04.26
+	// free the transfer function pointer
+	free_transfer_function_pointer(tf);
 }
 
 void init()
