@@ -91,7 +91,6 @@ nv::GlutUIContext ui;
 //////////////////////////////////////////////////////////////////////////
 // added by ark @ 2010.10.15
 char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\nucleon.dat";
-//char file2[] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\Vismale.raw";
 //////////////////////////////////////////////////////////////////////////
 
 char * lable;
@@ -642,14 +641,8 @@ void init()
 
 	//////////////////////////////////////////////////////////////////////////
 	// read volume data file
-	//	cout<<"Input file name:";
-	//	cin>>file;
-
 	volume.readVolFile(file1);
-	//cout<<"Data file name:"<<endl;
-	//	volume.filter();
-	//	cin>>file;
-	//Volume.readData(file2);
+
 	//	Volume.calHistogram();
 	//	Volume.calEp();
 	//	Volume.NormalDistributionTest();
