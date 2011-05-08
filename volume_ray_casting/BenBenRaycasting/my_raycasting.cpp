@@ -556,7 +556,7 @@ void create_volumetexture()
 
 void create_transferfunc()
 {
-	setTransferfunc6(tf, volume);
+	setTransferfunc5(tf, volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
