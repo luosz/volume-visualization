@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="media">
+      <UniqueIdentifier>{ffa21cd9-b178-4195-a1b7-2dcebcc735f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs">
+      <UniqueIdentifier>{8cd3472b-f936-49f5-8562-820f2c2a448a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{43e95da2-7b4b-4a23-bb09-734ebad770cd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Jelly ball.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Quad 5.ico" />
+    <None Include="raycasting_shader.cg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="cg.lib">
+      <Filter>libs</Filter>
+    </Library>
+    <Library Include="cgGL.lib">
+      <Filter>libs</Filter>
+    </Library>
+    <Library Include="glew32.lib">
+      <Filter>libs</Filter>
+    </Library>
+    <Library Include="glut32.lib">
+      <Filter>libs</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Vector3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
