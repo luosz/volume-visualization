@@ -45,7 +45,10 @@ protected:
 	Color * color;
 	float * opacity;
 	float * local_entropy;
+	float * average;
+	float * variation;
 	float local_entropy_max;
+	float max_variation;
 	float ex, var, cv;       //cv ±äÒìÏµÊý
 	unsigned char * group;             
 	bool * tag;
@@ -76,6 +79,8 @@ public:
 		gradient = NULL;
 		df2 = NULL;
 		df3 = NULL;
+		average = NULL;
+		variation = NULL;
 		little_epsilon = 10;
 	}
 	virtual ~Volume()
@@ -96,6 +101,10 @@ public:
 			free(df2);
 		if(df3)
 			free(df3);
+		if(average)
+			free(average);
+		if(variation)
+			free(variation);
 	}
 	virtual bool readVolFile(char * s);
 	bool readData(char * s);
@@ -109,12 +118,17 @@ public:
 	void calEp();
 	void calLH();
 	void calLocalEntropy();
+	void calAverage();
+	void calVariation();
 	void Intensity_gradient_histogram();
 	virtual unsigned int getData(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getGrad(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getDf2(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getDf3(unsigned int x, unsigned int y, unsigned int z);
 	float   getEp(unsigned int x, unsigned int y, unsigned int z);
+	float getAverage(unsigned int x, unsigned int y, unsigned int z);
+	float getVariation(unsigned int x, unsigned int y, unsigned int z);
+	float getMaxVariation(void);
 	unsigned int getIndex(unsigned int x, unsigned int y, unsigned int z);
 	unsigned int getX(void);
 	unsigned int getY(void);

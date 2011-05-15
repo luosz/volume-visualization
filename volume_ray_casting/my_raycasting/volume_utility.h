@@ -187,6 +187,8 @@ namespace volume_utility
 		vector<float> scalar_value(count); // the scalar data in const T *data
 		vector<nv::vec3f> gradient(count);
 		vector<float> gradient_magnitude(count);
+		vector<float> average(count);
+		vector<float> variation(count);
 		vector<nv::vec3f> second_derivative(count);
 		vector<float> second_derivative_magnitude(count);
 		float max_gradient_magnitude, max_second_derivative_magnitude;
@@ -201,27 +203,30 @@ namespace volume_utility
 
 		std::cout<<"Gradients and second derivatives..."<<std::endl;
 		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
-
+		generate_average_variation(sizes, count, components, scalar_value, average, variation);
+	
 		unsigned char *label_ptr_before_filter = new unsigned char[count];
 
 		// adapt to K_Means_PP_Generic::k_means()
 		//std::vector<nv::vec3f> v(count);
-		std::vector<nv::vec4f> v(count);
+		std::vector<nv::vec2f> v(count);
 		for (unsigned int i=0; i<count; i++)
 		{
 			//v[i].x = scalar_value[i];
 			//v[i].y = gradient_magnitude[i];
 			//v[i].z = second_derivative_magnitude[i];
-			v[i].w = scalar_value[i];
+		/*	v[i].w = scalar_value[i];
 			v[i].x = gradient[i].x;
 			v[i].y = gradient[i].y;
-			v[i].z = gradient[i].z;
+			v[i].z = gradient[i].z;*/
+			v[i].x = average[i];
+			v[i].y = variation[i];
 		}
 		// call the clustering routine
 		std::cout<<"K-means++..."<<std::endl;
 		//K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
 		//K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, K_Means_PP_Generic::get_distance<nv::vec3f>, K_Means_PP_Generic::get_centroid<nv::vec3f>);
-		K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, K_Means_PP_Generic::get_distance_with_direction, K_Means_PP_Generic::get_centroid<nv::vec4f>);
+		K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, K_Means_PP_Generic::get_distance<nv::vec2f>, K_Means_PP_Generic::get_centroid<nv::vec2f>);
 
 		//std::ofstream label_file_before("d:/label_before.txt");
 		//for (unsigned int i=0; i<count; i++)
@@ -305,6 +310,11 @@ namespace volume_utility
 #endif
 	}
 
+	unsigned int get_index(const int i, const int j, const int k, const int *sizes)
+	{
+		return (i * sizes[1] + j) * sizes[0] + k;
+	}
+
 	// calculate the gradients and the second derivatives
 	void generate_gradient(const int *sizes, const unsigned int count, const unsigned int components, const vector<float> &scalar_value, vector<nv::vec3f> &gradient, vector<float> &gradient_magnitude, float &max_gradient_magnitude, vector<nv::vec3f> &second_derivative, vector<float> &second_derivative_magnitude, float &max_second_derivative_magnitude)
 	{
@@ -357,6 +367,71 @@ namespace volume_utility
 			}
 		}
 	}
+
+	void generate_average_variation(const int *sizes, const unsigned int count, const unsigned int components, const vector<float> &scalar_value, vector<float> &average, vector<float> &variation) 
+	{
+		int x, y, z, i, j, k;
+		float sum;
+
+		unsigned int index;
+		int boundary[3] = {sizes[0]-1, sizes[1]-1, sizes[2]-1};
+		int width = sizes[0], height = sizes[1], depth = sizes[2];
+
+		for (i=0; i<depth; i++)
+		{
+			for (j=0; j<height; j++)
+			{
+				for (k=0; k<width; k++)
+				{
+					index = get_index(i, j, k, sizes);
+					if (k==0 || j==0 || i==0 || k==boundary[0] || j==boundary[1] || i==boundary[2])
+					{
+						average[index] =  0;
+					}else
+					{
+						sum = 0;
+						for(x =i - 1; x <= i + 1; ++x)
+							for(y = j - 1;y <= j + 1; ++y)
+								for(z = k - 1; z <= k + 1; ++z)
+								{
+									sum += scalar_value[index];
+								}
+						sum /= 27.0;
+						average[index] = sum;
+					}
+				}
+			}
+		}
+
+		for (i=0; i<depth; i++)
+		{
+			for (j=0; j<height; j++)
+			{
+				for (k=0; k<width; k++)
+				{
+					index = get_index(i, j, k, sizes);
+					if (k==0 || j==0 || i==0 || k==boundary[0] || j==boundary[1] || i==boundary[2])
+					{
+						variation[index] =  0;
+					}else
+					{
+						sum = 0;
+						for(x =i - 1; x <= i + 1; ++x)
+							for(y = j - 1;y <= j + 1; ++y)
+								for(z = k - 1; z <= k + 1; ++z)
+								{
+									sum += pow(double(scalar_value[index] - average[index]), 2.0);
+								}
+								sum /= 27.0;
+								sum = sqrt(sum);
+								variation[index] = sum;
+					}
+				}
+			}
+		}
+	}
+
+
 }
 
 #endif // volume_utility_h

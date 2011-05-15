@@ -413,6 +413,13 @@ void setTransferfunc6(color_opacity *& tf, Volume & volume)
 
 	// added by ark @ 2011.04.26
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
+	for(x = 0; x < dim_x; ++x)
+		for(y = 0; y < dim_y; ++y)
+			for(z = 0; z < dim_z; ++z)
+			{
+				index = volume.getIndex(x, y, z);
+				tf[index].r = tf[index].g = tf[index].b = tf[index].a = 0;
+			}
 
 	if(tf == NULL)
 	{
@@ -453,7 +460,7 @@ void setTransferfunc6(color_opacity *& tf, Volume & volume)
 		}
 	}
 	//	d_max = sqrt(d_max);
-	//	cout<<"d_max = "<<d_max<<endl;
+	
 	for(i = 0;i < dim_x; ++i)
 	{
 		for(j = 0;j < dim_y; ++j)
@@ -479,7 +486,7 @@ void setTransferfunc6(color_opacity *& tf, Volume & volume)
 							for(r = k - 1; r <= k + 1; ++r)
 								d += pow(double(volume.getData(p, q, r)) - a, 2.0);
 					d /= 27;
-					d = sqrt(d);
+		//			d = sqrt(d);
 					if(d == 0)
 						d = 1e-4;
 
@@ -492,13 +499,15 @@ void setTransferfunc6(color_opacity *& tf, Volume & volume)
 					//			alpha3 = exp(-1.0 * float(intensity) / g_magnitude);
 					//			alpha4 = ( exp(-beta * (1 - alpha3)) - exp(-beta) ) / (1 - exp(-beta));
 					//			cout<<d<<endl;
-					/*if(d < (0.9 * d_max))
-					alpha2 = 0;
+					if(d < (0.9 * d_max))
+						alpha2 = 0;		
 					else
-					alpha2 *= 1.5;*/
-					/*	if(volume.getLocalEntropy(i, j, k) >= 0.7 * volume.getLocalEntropyMax())
+						alpha2 *= 1.5;
+						if(volume.getLocalEntropy(i, j, k) >= 0.7 * volume.getLocalEntropyMax())
 					alpha2 = 0;
-					*/
+						else
+							alpha2 *= 1.5;
+					
 
 
 
@@ -597,5 +606,110 @@ void setTransferfunc6(color_opacity *& tf, Volume & volume)
 	//		}
 	//		cout<<float(num) / float(dim_x * dim_y * dim_z)<<endl;
 }
+
+void setTransferfunc7(color_opacity *& tf, Volume & volume)
+{
+	int x, y, z, i, j, k, p, q, r, index, intensity, num = 0;
+	float a, d, d_max = 0, gx, gy, gz, g, g_magnitude, t1, t2, t3;
+	float alpha1, alpha2, alpha3, alpha4, beta;
+	float theta1, theta2, bounding_angle, center_x, center_y, center_z;
+	float v_x, v_y, v_z, dis;
+	float g1, g2;
+
+	Vector3 v;
+
+	ofstream file("E:\\grad_direction.csv", std::ios::out);
+
+	unsigned int dim_x = volume.getX();
+	unsigned int dim_y = volume.getY();
+	unsigned int dim_z = volume.getZ();
+	beta = log((dim_x + dim_y + dim_z) / 3.0);
+
+	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
+	for(x = 0; x < dim_x; ++x)
+		for(y = 0; y < dim_y; ++y)
+			for(z = 0; z < dim_z; ++z)
+			{
+				index = volume.getIndex(x, y, z);
+				tf[index].r = tf[index].g = tf[index].b = tf[index].a = 0;
+			}
+
+	if(tf == NULL)
+	{
+		fprintf(stderr, "Not enough space for tf");
+	}
+
+	for(i = 0;i < dim_x; ++i)
+	{
+		for(j = 0;j < dim_y; ++j)
+		{
+			for(k = 0;k < dim_z; ++k)
+			{
+				index = volume.getIndex(i, j, k);	
+				if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
+				{						
+					tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
+				}
+				else
+				{
+					a = volume.getAverage(i, j, k);
+					d = volume.getVariation(i, j, k);
+					alpha1 = exp(-1.0 * a / d);
+					alpha2 = ( exp(-beta * (1 - alpha1)) - exp(-beta) ) / (1 - exp(-beta));
+
+					d_max = volume.getMaxVariation();
+					if(d < (0.9 * d_max))
+						alpha2 = 0;		
+					else
+					{
+						if(volume.getLocalEntropy(i, j, k) >= (0.7 * volume.getLocalEntropyMax()))
+							alpha2 = 0;
+						else
+							alpha2 *= 1.5;
+					}
+											
+					tf[index].a  = unsigned char(alpha2 * 255);
+
+					x = i;
+					y = j;
+					z = k;
+					if(x == 0)
+						gx = float(volume.getData(x + 1, y, z) - volume.getData(x, y, z));
+					else if(x == dim_x - 1)
+						gx = float(volume.getData(x, y, z) - volume.getData(x - 1, y, z));
+					else
+						gx = float(volume.getData(x + 1, y, z)) - float(volume.getData(x - 1, y, z));
+
+					if(y == 0)
+						gy = float(volume.getData(x , y + 1, z) - volume.getData(x, y, z));
+					else if(y == dim_y - 1)
+						gy = float(volume.getData(x, y, z) - volume.getData(x, y - 1, z));
+					else
+						gy = float(volume.getData(x , y + 1, z)) - float(volume.getData(x , y - 1, z));
+
+					if(z == 0)
+						gz = float(volume.getData(x, y, z + 1) - volume.getData(x, y, z));
+					else if(z == dim_z - 1)
+						gz =float(volume.getData(x, y, z) - volume.getData(x, y, z - 1));
+					else
+						gz = float(volume.getData(x , y, z + 1)) - float(volume.getData(x , y, z - 1));
+
+					g = sqrt(gx * gx + gy * gy + gz * gz);
+					file<<gx<<", "<<gy<<", "<<gz<<endl;
+					gx =fabs(gx);
+					gy =fabs(gy);
+					gz = fabs(gz);
+
+					tf[index].r = unsigned char(gx / g * 255.0);
+					tf[index].g = unsigned char(gy / g * 255.0);
+					tf[index].b = unsigned char(gz / g * 255.0); 
+				}
+			}
+		}
+	}
+
+}
+
+
 
 #endif // TRANSFER_FUNCTION_H

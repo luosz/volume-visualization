@@ -1317,58 +1317,43 @@ void Volume::calLocalEntropy()
 
 	vf a[27];
 
-	for(x = 0; x < 27; ++x)
-		a[x].freq = a[x].value = 0;
+	unsigned long num[65536];
+
+	local_entropy_max = 0;
+
 
 	for(x = 0; x < getX(); ++x)
 		for(y = 0; y < getY(); ++y)
 			for(z = 0; z < getZ(); ++z)
 			{
+				for(i = 0; i < 65536; ++i)
+					num[i] = 0;
 				index = getIndex(x, y, z);
 				if(x == 0 || x == getX() - 1 || y == 0 || y == getY() - 1 || z == 0 || z == getZ() - 1)
 					local_entropy[index] = 0;
 				else
 				{
-					for(p = 0; p < 27; ++p)
-						a[p].freq = a[p].value = 0;
-					sum = 0;
-					for(i = x - 1;i <= x + 1; ++i)
+					for(i = x - 1; i <= x + 1; ++i)
 						for(j = y - 1;j <= y + 1; ++j)
-							for(k = z - 1;k <= z + 1; ++k)
+							for(k = z - 1; k <= z + 1; ++k)
 							{
-								for(p = 0;p < 27;++p)
-								{
-									if(getData(i, j, k) == a[p].value)
-									{	
-										a[p].freq++;
-										break;
-									}
-									else if(a[p].freq == 0)
-									{
-										a[p].value = getData(i ,j, k);
-										a[p].freq++;
-										break;
-									}
-									else
-										;
-								}
-								
+								p = getData(i, j, k);
+								num[p]++;
 							}
-							for(p = 0;p < 27;++p)
-							{
-								if(a[p].freq != 0)
-								{
-									prob =  float(a[p].freq) / 27.0;
-									sum += (-1.0) * prob * log(prob) / log(2.0);
-								}	
-							}
-							local_entropy[index] = sum;
-						//	cout<<sum<<endl;
-							if(local_entropy[index] > local_entropy_max)
-								local_entropy_max = local_entropy[index];
+				sum = 0;
+				for(i = 0;i < 65536; ++i)
+				{
+					if(num[i] != 0)
+					{
+						prob = float(num[i]) / 27.0;
+						sum += (-prob) * log(prob);
+					}
 				}
-
+				local_entropy[index] = sum;
+				if(sum > local_entropy_max)
+					local_entropy_max = sum;
 			}
+		}
 }
 
 float Volume::getLocalEntropy(unsigned int x, unsigned int y, unsigned int z)
@@ -1381,4 +1366,87 @@ float Volume::getLocalEntropy(unsigned int x, unsigned int y, unsigned int z)
 float Volume::getLocalEntropyMax()
 {
 	return local_entropy_max;
+}
+
+void Volume::calAverage()
+{
+	int x, y, z, i, j, k, index;
+	float sum;
+
+	average = (float *)malloc(sizeof(float) * getCount());
+
+	for(x = 0; x < getX(); ++x)
+		for(y = 0; y < getY(); ++y)
+			for(z = 0; z < getZ(); ++z)
+			{
+				index = getIndex(x, y, z);
+				if(x == 0 || x == getX() - 1 
+				  || y ==0 || y == getY() - 1 
+				  || z == 0 || z == getZ() - 1)
+					average[index] = 0;
+				else
+				{
+					sum = 0;	
+					for(i = x - 1; i <= x + 1; ++i)
+							for(j = y - 1; j <= y + 1; ++j)
+								for(k = z - 1; k <= z + 1; ++k)
+									sum += getData(x, y, z);
+					sum /= 27.0;
+					average[index] = sum;
+				}
+			}
+}
+
+float Volume::getAverage(unsigned int x, unsigned int y, unsigned int z)
+{
+	int index = getIndex(x, y, z);
+
+	return average[index];
+}
+
+void Volume::calVariation()
+{
+	int x, y, z, i, j, k, index;
+	float sum, a;
+
+	max_variation = 0;
+	variation = (float *)malloc(sizeof(float) * getCount());
+
+	for(x = 0; x < getX(); ++x)
+		for(y = 0; y < getY(); ++y)
+			for(z = 0; z < getZ(); ++z)
+			{
+				index = getIndex(x, y, z);
+				if(x == 0 || x == getX() - 1 
+					|| y ==0 || y == getY() - 1 
+					|| z == 0 || z == getZ() - 1)
+					variation[index] = 0;
+				else
+				{
+					sum = 0;	
+					a =getAverage(x, y, z);
+					for(i = x - 1; i <= x + 1; ++i)
+						for(j = y - 1; j <= y + 1; ++j)
+							for(k = z - 1; k <= z + 1; ++k)
+								sum += pow(double(a - getData(i, j, k)), 2.0);
+					sum /= 27.0;
+					variation[index] = sum;
+					if(sum == 0)
+						variation[index] = 1e-4;
+					if(sum > max_variation)
+						max_variation = sum;
+				}
+			}
+}
+
+float Volume::getVariation(unsigned int x, unsigned int y, unsigned int z)
+{
+	int index = getIndex(x, y, z);
+
+	return variation[index];
+}
+
+float Volume::getMaxVariation()
+{
+	return max_variation;
 }
