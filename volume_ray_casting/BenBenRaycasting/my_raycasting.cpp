@@ -556,7 +556,7 @@ void create_volumetexture()
 
 void create_transferfunc()
 {
-	setTransferfunc5(tf, volume);
+	setTransferfunc7(tf, volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -598,7 +598,7 @@ void init()
 
 	glEnable(GL_CULL_FACE);
 	glClearColor(0, 0, 0, 0);
-	//	glClearColor(1, 1, 1, 1);
+//		glClearColor(1, 1, 1, 1);
 	glGenFramebuffersEXT(1, &framebuffer);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,framebuffer);
 
@@ -643,6 +643,8 @@ void init()
 	// read volume data file
 	volume.readVolFile(file1);
 
+	volume.calAverage();
+	volume.calVariation();
 	//	Volume.calHistogram();
 	//	Volume.calEp();
 	//	Volume.NormalDistributionTest();
