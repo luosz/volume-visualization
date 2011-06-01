@@ -556,7 +556,7 @@ void create_volumetexture()
 
 void create_transferfunc()
 {
-	setTransferfunc7(tf, volume);
+	setTransferfunc3(tf, volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -643,15 +643,15 @@ void init()
 	// read volume data file
 	volume.readVolFile(file1);
 
-	volume.calAverage();
-	volume.calVariation();
+	//volume.calAverage();
+	//volume.calVariation();
 	//	Volume.calHistogram();
 	//	Volume.calEp();
 	//	Volume.NormalDistributionTest();
-	//volume.calGrad();
+	volume.calGrad();
 	//	volume.calGrad();
 	//	volume.calGrad_ex();
-	//	volume.calDf2();
+		volume.calDf2();
 	//	volume.average_deviation();
 	//	NormalTest();
 	//	Volume.calLH();
@@ -668,8 +668,8 @@ void init()
 	//	k_means(&Volume, lable);
 	create_volume_texture();
 
-	volume.calLocalEntropy();
-	cout<<"local entropy max ="<<volume.getLocalEntropyMax()<<endl;
+//	volume.calLocalEntropy();
+//	cout<<"local entropy max ="<<volume.getLocalEntropyMax()<<endl;
 
 	create_transferfunc();
 

@@ -269,6 +269,7 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 				alpha = temp4;
 				//alpha = 1.0 + 1 / a * log((1.0 - pow(e, -a)) * temp4 + pow(e, -a)) / log(e);
 				alpha = (exp(-a * (1.0 - temp4)) - exp(-a)) / (1 - exp(-a));
+				alpha *= 1.5;
 				//	alpha = f / f_max * df1 / df1_max;
 
 				tf[index].a =  unsigned char(alpha * 255);
@@ -503,10 +504,10 @@ void setTransferfunc6(color_opacity *& tf, Volume & volume)
 						alpha2 = 0;		
 					else
 						alpha2 *= 1.5;
-						if(volume.getLocalEntropy(i, j, k) >= 0.7 * volume.getLocalEntropyMax())
+					/*	if(volume.getLocalEntropy(i, j, k) >= 0.7 * volume.getLocalEntropyMax())
 					alpha2 = 0;
 						else
-							alpha2 *= 1.5;
+							alpha2 *= 1.5;*/
 					
 
 
