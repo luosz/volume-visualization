@@ -29,58 +29,72 @@ using namespace std;
 #include "reader.h"
 using namespace reader;
 
-// call finailize() to free the memory before exit
+/// call finailize() to free the memory before exit
 void ** data_ptr = NULL;
 GLenum gl_type;
 int sizes[3];
 int color_omponent_number;
 
-// buffers, textures
+/// buffers, textures
 GLuint renderbuffer; 
 GLuint framebuffer; 
-GLuint volume_texture; // the volume texture
-GLuint backface_buffer; // the FBO buffers
-GLuint frontface_buffer; // the FBO buffers
-GLuint transfer_function_2D_buffer; // buffer for the 2D transfer function
-GLuint histogram_buffer; // buffer for the histogram
-GLuint histogram_gradient_buffer; // buffer for the gradient histogram
+
+/// the volume texture
+GLuint volume_texture;
+
+/// the FBO buffers
+GLuint backface_buffer;
+
+/// the FBO buffers
+GLuint frontface_buffer;
+
+/// buffer for the 2D transfer function
+GLuint transfer_function_2D_buffer;
+
+/// buffer for the histogram
+GLuint histogram_buffer;
+
+/// buffer for the gradient histogram
+GLuint histogram_gradient_buffer;
 GLuint final_image;
-GLuint volume_texture_from_file; // the volume texture from files
+
+/// the volume texture from files
+GLuint volume_texture_from_file;
 GLuint transfer_texture, transfer_texture2;
 
-// for fusion of two transfer functions
+/// for fusion of two transfer functions
 float fusion_factor = 0;
 GLuint loc_fusion_factor;
 
-// histogram equalization in shaders
+/// histogram equalization in shaders
 float scalar_min_normalized = 0;
 GLuint loc_scalar_min_normalized;
 float scalar_max_normalized = 1;
 GLuint loc_scalar_max_normalized;
 
-// for clustering
+/// for clustering
 GLuint cluster_texture;
 GLuint loc_cluster_texture;
 
-// for importance peeling
+/// for importance peeling
 GLuint importance_texture;
 GLuint loc_importance_texture;
 
-// for feature peeling
+/// for feature peeling
 float slope_threshold = 0;
 GLuint loc_slope_threshold;
 const float SLOPE_THRESHOLD_MAX = 1;
 const float SLOPE_THRESHOLD_MIN = -1;
 const float SLOPE_THRESHOLD_INC = 0.05;
 
-// for layer peeling
+/// for layer peeling
 float peeling_layer = 0;
 GLuint loc_peeling_layer;
 const float LAYER_MAX = 100;
 const float LAYER_MIN = 0;
 const float LAYER_INC = 1;
 
-// for opacity peeling and gradient peeling
+/// for opacity peeling and gradient peeling
 float threshold_low = 0.3;
 float threshold_high = 0;
 GLuint loc_threshold_high;
@@ -99,22 +113,25 @@ const float GRADIENT_SAMPLE_THRESHOLD_MAX = 5;
 const float GRADIENT_SAMPLE_THRESHOLD_MIN = 0;
 const float GRADIENT_SAMPLE_THRESHOLD_INC = 0.05;
 
-// for linear interpolation of alpha in the transfer function
+/// for linear interpolation of alpha in the transfer function
 GLuint loc_alpha_opacity;
 float alpha_opacity = 0;
 
-// the parameter k for k-means
+/// the parameter k for k-means
 float cluster_quantity = 8; // 16 clusters at most, since the cluster number is represented in 0~9 and a~f
 int cluster_quantity_int_old = -1; // to be initialized
 float cluster_interval;
 GLuint loc_cluster_interval;
 
-// for shaders
+/// for shaders
 const float STEPSIZE_MAX = 1.0/4.0;
 const float STEPSIZE_MIN = 1e-4;
 const float STEPSIZE_INC = STEPSIZE_MIN;
 float stepsize = 1.0/100.0;
-GLuint v,f,p;//,f2 // the OpenGL shaders
+
+/// the OpenGL shaders
+GLuint v,f,p;
+
 GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture, loc_transfer_texture2;
@@ -130,23 +147,24 @@ const float CLIP_INC = 0.01;
 float clip = 0;
 GLuint loc_clip;
 
-// for UI
+/// for UI widgets
 bool ui_on = true;
 #define MAX_KEYS 256
 #define WINDOW_SIZE 800
 #define VOLUME_TEX_SIZE 128
 bool gKeys[MAX_KEYS];
 
-// UI widgets and trackball manipulator
+/// UI widgets and trackball manipulator
 float diameter; //diameter of the model
 nv::vec3f center(0.0f, 0.0f, 0.0f); //center of the model
 
-// model controller
+/// model controller
 nv::GlutExamine manipulator;
-// ui context
+
+/// ui context
 nv::GlutUIContext ui;
 
-// for render
+/// for rendering
 bool button_show_generated_cube = false;
 bool button_show_generated_cube_backup = false;
 bool button_auto_rotate = false;
@@ -159,7 +177,7 @@ bool button_all = false;
 bool button_show_alpha_blending = false;
 bool button_load_importance_label = false;
 
-// for output image
+/// for output image
 enum RenderOption
 {
 	RENDER_FINAL_IMAGE,
@@ -172,7 +190,7 @@ enum RenderOption
 };
 int render_option = RENDER_FINAL_IMAGE;
 
-// for peeling
+/// for peeling
 enum PeelingOption
 {
 	PEELING_NONE,
@@ -187,7 +205,7 @@ enum PeelingOption
 };
 int peeling_option = PEELING_NONE;
 
-// for transfer function
+/// for transfer function
 enum TransferFunctionOption
 {
 	TRANSFER_FUNCTION_NONE,
@@ -208,7 +226,9 @@ enum TransferFunctionOption
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
 GLuint loc_transfer_function_option;
 
-/// Implementation ----------------------------------------
+//////////////////////////////////////////////////////////////////////////
+/// Implementation
+//////////////////////////////////////////////////////////////////////////
 
 void special(int c, int x, int y) {
 	ui.keyboard(c, x, y);
@@ -227,8 +247,6 @@ inline void updateButtonState(const nv::ButtonState &bs, nv::GlutManipulator &ma
 		manip.mouse(button, GLUT_DOWN, modMask, bs.cursor.x, WINDOW_SIZE - bs.cursor.y);
 }
 
-//char text[MAX_STR_SIZE] = "Hello\n";
-//int chars_returned;
 float picked = 0.5;
 void doUI()
 {
@@ -389,7 +407,8 @@ void passiveMotion(int x, int y) {
 }
 
 //////////////////////////////////////////////////////////////////////////
-// Shader initilization
+/// Shader initilization
+//////////////////////////////////////////////////////////////////////////
 void printShaderInfoLog(GLuint obj)
 {
 	int infologLength = 0;
@@ -424,7 +443,7 @@ void printProgramInfoLog(GLuint obj)
 	}
 }
 
-// Sets a uniform texture parameter
+/// Sets a uniform texture parameter
 GLuint add_texture_uniform(GLuint program, const char* name, int number, GLenum target, GLuint texture) 
 {
 	GLuint location = glGetUniformLocation(program, name);
@@ -547,7 +566,8 @@ void vertex(float x, float y, float z)
 	glMultiTexCoord3f(GL_TEXTURE1, x, y, z);
 	glVertex3f(x,y,z);
 }
-// this method is used to draw the front and backside of the volume
+
+/// this method is used to draw the front and backside of the volume
 void draw_quads(float x, float y, float z)
 {
 	glBegin(GL_QUADS);
@@ -607,7 +627,7 @@ void draw_quads(float x, float y, float z)
 	glEnd();
 }
 
-// create a test volume texture, here you could load your own volume
+/// create a test volume texture, here you could load your own volume
 void create_volumetexture_a_cube()
 {
 	int size = VOLUME_TEX_SIZE*VOLUME_TEX_SIZE*VOLUME_TEX_SIZE* 4;
@@ -778,6 +798,7 @@ void resize(int w, int h)
 	manipulator.reshape(w, h);
 }
 
+/// 把重要性因子加载为纹理
 void load_importance_label_texture(unsigned char *label_ptr, GLuint location, GLuint program, const char* name, int number, GLuint texture)
 {
 	GLenum target = GL_TEXTURE_3D;
@@ -796,7 +817,7 @@ void load_importance_label_texture(unsigned char *label_ptr, GLuint location, GL
 	set_texture_uniform(location, program, name, number, target, texture);
 }
 
-
+/// 加载聚类信息
 void load_importance_label(const unsigned int count)
 {
 	unsigned char *label_ptr_replaced = new unsigned char[count];
@@ -857,7 +878,7 @@ void load_importance_label(const unsigned int count)
 	delete [] label_ptr;
 }
 
-// cluster the volume data
+/// cluster the volume data
 template <class T, int TYPE_SIZE>
 void cluster(const T *data, const unsigned int count)
 {
@@ -888,7 +909,7 @@ void cluster(const T *data, const unsigned int count)
 	delete [] label_ptr;
 }
 
-// render the histogram
+/// render the histogram
 template <class T, int TYPE_SIZE>
 void render_histograms(const T *data, const unsigned int count, const unsigned int components)
 {
@@ -952,7 +973,7 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	resize(WINDOW_SIZE,WINDOW_SIZE); // set projection mode back to 3D
 }
 
-// read volume data from file
+/// read volume data from file
 void read_volume_file(char* filename) 
 {
 	float dists[3];
@@ -990,6 +1011,7 @@ void read_volume_file(char* filename)
 	cout << "volume texture created from " << filename << endl;
 }
 
+/// free the data pointer before exit
 void finailize()
 {
 	if (data_ptr)
@@ -1000,7 +1022,7 @@ void finailize()
 	}
 }
 
-// ok let's start things up
+/// ok let's start things up
 void initialize()
 {
 	cout << "glew init " << endl;
@@ -1127,7 +1149,7 @@ inline float decrease(const float value, const float dec, const float min)
 	return temp<min ? min : temp;
 }
 
-// for contiunes keypresses
+/// for contiunes keypresses
 void key_hold()
 {
 	// Process keys
@@ -1306,7 +1328,7 @@ void key_release(unsigned char key, int x, int y)
 	}
 }
 
-// glut idle function
+/// glut idle function
 void idle_func()
 {
 	if(button_auto_rotate)
@@ -1340,7 +1362,7 @@ void draw_fullscreen_quad()
 	glEnable(GL_DEPTH_TEST);
 }
 
-// display the final image on the screen
+/// display the final image on the screen
 void render_buffer_to_screen()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -1377,7 +1399,7 @@ void render_buffer_to_screen()
 	glDisable(GL_TEXTURE_2D);
 }
 
-// render the 2D transfer function
+/// render the 2D transfer function
 void render_transfer_function_2D()
 {
 	// how many colors
@@ -1427,7 +1449,7 @@ void render_frontface()
 	glDisable(GL_CULL_FACE);
 }
 
-// render the backface to the offscreen buffer backface_buffer
+/// render the backface to the offscreen buffer backface_buffer
 void render_backface()
 {
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, backface_buffer, 0);
@@ -1507,7 +1529,7 @@ void raycasting_pass()
 	glUseProgram(0);
 }
 
-// This display function is called once pr frame
+/// This display function is called once pr frame
 void display()
 {
 	static float rotate = 0; 

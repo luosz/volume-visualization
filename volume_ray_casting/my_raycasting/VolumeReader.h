@@ -52,7 +52,7 @@ public:
 		}
 	}
 
-	// get the .raw file name from the .dat file automatically
+	/// get the .raw file name from the .dat file automatically
 	virtual bool readVolFile(char * s)
 	{
 		char * cp, line[100], rawFilename[100];
@@ -134,7 +134,7 @@ public:
 		return accessor->getData(getIndex(x, y, z));
 	}
 
-	// read volume data from file using readData in reader.h
+	/// read volume data from file using readData in reader.h
 	void readVolume_reader(char* filename)
 	{
 		using namespace reader;

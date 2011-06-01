@@ -6,29 +6,32 @@
 #include <vector>
 #include <nvMath.h>
 
-namespace K_Means_PP_Generic
-{
 //#ifdef _DEBUG
 //#define _DEBUG_OUTPUT
 //#endif
 
-	typedef float real; // This type definition make it flexible to switch between float and double
+class K_Means_PP_Generic
+{
+public:
+
+	/// This type definition make it flexible to switch between float and double
+	typedef float real;
 
 	//real max = -1, min = -1;
 
-	nv::vec3f range_for_normalization = (1,1,1);
-	real get_distance_normailzed(const nv::vec3f & v1, const nv::vec3f & v2)
-	{
-		return nv::length((v2 - v1) / range_for_normalization);
-	}
+	//nv::vec3f range_for_normalization = (1,1,1);
+	//static real get_distance_normailzed(const nv::vec3f & v1, const nv::vec3f & v2)
+	//{
+	//	return nv::length((v2 - v1) / range_for_normalization);
+	//}
 
 	template <class T>
-	real get_distance(const T & v1, const T & v2)
+	static real get_distance(const T & v1, const T & v2)
 	{
 		return nv::length(v2 - v1);
 	}
 
-	real get_distance_with_direction(const nv::vec4f & v1, const nv::vec4f & v2)
+	static real get_distance_with_direction(const nv::vec4f & v1, const nv::vec4f & v2)
 	{
 	/*	real d1 = fabs(v1.w - v2.w);
 		real len1 = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z);
@@ -44,7 +47,7 @@ namespace K_Means_PP_Generic
 		return nv::length(v);
 	}
 
-	nv::vec3f get_centroid_vec3f(const std::vector<nv::vec3f> & list)
+	static nv::vec3f get_centroid_vec3f(const std::vector<nv::vec3f> & list)
 	{
 		nv::vec3f sum(0, 0, 0);
 		for (std::vector<nv::vec3f>::const_iterator i=list.begin(); i!=list.end(); i++)
@@ -55,7 +58,7 @@ namespace K_Means_PP_Generic
 	}
 
 	template <class T>
-	T get_centroid(const std::vector<T> & list)
+	static T get_centroid(const std::vector<T> & list)
 	{
 		T sum;
 		std::vector<T>::const_iterator i=list.begin();
@@ -74,15 +77,15 @@ namespace K_Means_PP_Generic
 		return (sum / list.size());
 	}
 
-	/************************************************************************
-	A Tutorial on Clustering Algorithms
-	http://home.dei.polimi.it/matteucc/Clustering/tutorial_html/kmeans.html
-
-	K-means++
-	http://en.wikipedia.org/wiki/K-means++
-	************************************************************************/
+	/**
+	* A Tutorial on Clustering Algorithms
+	* http://home.dei.polimi.it/matteucc/Clustering/tutorial_html/kmeans.html
+	* 
+	* K-means++
+	* http://en.wikipedia.org/wiki/K-means++
+	*/
 	template <class T>
-	void k_means(const std::vector<T> & data, const int k, unsigned char *& label_ptr, real get_distance(const T & v1, const T & v2), T get_centroid(const std::vector<T> & list))
+	static void k_means(const std::vector<T> & data, const int k, unsigned char *& label_ptr, real get_distance(const T & v1, const T & v2), T get_centroid(const std::vector<T> & list))
 	{
 		const unsigned int count = data.size();
 
@@ -252,6 +255,6 @@ namespace K_Means_PP_Generic
 #endif
 
 	}
-}
+};
 
 #endif // K_Means_PP_Generic_h

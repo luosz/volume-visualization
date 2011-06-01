@@ -4,13 +4,13 @@
 class K_Means_PP_DIY
 {
 public:
-	/************************************************************************
-	A Tutorial on Clustering Algorithms
-	http://home.dei.polimi.it/matteucc/Clustering/tutorial_html/kmeans.html
-
-	K-means++
-	http://en.wikipedia.org/wiki/K-means++
-	************************************************************************/
+	/**
+	* A Tutorial on Clustering Algorithms
+	* http://home.dei.polimi.it/matteucc/Clustering/tutorial_html/kmeans.html
+	* 
+	* K-means++
+	* http://en.wikipedia.org/wiki/K-means++
+	*/
 	static void k_means(const unsigned int count, const vector<float> & scalar_value, const vector<float> & gradient_magnitude, const vector<float> & second_derivative_magnitude, const int k, unsigned char *& label_ptr)
 	{
 		const int D = 3;

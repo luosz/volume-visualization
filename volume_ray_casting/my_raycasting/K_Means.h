@@ -4,14 +4,14 @@
 class K_Means
 {
 public:
-	/************************************************************************
-	The K-means algorithm is composed of the following steps:
-
-	Place K points into the space represented by the objects that are being clustered. These points represent initial group centroids.
-	Assign each object to the group that has the closest centroid.
-	When all objects have been assigned, recalculate the positions of the K centroids.
-	Repeat Steps 2 and 3 until the centroids no longer move. This produces a separation of the objects into groups from which the metric to be minimized can be calculated.
-	************************************************************************/
+	/**
+	* The K-means algorithm is composed of the following steps:
+	* 
+	* Place K points into the space represented by the objects that are being clustered. These points represent initial group centroids.
+	* Assign each object to the group that has the closest centroid.
+	* When all objects have been assigned, recalculate the positions of the K centroids.
+	* Repeat Steps 2 and 3 until the centroids no longer move. This produces a separation of the objects into groups from which the metric to be minimized can be calculated.
+	*/
 	static void k_means(const unsigned int count, const vector<float> & scalar_value, const vector<float> & gradient_magnitude, const vector<float> & second_derivative_magnitude, const int k, unsigned char *& label_ptr)
 	{
 		// Put the scalar values, gradient magnitudes and second derivative magnitudes into the vector points 
@@ -30,9 +30,9 @@ public:
 		ofstream fc("D:\\centroids.txt", ios::out);
 #endif
 
-		// Make initial guesses for the means m1, m2, ..., mk
-		// Seed the random-number generator with the current time so that
-		// the numbers will be different every time we run.
+		/// Make initial guesses for the means m1, m2, ..., mk
+		/// Seed the random-number generator with the current time so that
+		/// the numbers will be different every time we run.
 		srand((unsigned)time(NULL));
 		for (int i=0; i<k; i++)
 		{
