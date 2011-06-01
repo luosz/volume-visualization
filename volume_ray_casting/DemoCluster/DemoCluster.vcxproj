@@ -88,6 +88,7 @@
     <ClCompile Include="xKMeans.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cluster_adaptor.h" />
     <ClInclude Include="xCluster.h" />
     <ClInclude Include="xFuzzyCMeans.h" />
     <ClInclude Include="xKMeans.h" />

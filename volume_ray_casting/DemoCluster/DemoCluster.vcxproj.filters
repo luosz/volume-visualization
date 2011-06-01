@@ -47,6 +47,9 @@
     <ClInclude Include="xRand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cluster_adaptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
