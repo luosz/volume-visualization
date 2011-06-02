@@ -29,7 +29,7 @@
 #include <limits>
 using namespace std;
 
-// NVIDIA OpenGL SDK
+/// NVIDIA OpenGL SDK
 #include <nvGlutManipulators.h>
 #include <nvGlutWidgets.h>
 
@@ -173,7 +173,7 @@ nv::vec3f center(0.0f, 0.0f, 0.0f); //center of the model
 nv::GlutExamine manipulator;
 
 /// ui context
-nv::GlutUIContext ui;
+nv::GlutUIContext ui_context;
 
 /// for rendering
 bool button_show_generated_cube = false;
@@ -242,7 +242,7 @@ GLuint loc_transfer_function_option;
 //////////////////////////////////////////////////////////////////////////
 
 void special(int c, int x, int y) {
-	ui.keyboard(c, x, y);
+	ui_context.keyboard(c, x, y);
 }
 
 inline void updateButtonState(const nv::ButtonState &bs, nv::GlutManipulator &manip, int button) {
@@ -259,6 +259,8 @@ inline void updateButtonState(const nv::ButtonState &bs, nv::GlutManipulator &ma
 }
 
 float picked = 0.5;
+
+/// draw ui widgets
 void doUI()
 {
 	nv::Rect none;
@@ -268,64 +270,64 @@ void doUI()
 
 	glDisable(GL_CULL_FACE);
 
-	ui.begin();
+	ui_context.begin();
 
 	if (ui_on)
 	{
-		ui.beginGroup();
+		ui_context.beginGroup();
 
-		ui.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
+		ui_context.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
 		//ui.doCheckButton(none, "Test cube", &button_show_generated_cube);
-		ui.doCheckButton(none, "Rotate", &button_auto_rotate);
-		ui.doCheckButton(none, "Lock view", &button_lock_viewpoint);
-		ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
-		ui.doButton(none, "Generate histogram", &button_generate_histogram);
-		ui.doButton(none, "Cluster", &button_cluster);
-		ui.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
-		ui.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
-		ui.doButton(none, "Do all", &button_all);
-		ui.doButton(none, "Load label", &button_load_importance_label);
-		ui.endGroup();
+		ui_context.doCheckButton(none, "Rotate", &button_auto_rotate);
+		ui_context.doCheckButton(none, "Lock view", &button_lock_viewpoint);
+		ui_context.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
+		ui_context.doButton(none, "Generate histogram", &button_generate_histogram);
+		ui_context.doButton(none, "Cluster", &button_cluster);
+		ui_context.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
+		ui_context.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
+		ui_context.doButton(none, "Do all", &button_all);
+		ui_context.doButton(none, "Load label", &button_load_importance_label);
+		ui_context.endGroup();
 
-		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
-		ui.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
-		ui.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
+		ui_context.doComboBox(none, RENDER_COUNT, render_str, &render_option);
+		ui_context.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
+		ui_context.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
 
 		//ui.doLineEdit(none, text, MAX_STR_SIZE, &chars_returned);
 
-		ui.endGroup();
+		ui_context.endGroup();
 
-		ui.beginGroup(nv::GroupFlags_GrowDownFromRight);
+		ui_context.beginGroup(nv::GroupFlags_GrowDownFromRight);
 		char str[MAX_STR_SIZE];
 		sprintf(str, "Step size: %f", stepsize);
-		ui.doLabel(none, str);
+		ui_context.doLabel(none, str);
 
 		nv::Rect rect_slider(0,0,600,0);
-		ui.doHorizontalSlider(rect_slider, STEPSIZE_MIN, STEPSIZE_MAX, &stepsize);
+		ui_context.doHorizontalSlider(rect_slider, STEPSIZE_MIN, STEPSIZE_MAX, &stepsize);
 
-		// show peeling widgets
+		/// show peeling widgets
 		switch(peeling_option)
 		{
 		case PEELING_OPACITY_IMPORTANCE:
 		case PEELING_OPACITY:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
-			ui.doLabel(none, str);
-			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_low);
-			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_high);
+			ui_context.doLabel(none, str);
+			ui_context.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_low);
+			ui_context.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_high);
 			break;
 		case PEELING_FEATURE:
 			sprintf(str, "slope threshold: %f", slope_threshold);
-			ui.doLabel(none, str);
-			ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
+			ui_context.doLabel(none, str);
+			ui_context.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
 			break;
 		case PEELING_GRADIENT_IMPORTANCE:
 		case PEELING_GRADIENT:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
-			ui.doLabel(none, str);
-			ui.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_low);
-			ui.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_high);
+			ui_context.doLabel(none, str);
+			ui_context.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_low);
+			ui_context.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_high);
 			break;
 		}
 		switch(peeling_option)
@@ -338,63 +340,63 @@ void doUI()
 		case PEELING_OPACITY_IMPORTANCE:
 		case PEELING_GRADIENT_IMPORTANCE:
 			sprintf(str, "peeling_layer: %f", peeling_layer);
-			ui.doLabel(none, str);
-			ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
+			ui_context.doLabel(none, str);
+			ui_context.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
 			break;
 		}
 
-		// show transfer function widgets
+		/// show transfer function widgets
 		if (transfer_function_option == TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
 		{
 			sprintf(str, "k-means k=%f", cluster_quantity);
-			ui.doLabel(none, str);
-			ui.doHorizontalSlider(rect_slider, 1, 16, &cluster_quantity);
+			ui_context.doLabel(none, str);
+			ui_context.doHorizontalSlider(rect_slider, 1, 16, &cluster_quantity);
 		}else
 		{
 			if (button_show_alpha_blending && (transfer_function_option == TRANSFER_FUNCTION_SOBEL || transfer_function_option == TRANSFER_FUNCTION_SOBEL_3D))
 			{
 				sprintf(str, "opacity=mix(gradient,scalar,alpha)    alpha=%f", alpha_opacity);
-				ui.doLabel(none, str);
-				ui.doHorizontalSlider(rect_slider, 0, 1, &alpha_opacity);
+				ui_context.doLabel(none, str);
+				ui_context.doHorizontalSlider(rect_slider, 0, 1, &alpha_opacity);
 			}else
 			{
 				if (transfer_function_option == TRANSFER_FUNCTION_FUSION)
 				{
 					sprintf(str, "fusion factor = %f", fusion_factor);
-					ui.doLabel(none, str);
-					ui.doHorizontalSlider(rect_slider, 0, 1, &fusion_factor);
+					ui_context.doLabel(none, str);
+					ui_context.doHorizontalSlider(rect_slider, 0, 1, &fusion_factor);
 				}
 			}
 		}
 
-		ui.endGroup();
+		ui_context.endGroup();
 
-		ui.beginGroup(nv::GroupFlags_GrowUpFromLeft);
+		ui_context.beginGroup(nv::GroupFlags_GrowUpFromLeft);
 		nv::Rect full_slider(-5,0,800,0);
-		ui.doHorizontalSlider(full_slider, LUMINANCE_MIN, LUMINANCE_MAX, &luminance);
+		ui_context.doHorizontalSlider(full_slider, LUMINANCE_MIN, LUMINANCE_MAX, &luminance);
 		sprintf(str, "Luminance: %f", luminance);
-		ui.doLabel(none, str);
-		ui.doHorizontalSlider(full_slider, CLIP_MIN, CLIP_MAX, &clip);
+		ui_context.doLabel(none, str);
+		ui_context.doHorizontalSlider(full_slider, CLIP_MIN, CLIP_MAX, &clip);
 		sprintf(str, "Clip: %f", clip);
-		ui.doLabel(none, str);
+		ui_context.doLabel(none, str);
 		if (render_option == RENDER_HISTOGRAM)
 		{
-			ui.doHorizontalSlider(full_slider, 0.00001, 1.0, &picked);
+			ui_context.doHorizontalSlider(full_slider, 0.00001, 1.0, &picked);
 			sprintf(str, "Histogram value picked: %f", picked);
-			ui.doLabel(none, str);
+			ui_context.doLabel(none, str);
 		}
-		ui.endGroup();
+		ui_context.endGroup();
 	}
 
-	// Pass non-ui mouse events to the manipulator
-	if (!ui.isOnFocus()) {
-		const nv::ButtonState &lbState = ui.getMouseState(0);
-		const nv::ButtonState &mbState = ui.getMouseState(1);
-		const nv::ButtonState &rbState =  ui.getMouseState(2);
+	/// Pass non-ui mouse events to the manipulator
+	if (!ui_context.isOnFocus()) {
+		const nv::ButtonState &lbState = ui_context.getMouseState(0);
+		const nv::ButtonState &mbState = ui_context.getMouseState(1);
+		const nv::ButtonState &rbState =  ui_context.getMouseState(2);
 
 		if (!button_lock_viewpoint)
 		{
-			manipulator.motion(ui.getCursorX(), WINDOW_SIZE - ui.getCursorY());
+			manipulator.motion(ui_context.getCursorX(), WINDOW_SIZE - ui_context.getCursorY());
 		}
 
 		updateButtonState(lbState, manipulator, GLUT_LEFT_BUTTON);
@@ -402,19 +404,22 @@ void doUI()
 		updateButtonState(rbState, manipulator, GLUT_RIGHT_BUTTON);
 	}
 
-	ui.end();
+	ui_context.end();
 }
 
+/// trigger when mouse buttons are pressed
 void mouse(int button, int state, int x, int y) {
-	ui.mouse(button, state, glutGetModifiers(), x, y);
+	ui_context.mouse(button, state, glutGetModifiers(), x, y);
 }
 
+/// trigger when mouse move and buttons are pressed
 void motion(int x, int y) {
-	ui.mouseMotion(x, y);
+	ui_context.mouseMotion(x, y);
 }
 
+/// trigger when mouse moves
 void passiveMotion(int x, int y) {
-	ui.mouseMotion(x, y);
+	ui_context.mouseMotion(x, y);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -461,7 +466,8 @@ GLuint add_texture_uniform(GLuint program, const char* name, int number, GLenum 
 	glUniform1i(location, number);
 	glActiveTexture(GL_TEXTURE0 + number);
 	glBindTexture(target, texture);
-	// restore active texture unit to GL_TEXTURE0
+
+	/// restore active texture unit to GL_TEXTURE0
 	glActiveTexture(GL_TEXTURE0);
 	return location;
 }
@@ -471,10 +477,12 @@ void set_texture_uniform(GLuint location, GLuint program, const char* name, int 
 	glUniform1i(location, number);
 	glActiveTexture(GL_TEXTURE0 + number);
 	glBindTexture(target, texture);
-	// restore active texture unit to GL_TEXTURE0
+
+	/// restore active texture unit to GL_TEXTURE0
 	glActiveTexture(GL_TEXTURE0);
 }
 
+/// load shaders from files and set shaders
 void set_shaders() {
 
 	char *vs = NULL, *fs = NULL;
@@ -503,8 +511,8 @@ void set_shaders() {
 	glAttachShader(p,v);
 	glAttachShader(p,f);
 
-	//Initial program setup.
-	glLinkProgram(p); //Initial link
+	///Initial program setup.
+	glLinkProgram(p); ///Initial link
 
 	glUseProgram(p);
 	loc_stepsize = glGetUniformLocation(p, "stepsize");
@@ -523,7 +531,7 @@ void set_shaders() {
 	loc_alpha_opacity = glGetUniformLocation(p, "alpha_opacity");
 	loc_fusion_factor = glGetUniformLocation(p, "fusion_factor");
 
-	// set textures
+	/// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
 	add_texture_uniform(p, "back", 2, GL_TEXTURE_2D, backface_buffer);
 	loc_volume = add_texture_uniform(p, "volume", 3, GL_TEXTURE_3D, volume_texture_from_file);
@@ -533,16 +541,18 @@ void set_shaders() {
 	loc_importance_texture =  add_texture_uniform(p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
 	loc_transfer_texture2 = add_texture_uniform(p, "transfer_texture2", 8, GL_TEXTURE_3D, transfer_texture2);
 
-	// disable the shader program
+	/// disable the shader program
 	glUseProgram(0);
 }
 
+/// render images to buffers
 void enable_renderbuffers()
 {
 	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, framebuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
 }
 
+/// disable rendering to buffers
 void disable_renderbuffers()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -551,10 +561,11 @@ void disable_renderbuffers()
 //////////////////////////////////////////////////////////////////////////
 int face_index = 0;
 
+/// draw a vertex
 void vertex(float x, float y, float z)
 {
 	//////////////////////////////////////////////////////////////////////////
-	// set 2D texture coordinates for texture 0
+	/// set 2D texture coordinates for texture 0
 	float s, t;
 	switch(face_index)
 	{
@@ -572,7 +583,7 @@ void vertex(float x, float y, float z)
 	}
 	glMultiTexCoord2f(GL_TEXTURE0, s, t);
 	//////////////////////////////////////////////////////////////////////////
-	// set 3D texture coordinates for texture 1
+	/// set 3D texture coordinates for texture 1
 	glColor3f(x,y,z);
 	glMultiTexCoord3f(GL_TEXTURE1, x, y, z);
 	glVertex3f(x,y,z);
@@ -645,57 +656,59 @@ void create_volumetexture_a_cube()
 	GLubyte *data = new GLubyte[size];
 
 	for(int x = 0; x < VOLUME_TEX_SIZE; x++)
-	{for(int y = 0; y < VOLUME_TEX_SIZE; y++)
-	{for(int z = 0; z < VOLUME_TEX_SIZE; z++)
 	{
-		data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = z%250;
-		data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%250;
-		data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-		data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 230;
-
-		nv::vec3f p =	nv::vec3f(x,y,z)- nv::vec3f(VOLUME_TEX_SIZE-20,VOLUME_TEX_SIZE-30,VOLUME_TEX_SIZE-30);
-		bool test = (length(p) < 42);
-		if(test)
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
-
-		p =	nv::vec3f(x,y,z)- nv::vec3f(VOLUME_TEX_SIZE/2,VOLUME_TEX_SIZE/2,VOLUME_TEX_SIZE/2);
-		test = (length(p) < 24);
-		if(test)
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
-
-
-		if(x > 20 && x < 40 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
+		for(int y = 0; y < VOLUME_TEX_SIZE; y++)
 		{
+			for(int z = 0; z < VOLUME_TEX_SIZE; z++)
+			{
+				data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = z%250;
+				data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%250;
+				data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 230;
 
-			data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 100;
-			data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-			data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-		}
+				nv::vec3f p =	nv::vec3f(x,y,z)- nv::vec3f(VOLUME_TEX_SIZE-20,VOLUME_TEX_SIZE-30,VOLUME_TEX_SIZE-30);
+				bool test = (length(p) < 42);
+				if(test)
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
 
-		if(x > 50 && x < 70 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
-		{
+				p =	nv::vec3f(x,y,z)- nv::vec3f(VOLUME_TEX_SIZE/2,VOLUME_TEX_SIZE/2,VOLUME_TEX_SIZE/2);
+				test = (length(p) < 24);
+				if(test)
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
 
-			data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-			data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-			data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-		}
 
-		if(x > 80 && x < 100 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
-		{
+				if(x > 20 && x < 40 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
+				{
 
-			data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-			data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 70;
-			data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-		}
+					data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 100;
+					data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+					data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				}
 
-		p =	nv::vec3f(x,y,z)- nv::vec3f(24,24,24);
-		test = (length(p) < 40);
-		if(test)
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
-	}}}
+				if(x > 50 && x < 70 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
+				{
+
+					data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+					data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+					data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				}
+
+				if(x > 80 && x < 100 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
+				{
+
+					data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+					data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 70;
+					data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				}
+
+				p =	nv::vec3f(x,y,z)- nv::vec3f(24,24,24);
+				test = (length(p) < 40);
+				if(test)
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
+			}}}
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 	glGenTextures(1, &volume_texture);
@@ -712,6 +725,7 @@ void create_volumetexture_a_cube()
 	cout << "volume texture created" << endl;
 }
 
+/// load a transfer function by Ben
 void create_transferfunc_Ben()
 {
 	volume_utility::VolumeReader volume;
@@ -736,10 +750,11 @@ void create_transferfunc_Ben()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	// free the transfer function pointer after texture mapping
+	/// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 }
 
+/// create a funsion transfer function
 void create_transferfunc_fusion()
 {
 	volume_utility::VolumeReader volume;
@@ -764,7 +779,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	// free the transfer function pointer after texture mapping
+	/// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 
 	color_opacity * tf2 = NULL;
@@ -781,7 +796,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf2);
 
-	// free the transfer function pointer after texture mapping
+	/// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf2);
 }
 
@@ -795,6 +810,7 @@ void reshape_ortho(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 }
 
+/// trigger when the window's size change
 void resize(int w, int h)
 {
 	if (h == 0) h = 1;
@@ -804,8 +820,9 @@ void resize(int w, int h)
 	gluPerspective(60.0, (GLfloat)w/(GLfloat)h, 0.01, 400.0);
 	glMatrixMode(GL_MODELVIEW);
 
-	ui.reshape(w, h);
-	//pass the change along to the controller
+	ui_context.reshape(w, h);
+
+	///pass the change along to the controller
 	manipulator.reshape(w, h);
 }
 
@@ -935,14 +952,14 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	volume_utility::find_min_max_scalar_in_histogram<T, TYPE_SIZE>(count, histogram, scalar_min_normalized, scalar_max_normalized);
 	volume_utility::generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
-	// draw scalar histogram
+	/// draw scalar histogram
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, histogram_buffer, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glLoadIdentity();
-	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); // set projection mode to Ortho 2D
+	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); /// set projection mode to Ortho 2D
 	glDisable(GL_DEPTH_TEST);
 
-	// draw quadrangle strips to make a histogram
+	/// draw quadrangle strips to make a histogram
 	glBegin(GL_QUAD_STRIP);
 	float x, y, height = (1/(1-0.618)) * float(count) / TYPE_SIZE;
 	for (unsigned int i = 0; i<TYPE_SIZE; i++)
@@ -957,7 +974,7 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	}
 	glEnd();
 
-	// draw gradient histogram
+	/// draw gradient histogram
 	if (max_gradient_magnitude > 0)
 	{
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, histogram_gradient_buffer, 0);
@@ -967,7 +984,7 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		// draw points to make a gradient histogram
+		/// draw points to make a gradient histogram
 		glBegin(GL_POINTS);
 		for (unsigned int i = 0; i<count; i++)
 		{
@@ -981,7 +998,7 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	resize(WINDOW_SIZE,WINDOW_SIZE); // set projection mode back to 3D
+	resize(WINDOW_SIZE,WINDOW_SIZE); /// set projection mode back to 3D
 }
 
 /// read volume data from file
@@ -1163,7 +1180,7 @@ inline float decrease(const float value, const float dec, const float min)
 /// for contiunes keypresses
 void key_hold()
 {
-	// Process keys
+	/// Process keys
 	for (int i = 0; i < 256; i++)
 	{
 		if (!gKeys[i])  { continue; }
@@ -1279,11 +1296,13 @@ void key_hold()
 	}
 }
 
+/// trigger when keys are pressed
 void key_press(unsigned char key, int x, int y)
 {
 	gKeys[key] = true;
 }
 
+/// trigger when keys are released
 void key_release(unsigned char key, int x, int y)
 {
 	gKeys[key] = false;
@@ -1300,7 +1319,7 @@ void key_release(unsigned char key, int x, int y)
 		button_lock_viewpoint = !button_lock_viewpoint;
 		break;
 	case 'i':
-		// image to render
+		/// image to render
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
 			render_option = (render_option - 1 + RENDER_COUNT) % RENDER_COUNT;
@@ -1310,11 +1329,11 @@ void key_release(unsigned char key, int x, int y)
 		}
 		break;
 	case 'u':
-		// turn UI on/off
+		/// turn UI on/off
 		ui_on = !ui_on;
 		break;
 	case 't':
-		// transfer function
+		/// transfer function
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
 			transfer_function_option = (transfer_function_option - 1 + TRANSFER_FUNCTION_COUNT) % TRANSFER_FUNCTION_COUNT;
@@ -1324,7 +1343,7 @@ void key_release(unsigned char key, int x, int y)
 		}
 		break;
 	case 'p':
-		// peeling
+		/// peeling
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
 			peeling_option = (peeling_option - 1 + PEELING_COUNT) % PEELING_COUNT;
@@ -1344,7 +1363,7 @@ void idle_func()
 {
 	if(button_auto_rotate)
 	{
-		//increment the rotation
+		///increment the rotation
 		manipulator.idle();
 	}
 
@@ -1380,7 +1399,7 @@ void render_buffer_to_screen()
 	glLoadIdentity();
 	glEnable(GL_TEXTURE_2D);
 
-	// choose the buffer to render 
+	/// choose the buffer to render 
 	switch(render_option)
 	{
 	case RENDER_FINAL_IMAGE:
@@ -1405,19 +1424,19 @@ void render_buffer_to_screen()
 		std::cerr<<"Unknown Render Option!"<<endl;
 	}
 
-	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); // set projection mode to Ortho 2D
-	draw_fullscreen_quad(); // draw a full screen quadrangle to show the content in the texture buffer
+	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); /// set projection mode to Ortho 2D
+	draw_fullscreen_quad(); /// draw a full screen quadrangle to show the content in the texture buffer
 	glDisable(GL_TEXTURE_2D);
 }
 
 /// render the 2D transfer function
 void render_transfer_function_2D()
 {
-	// how many colors
+	/// how many colors
 	const int N = 7;
-	// the positions to draw quadrangle strips
+	/// the positions to draw quadrangle strips
 	const float p[7] = {0, 1/6., 2/6., 3/6., 4/6., 5/6., 1};
-	// the colors of the transfer function
+	/// the colors of the transfer function
 	const float colors[7][3] = {
 		1, 0, 0,
 		1, 1, 0,
@@ -1431,9 +1450,9 @@ void render_transfer_function_2D()
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, transfer_function_2D_buffer, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glLoadIdentity();
-	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); // set projection mode to Ortho 2D
+	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); /// set projection mode to Ortho 2D
 
-	// draw a full screen quadrangle to show the content in the texture buffer
+	/// draw a full screen quadrangle to show the content in the texture buffer
 	glDisable(GL_DEPTH_TEST);
 	glBegin(GL_QUAD_STRIP);
 	for (unsigned int i = 0; i<N; i++)
@@ -1449,7 +1468,7 @@ void render_transfer_function_2D()
 	resize(WINDOW_SIZE,WINDOW_SIZE); // set projection mode back to 3D
 }
 
-// render the frontface to the offscreen buffer backface_buffer
+/// render the frontface to the offscreen buffer backface_buffer
 void render_frontface()
 {
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, frontface_buffer, 0);

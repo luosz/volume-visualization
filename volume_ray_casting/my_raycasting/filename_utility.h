@@ -14,6 +14,7 @@
 */
 namespace filename_utility
 {
+	/// get the separator position in filename
 	const char *get_file_path_separator_position(const char *filename)
 	{
 		const char *p = strrchr(filename, '\\');
@@ -24,6 +25,7 @@ namespace filename_utility
 		return p;
 	}
 
+	/// get raw filename from the .dat file
 	void get_raw_filename_from_dat_filename(const char *dat_filename, const char *raw_filename, char *dest_str_buffer)
 	{
 		// get the raw file path and filename
@@ -38,6 +40,7 @@ namespace filename_utility
 		}
 	}
 
+	/// print about information
 	void print_about(int argc, char* argv[])
 	{
 		char about[MAX_STR_SIZE * 4] = 
