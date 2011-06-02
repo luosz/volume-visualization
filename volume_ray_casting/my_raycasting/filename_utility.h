@@ -9,6 +9,9 @@
 #define MAX_STR_SIZE 320
 #endif
 
+/**	@brief	Classes and functions for filename manipulation
+*	
+*/
 namespace filename_utility
 {
 	const char *get_file_path_separator_position(const char *filename)
