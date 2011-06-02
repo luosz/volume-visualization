@@ -8,6 +8,18 @@
 // Notice this implementation requires a shader model 3.0 gfxcard
 // --------------------------------------------------------------------------
 
+/**	@mainpage GPU Raycasting by Shengzhou Luo (ark) (c) 2010-2011
+*	GPU raycasting tutorial made by Peter Trier jan 2007
+*	
+*	Adapted by Shengzhou Luo (ark) 2010-2011
+*	
+*	Transfer functions, peeling, and importance driven rendering are written by Shengzhou Luo (ark)
+*	
+*	This file contains all the elements nessesary to implement a simple 
+*	GPU volume raycaster.
+*	Notice this implementation requires a shader model 3.0 gfxcard
+*/
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glut.h>

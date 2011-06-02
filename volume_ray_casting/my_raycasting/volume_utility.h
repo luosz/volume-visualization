@@ -11,6 +11,9 @@
 //#include "K_Means_PlusPlus.h"
 #include "K_Means_PP_Generic.h"
 
+/**	@brief	Classes and functions for volume manipulation
+*	
+*/
 namespace volume_utility
 {
 //#ifdef _DEBUG
