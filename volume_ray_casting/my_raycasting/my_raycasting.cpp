@@ -25,9 +25,8 @@ using namespace std;
 #include "VolumeReader.h"
 #include "filename.h"
 #include "textfile.h"
-#include "volume_utility.h"
 #include "reader.h"
-using namespace reader;
+#include "volume_utility.h"
 
 /// call finailize() to free the memory before exit
 void ** data_ptr = NULL;
@@ -703,8 +702,8 @@ void create_volumetexture_a_cube()
 
 void create_transferfunc_Ben()
 {
-	VolumeReader volume;
-	volume.readVolFile(volume_filename);
+	volume_utility::VolumeReader volume;
+	volume.readVolFile(filename_utility::volume_filename);
 	volume.calHistogram();
 	volume.calGrad_ex();
 	volume.calDf2();
@@ -731,8 +730,8 @@ void create_transferfunc_Ben()
 
 void create_transferfunc_fusion()
 {
-	VolumeReader volume;
-	volume.readVolFile(volume_filename);
+	volume_utility::VolumeReader volume;
+	volume.readVolFile(filename_utility::volume_filename);
 	volume.calHistogram();
 	volume.calGrad_ex();
 	volume.calDf2();
@@ -798,7 +797,7 @@ void resize(int w, int h)
 	manipulator.reshape(w, h);
 }
 
-/// 把重要性因子加载为纹理
+/// load the importance labels as a texture
 void load_importance_label_texture(unsigned char *label_ptr, GLuint location, GLuint program, const char* name, int number, GLuint texture)
 {
 	GLenum target = GL_TEXTURE_3D;
@@ -817,7 +816,7 @@ void load_importance_label_texture(unsigned char *label_ptr, GLuint location, GL
 	set_texture_uniform(location, program, name, number, target, texture);
 }
 
-/// 加载聚类信息
+/// read importance labels from command line
 void load_importance_label(const unsigned int count)
 {
 	unsigned char *label_ptr_replaced = new unsigned char[count];
@@ -826,9 +825,9 @@ void load_importance_label(const unsigned int count)
 	unsigned char *replacement = new unsigned char[k];
 
 	char label_filename[MAX_STR_SIZE];
-	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
+	sprintf(label_filename, "%s.%d.txt", filename_utility::volume_filename, k);
 	char label_filename_replaced[MAX_STR_SIZE];
-	sprintf(label_filename_replaced, "%s.%d.replaced.txt", volume_filename, k);
+	sprintf(label_filename_replaced, "%s.%d.replaced.txt", filename_utility::volume_filename, k);
 
 	std::cout<<"Input a replacement list (e.g. 01234567 for k=8, 0123456789abcdef for k=16)"<<std::endl;
 	for (int i=0; i<k; i++)
@@ -888,7 +887,7 @@ void cluster(const T *data, const unsigned int count)
 	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
 
 	char label_filename[MAX_STR_SIZE];
-	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
+	sprintf(label_filename, "%s.%d.txt", filename_utility::volume_filename, k);
 
 	std::cout<<"Write labels to file "<<label_filename<<std::endl;
 	std::ofstream label_file(label_filename);
@@ -977,20 +976,20 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 void read_volume_file(char* filename) 
 {
 	float dists[3];
-	DataType type;
+	reader::DataType type;
 
 	if (!data_ptr)
 	{
 		data_ptr = new void *;
 	}
-	readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
+	reader::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
 
 	switch (type)
 	{
-	case DATRAW_UCHAR:
+	case reader::DATRAW_UCHAR:
 		gl_type = GL_UNSIGNED_BYTE;
 		break;
-	case DATRAW_USHORT:
+	case reader::DATRAW_USHORT:
 		gl_type = GL_UNSIGNED_SHORT;
 		break;
 	default:
@@ -1132,7 +1131,7 @@ void initialize()
 	//manipulator.setPanActivate(GLUT_LEFT_BUTTON, GLUT_ACTIVE_SHIFT);
 
 	// read volume data file
-	read_volume_file(volume_filename);
+	read_volume_file(filename_utility::volume_filename);
 	// init shaders
 	set_shaders();
 }
@@ -1602,14 +1601,14 @@ int main(int argc, char* argv[])
 	// read filename from arguments if available
 	if (argc > 1)
 	{
-		strcpy(volume_filename, argv[1]);
+		strcpy(filename_utility::volume_filename, argv[1]);
 	}
 
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 
 	char str[MAX_STR_SIZE];
-	sprintf(str, "GPU raycasting - %s", volume_filename);
+	sprintf(str, "GPU raycasting - %s", filename_utility::volume_filename);
 	glutCreateWindow(str);
 	glutReshapeWindow(WINDOW_SIZE,WINDOW_SIZE);
 

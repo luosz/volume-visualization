@@ -164,6 +164,9 @@
     <ClInclude Include="..\BenBenRaycasting\transfer_function.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
+    <ClInclude Include="fuzzy_cmeans.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="kmlocal\ReadMe.txt">
