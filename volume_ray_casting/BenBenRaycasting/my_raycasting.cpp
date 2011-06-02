@@ -15,7 +15,7 @@
 *	GPU volume raycaster.
 *	Notice this implementation requires a shader model 3.0 gfxcard
 *	
-*	Adapted by Shengzhou Luo (ark) 2010
+*	Adapted by Shengzhou Luo (ark) 2010-2011
 *	
 *	Transfer functions are written by Xiao Li (BenBen) 2010-2011
 *	
