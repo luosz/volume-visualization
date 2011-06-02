@@ -11,6 +11,9 @@
 
 using namespace std;
 
+/**	@brief	This is a three-dimensional vector class.
+*	
+*/
 class Vector3  {
 public:
     
@@ -38,7 +41,9 @@ public:
     Vector3& operator/=(const float t);
 
 
-    
+	/**	@brief	return the length of a vector
+	*	
+	*/
     float length() const { return sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]); }
     float squaredLength() const { return e[0]*e[0] + e[1]*e[1] + e[2]*e[2]; }
 
