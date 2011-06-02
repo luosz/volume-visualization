@@ -1,0 +1,14 @@
+\.ncb$
+\.suo$
+\.user$
+\.ipch$
+\.sdf$
+\.opensdf$
+^Debug/
+^Release/
+^ipch/
+/ipch/
+/Debug/
+/Release/
+^~
+/~
