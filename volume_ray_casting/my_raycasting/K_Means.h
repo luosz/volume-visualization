@@ -1,6 +1,9 @@
 #ifndef K_Means_h
 #define K_Means_h
 
+/**	@brief	Classes and functions for clustering
+*	
+*/
 namespace clustering
 {
 	/**	@brief	A k-means clustering

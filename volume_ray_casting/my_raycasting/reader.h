@@ -17,6 +17,9 @@
 #ifndef _READER_H
 #define _READER_H
 
+/**	@brief	Functions for reading data from files
+*	
+*/
 namespace reader{
 
 	typedef enum {DATRAW_UCHAR, DATRAW_FLOAT, DATRAW_USHORT} DataType;

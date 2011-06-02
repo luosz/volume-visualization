@@ -11,13 +11,16 @@
 //#include "K_Means_PlusPlus.h"
 #include "K_Means_PP_Generic.h"
 
+/**	@brief	Classes and functions for volume manipulation
+*	
+*/
 namespace volume_utility
 {
 //#ifdef _DEBUG
 //#define _DEBUG_OUTPUT
 //#endif
 
-	// convert a char to a hex number, the cluster number is represented in 0~9 and a~f
+	/// convert a char to a hex number, the cluster number is represented in 0~9 and a~f
 	unsigned char char_to_number(unsigned char c)
 	{
 		c = tolower(c);
@@ -33,16 +36,16 @@ namespace volume_utility
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// estimate the interval among clusters
-	// interval = (2^int(log(2, 256/k)))/256
+	/// estimate the interval among clusters
+	/// interval = (2^int(log(2, 256/k)))/256
 	float get_cluster_interval( int k ) 
 	{
 		int shift = static_cast<int>(std::log(256./k)/std::log(2.));
 		return (1 << shift) / 256.;
 	}
 
-	// The bandwagon effect filter (The term is my invention ^_^)
-	// For each member, if more than a half of my neighbors belong to a group, I will join the group too
+	/// The bandwagon effect filter (The term is my invention ^_^)
+	/// For each member, if more than a half of my neighbors belong to a group, I will join the group too
 	void bandwagon_effect_filter(const int k_for_k_means, const unsigned char * label_ptr_before, unsigned char *& label_ptr_after, const int width, const int height, const int depth)
 	{
 		const int N = 7;
@@ -116,6 +119,7 @@ namespace volume_utility
 		delete[] counter;
 	}
 
+	/// use a median filter on scalar values
 	void median_filter(const vector<float> &scalar_value_before, vector<float> &scalar_value, const int width, const int height, const int depth) 
 	{
 		const int N = 7;
@@ -180,6 +184,7 @@ namespace volume_utility
 		}
 	}
 
+	/// call the k-means clustering
 	template <class T, int TYPE_SIZE>
 	void k_means(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr, int width, int height, int depth)
 	{
@@ -250,7 +255,7 @@ namespace volume_utility
 		//std::cout<<"The k_means routine is done."<<std::endl<<std::endl;
 	}
 
-	// calculate scalar histogram
+	/// calculate scalar histogram
 	template <class T, int TYPE_SIZE>
 	void generate_scalar_histogram(const T *data, const unsigned int count, const unsigned int components, unsigned int *histogram, vector<float> &scalar_value)
 	{
@@ -270,7 +275,7 @@ namespace volume_utility
 		}
 	}
 
-	// find the min and max scalar value for histogram equalization in shaders
+	/// find the min and max scalar value for histogram equalization in shaders
 	template <class T, int TYPE_SIZE>
 	void find_min_max_scalar_in_histogram(const unsigned int count, const unsigned int *histogram, float &scalar_min, float &scalar_max)
 	{
@@ -310,12 +315,13 @@ namespace volume_utility
 #endif
 	}
 
+	/// get a 1D index from a 3D index
 	unsigned int get_index(const int i, const int j, const int k, const int *sizes)
 	{
 		return (i * sizes[1] + j) * sizes[0] + k;
 	}
 
-	// calculate the gradients and the second derivatives
+	/// calculate the gradients and the second derivatives
 	void generate_gradient(const int *sizes, const unsigned int count, const unsigned int components, const vector<float> &scalar_value, vector<nv::vec3f> &gradient, vector<float> &gradient_magnitude, float &max_gradient_magnitude, vector<nv::vec3f> &second_derivative, vector<float> &second_derivative_magnitude, float &max_second_derivative_magnitude)
 	{
 		unsigned int index;
@@ -368,6 +374,7 @@ namespace volume_utility
 		}
 	}
 
+	/// generate average and variation for scalar values
 	void generate_average_variation(const int *sizes, const unsigned int count, const unsigned int components, const vector<float> &scalar_value, vector<float> &average, vector<float> &variation) 
 	{
 		int x, y, z, i, j, k;
