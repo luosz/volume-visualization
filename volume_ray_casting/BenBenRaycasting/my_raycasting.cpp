@@ -8,6 +8,18 @@
 // Notice this implementation requires a shader model 3.0 gfxcard
 // --------------------------------------------------------------------------
 
+/**	@mainpage	GPU Raycasting by Xiao Li (BenBen) (c) 2010-2011
+*	GPU raycasting tutorial made by Peter Trier jan 2007
+*	
+*	Adapted by Shengzhou Luo (ark) 2010
+*	
+*	Transfer functions are written by Xiao Li (BenBen) 2010-2011
+*	
+*	This file contains all the elements nessesary to implement a simple 
+*	GPU volume raycaster.
+*	Notice this implementation requires a shader model 3.0 gfxcard
+*/
+
 #include <windows.h>
 #include <GL/glew.h>
 //#include <Cg/cg.h>
@@ -59,9 +71,11 @@ double max_distance;
 float luminance = 10;
 int low_hue = 0, high_hue =360;
 //bool toggle_visuals = true;
+
 //////////////////////////////////////////////////////////////////////////
 short toggle_visuals = 0;
 //////////////////////////////////////////////////////////////////////////
+
 //CGcontext context; 
 //CGprofile vertexProfile, fragmentProfile; 
 //CGparameter param1,param2;
@@ -1045,7 +1059,7 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition(50, 50);
 	//	glutInitWindowSize(700, 700);
-	glutCreateWindow("BenBen Raycasgting");
+	glutCreateWindow("BenBen Raycasting");
 
 	glutReshapeWindow(WINDOW_SIZE,WINDOW_SIZE);
 
