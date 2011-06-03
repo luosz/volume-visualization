@@ -10,6 +10,8 @@ namespace clustering
 	*	
 	*	This class is an adapter for the k-means local clustering.
 	*	
+	*	For more details about the k-means local clustering, go to:
+	*	
 	*	http://www.cs.umd.edu/~mount/Projects/KMeans/
 	*	
 	*	http://www.cs.umd.edu/~mount/Projects/KMeans/pami02.pdf

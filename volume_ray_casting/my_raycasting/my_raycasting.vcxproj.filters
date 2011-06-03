@@ -161,10 +161,10 @@
     <ClInclude Include="..\BenBenRaycasting\transfer_function.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
-    <ClInclude Include="Fuzzy_CMeans.h">
+    <ClInclude Include="K_Means_PP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="K_Means_PP.h">
+    <ClInclude Include="Fuzzy_CMeans.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

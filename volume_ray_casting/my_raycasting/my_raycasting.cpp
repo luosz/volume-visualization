@@ -245,10 +245,12 @@ GLuint loc_transfer_function_option;
 /// Implementation
 //////////////////////////////////////////////////////////////////////////
 
+/// GLUT callback function, for special keys
 void special(int c, int x, int y) {
 	ui_context.keyboard(c, x, y);
 }
 
+/// update button states for the widgets
 inline void updateButtonState(const nv::ButtonState &bs, nv::GlutManipulator &manip, int button) {
 	int modMask = 0;
 
@@ -262,6 +264,7 @@ inline void updateButtonState(const nv::ButtonState &bs, nv::GlutManipulator &ma
 		manip.mouse(button, GLUT_DOWN, modMask, bs.cursor.x, WINDOW_SIZE - bs.cursor.y);
 }
 
+/// the value picked on the scalar histogram
 float picked = 0.5;
 
 /// draw ui widgets
@@ -411,17 +414,17 @@ void doUI()
 	ui_context.end();
 }
 
-/// trigger when mouse buttons are pressed
+/// GLUT callback function, trigger when mouse buttons are pressed
 void mouse(int button, int state, int x, int y) {
 	ui_context.mouse(button, state, glutGetModifiers(), x, y);
 }
 
-/// trigger when mouse move and buttons are pressed
+/// GLUT callback function, trigger when mouse move and buttons are pressed
 void motion(int x, int y) {
 	ui_context.mouseMotion(x, y);
 }
 
-/// trigger when mouse moves
+/// GLUT callback function, trigger when mouse moves
 void passiveMotion(int x, int y) {
 	ui_context.mouseMotion(x, y);
 }
@@ -446,6 +449,7 @@ void printShaderInfoLog(GLuint obj)
 	}
 }
 
+/// print shader's information
 void printProgramInfoLog(GLuint obj)
 {
 	int infologLength = 0;
@@ -476,6 +480,7 @@ GLuint add_texture_uniform(GLuint program, const char* name, int number, GLenum 
 	return location;
 }
 
+/// set texture uniform
 void set_texture_uniform(GLuint location, GLuint program, const char* name, int number, GLenum target, GLuint texture) 
 {
 	glUniform1i(location, number);
@@ -563,6 +568,7 @@ void disable_renderbuffers()
 }
 
 //////////////////////////////////////////////////////////////////////////
+/// face index for setting a vertex
 int face_index = 0;
 
 /// draw a vertex
@@ -804,6 +810,7 @@ void create_transferfunc_fusion()
 	free_transfer_function_pointer(tf2);
 }
 
+/// call this function when reshape
 void reshape_ortho(int w, int h)
 {
 	if (h == 0) h = 1;
@@ -814,7 +821,7 @@ void reshape_ortho(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-/// trigger when the window's size change
+/// GLUT callback function, trigger when the window's size change
 void resize(int w, int h)
 {
 	if (h == 0) h = 1;
@@ -1300,13 +1307,13 @@ void key_hold()
 	}
 }
 
-/// trigger when keys are pressed
+/// GLUT callback function, trigger when keys are pressed
 void key_press(unsigned char key, int x, int y)
 {
 	gKeys[key] = true;
 }
 
-/// trigger when keys are released
+/// GLUT callback function, trigger when keys are released
 void key_release(unsigned char key, int x, int y)
 {
 	gKeys[key] = false;
@@ -1362,7 +1369,7 @@ void key_release(unsigned char key, int x, int y)
 	}
 }
 
-/// glut idle function
+/// GLUT callback function, trigger when the window is idle
 void idle_func()
 {
 	if(button_auto_rotate)
@@ -1563,7 +1570,7 @@ void raycasting_pass()
 	glUseProgram(0);
 }
 
-/// This display function is called once pr frame
+/// GLUT callback function. This display function is called once pr frame
 void display()
 {
 	static float rotate = 0; 
