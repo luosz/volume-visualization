@@ -4,16 +4,15 @@
 namespace clustering
 {
 	/**	@brief	A k-means++ clustering
-	*	
-	*/
-	/**
+	*	This class is obsolete. Please use K_Means_PP_Generic for k-means++ clustering.
+	* 
 	* A Tutorial on Clustering Algorithms
 	* http://home.dei.polimi.it/matteucc/Clustering/tutorial_html/kmeans.html
 	* 
 	* K-means++
 	* http://en.wikipedia.org/wiki/K-means++
 	*/
-	class K_Means_PP_DIY
+	class K_Means_PP
 	{
 	public:
 		static void k_means(const unsigned int count, const vector<float> & scalar_value, const vector<float> & gradient_magnitude, const vector<float> & second_derivative_magnitude, const int k, unsigned char *& label_ptr)
