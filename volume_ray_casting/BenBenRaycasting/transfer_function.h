@@ -139,8 +139,7 @@ void setTransferfunc(color_opacity *& tf, Volume & volume)
 *	get dim_x, dim_y, dim_z using volume.getX(),  volume.getY() and volume.getZ()
 *   respectively, d to get data value using volume.getData(x, y, z)) and  g to get gradient
 *    magnitude using volume.getGrad(x, y, z), using alpha = 
-*    1.0 + 1 / a * log((1.0 - pow(e, -a)) * temp4 + pow(e, -a)) / log(e) to get opacity
-*
+*    1.0 + 1 / a * log((1.0 - pow(e, -a)) * temp4 + pow(e, -a)) / log(e) to get opacity.
 */
 void setTransferfunc2(color_opacity *& tf, Volume & volume)
 {
