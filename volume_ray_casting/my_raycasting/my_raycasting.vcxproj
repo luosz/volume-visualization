@@ -98,7 +98,7 @@
     <ClInclude Include="..\BenBenRaycasting\transfer_function.h" />
     <ClInclude Include="..\BenBenRaycasting\Vector3.h" />
     <ClInclude Include="..\BenBenRaycasting\Volume.h" />
-    <ClInclude Include="fuzzy_cmeans.h" />
+    <ClInclude Include="Fuzzy_CMeans.h" />
     <ClInclude Include="filename_utility.h" />
     <ClInclude Include="K_Means_PP_Generic.h" />
     <ClInclude Include="volume_utility.h" />
@@ -113,7 +113,7 @@
     <ClInclude Include="kmlocal\KMrand.h" />
     <ClInclude Include="kmlocal\KMterm.h" />
     <ClInclude Include="kmlocal\KM_ANN.h" />
-    <ClInclude Include="K_Means_PP_DIY.h" />
+    <ClInclude Include="K_Means_PP.h" />
     <ClInclude Include="K_Means_PlusPlus.h" />
     <ClInclude Include="kmpp\KMeansPP.h" />
     <ClInclude Include="kmpp\KmTree.h" />

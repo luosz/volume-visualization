@@ -3,7 +3,7 @@
 
 namespace clustering
 {
-	/**	@brief	An adapter for xFuzzyCMeans
+	/**	@brief	An adapter class for xFuzzyCMeans
 	*	
 	*/
 	template <class T>

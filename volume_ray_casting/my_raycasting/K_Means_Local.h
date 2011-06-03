@@ -6,12 +6,15 @@ namespace clustering
 
 #include "kmlocal/KMlocal.h"
 
-	/**	@brief	The k-means local clustering from Internet
+	/**	@brief	The k-means local clustering.
 	*	
-	*	@param	
-	*	@return	
-	*	@warning	
-	*	@date	2011/06/02
+	*	This class is an adapter for the k-means local clustering.
+	*	
+	*	http://www.cs.umd.edu/~mount/Projects/KMeans/
+	*	
+	*	http://www.cs.umd.edu/~mount/Projects/KMeans/pami02.pdf
+	*	
+	*	http://www.cs.umd.edu/~mount/Projects/KMeans/kmlocal-1.7.2.zip
 	*/
 	class K_Means_Local
 	{

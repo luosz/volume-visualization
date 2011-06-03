@@ -137,9 +137,6 @@
     <ClInclude Include="kmpp\KMeansPP.h">
       <Filter>kmpp</Filter>
     </ClInclude>
-    <ClInclude Include="K_Means_PP_DIY.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="volume_utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -164,7 +161,10 @@
     <ClInclude Include="..\BenBenRaycasting\transfer_function.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
-    <ClInclude Include="fuzzy_cmeans.h">
+    <ClInclude Include="Fuzzy_CMeans.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="K_Means_PP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
