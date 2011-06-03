@@ -250,7 +250,7 @@ void special(int c, int x, int y) {
 	ui_context.keyboard(c, x, y);
 }
 
-/// update button states for the widgets
+/// update button states for ui widgets
 inline void updateButtonState(const nv::ButtonState &bs, nv::GlutManipulator &manip, int button) {
 	int modMask = 0;
 
