@@ -1,0 +1,60 @@
+// This file specifies the set of tests that TestKm will run on either k-means, k-means++ or both.
+//
+// The file is broken into space-separated, case-insensitive tokens as follows:
+//  "CoutLogLevel=<int>:" Specifies the amount of information we want logged to cout:
+//                          0 = None
+//                          1 = Only final results
+//                          2 = Basic logging
+//                          3 = Verbose logging
+//                        Default is 2.
+//  "AddLog: File=<filename> Level=<int>":
+//     Specifies a file to log to in addition to cout. The logging level can be 1,2, or 3.
+//  "HeavyLogging=<bool>": Specifies whether we should have verbose log messages. Default is false.
+//  "RunKm=<bool>": Specifies whether we should run standard k-means. Default is true.
+//  "RunKmpp=<bool>": Specifies whether we should run k-means++. Default is true.
+//  "UnitTests=<bool>": Specifies whether we should unit-test the kd-tree implementation of k-means
+//                      (and k-means++). The algorithm is compared against a naive implementation
+//                      run on all data sets specified here. Warning: can be slow! Default is
+//                      false.
+//  "Restarts=<int>": Specifies the number of times we restart k-means and k-means++ while running
+//                    on a single input. A higher input will get better clusterings at the cost of
+//                    speed. Default is 20.
+//  "AddK=<int>": Specifies that we should try clustering all data sets with this value of k.
+//                Multiple values can be specified, in which different runs will be done for each.
+//  "AddGeneratedData: n=<int> k=<int> d=<int> r1=<float> r2=<float>":
+//     Specifies a set of points to run k-means on. First k centers are chosen according to a
+//     normal distribution with variance r2^2. Each data point is placed at a random center and
+//     then perturbed by a normal distribution with variance r1^2. d is the dimension.
+//  "AddLoadedData=<filename>":
+//     Specifies a set of points to run k-means on. The file must begin with tokens "n=<int>" and
+//     "d=<int>" specifying the size and dimension of the point-set. The next n lines must then
+//     each contained d space-separated floats giving the point coordinates. Empty lines and
+//     //-style comments are permitted.
+//
+//
+// David Arthur, 2009
+
+// Logging
+CoutLogLevel=2
+AddLog: File=log.txt Level=1
+
+// Algorithms
+RunKm=true
+RunKmpp=true
+UnitTests=false
+
+// Settings
+Restarts=20
+
+// k values
+AddK=10
+AddK=25
+AddK=50
+AddK=100
+
+// Sample real-world data set
+AddLoadedData=spam_input.txt
+
+// Synthetic data sets
+AddGeneratedData: n=10000 k=50 d=15 r1=1 r2=10
+AddGeneratedData: n=10000 k=25 d=15 r1=1 r2=100
