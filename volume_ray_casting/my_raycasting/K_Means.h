@@ -1,22 +1,11 @@
 #ifndef K_Means_h
 #define K_Means_h
 
-/**	@brief	Classes and functions for clustering
-*	
-*/
 namespace clustering
 {
 	/**	@brief	A k-means clustering
-	*	
-	*/
-	/**	@brief	
-	*	
-	*	@param	
-	*	@return	
-	*	@warning	
-	*	@date	2011/06/02
-	*/
-	/**
+	*	This class is obsolete. Please use K_Means_PP_Generic for k-means++ clustering.
+	* 
 	* The K-means algorithm is composed of the following steps:
 	* 
 	* Place K points into the space represented by the objects that are being clustered. These points represent initial group centroids.

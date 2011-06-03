@@ -6,12 +6,17 @@ namespace clustering
 
 #include "kmpp/KMeansPP.h"
 
-	/**	@brief	The k-means++ clustering from Internet
+	/**	@brief	The k-means++ clustering.
 	*	
-	*	@param	
-	*	@return	
-	*	@warning	
-	*	@date	2011/06/02
+	*	This class is an adapter for the k-means++ clustering.
+	*	
+	*	For more details about the k-means++ clustering, go to:
+	*	
+	*	http://www.stanford.edu/~darthur/
+	*	
+	*	http://www.stanford.edu/~darthur/kMeansPlusPlus.pdf
+	*	
+	*	http://www.stanford.edu/~darthur/kmpp.zip
 	*/
 	class K_Means_PlusPlus
 	{
