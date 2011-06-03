@@ -10,6 +10,8 @@ namespace clustering
 	*	
 	*	This class is an adapter for the k-means++ clustering.
 	*	
+	*	For more details about the k-means++ clustering, go to:
+	*	
 	*	http://www.stanford.edu/~darthur/
 	*	
 	*	http://www.stanford.edu/~darthur/kMeansPlusPlus.pdf

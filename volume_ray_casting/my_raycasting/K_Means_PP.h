@@ -4,7 +4,7 @@
 namespace clustering
 {
 	/**	@brief	A k-means++ clustering
-	*	This class is obsolete. Please use K_Means_PP_Generic for k-means clustering.
+	*	This class is obsolete. Please use K_Means_PP_Generic for k-means++ clustering.
 	* 
 	* A Tutorial on Clustering Algorithms
 	* http://home.dei.polimi.it/matteucc/Clustering/tutorial_html/kmeans.html
