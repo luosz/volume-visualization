@@ -6,6 +6,9 @@
 #include <vector>
 #include <nvMath.h>
 
+/**	@brief	Classes and functions for clustering
+*	
+*/
 namespace clustering
 {
 

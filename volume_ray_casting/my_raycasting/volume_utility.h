@@ -3,10 +3,10 @@
 
 #include <fstream>
 #include <algorithm>
-//#include <functional>      // For greater<int>( )
+//#include <functional>      // For greater<int>()
 
 //#include "K_Means.h"
-//#include "K_Means_PP_DIY.h"
+//#include "K_Means_PP.h"
 //#include "K_Means_Local.h"
 //#include "K_Means_PlusPlus.h"
 #include "K_Means_PP_Generic.h"
