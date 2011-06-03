@@ -1176,19 +1176,21 @@ void initialize()
 	set_shaders();
 }
 
+/// increase a parameter
 inline float increase(const float value, const float inc, const float max)
 {
 	float temp = value + inc;
 	return temp>max ? max : temp;
 }
 
+/// decrease a parameter
 inline float decrease(const float value, const float dec, const float min)
 {
 	float temp = value - dec;
 	return temp<min ? min : temp;
 }
 
-/// for contiunes keypresses
+/// for continue keypresses
 void key_hold()
 {
 	/// Process keys
@@ -1382,6 +1384,7 @@ void idle_func()
 	glutPostRedisplay();
 }
 
+/// draw a fullscreen quadrangle, for the rendering result to display in
 void draw_fullscreen_quad()
 {
 	glDisable(GL_DEPTH_TEST);
@@ -1501,6 +1504,7 @@ void render_backface()
 	glDisable(GL_CULL_FACE);
 }
 
+/// a raycasting pass
 void raycasting_pass()
 {
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, final_image, 0);
@@ -1636,6 +1640,7 @@ void display()
 	glutSwapBuffers();
 }
 
+/// the program's entry function
 int main(int argc, char* argv[])
 {
 	filename_utility::print_about(argc, argv);
