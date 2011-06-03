@@ -10,6 +10,9 @@
 const double e = 2.7182818284590452353602874713526624977572470936999595749669676277240766303535;
 const double pi = 3.1415926535;
 
+/**	@brief to store color and opacity, color is denoted by rgb triple, opacity is denoted 
+*   by a, data are in unsigned char format to reduce memory to be used	
+*/
 typedef struct  
 {	
 	unsigned char r;
@@ -18,7 +21,10 @@ typedef struct
 	unsigned char a;
 }color_opacity;
 
-float norm(float min, float max, float x)  //convert data in range[min, max] to [0, 1]
+/**	@brief convert data value originally in range[min, max] to [0, 1]
+*	
+*/
+float norm(float min, float max, float x)  
 {
 	float result;
 	if(fabs(max - min) < 1e-4)
@@ -28,8 +34,9 @@ float norm(float min, float max, float x)  //convert data in range[min, max] to 
 	return result;
 }
 
-// added by ark @ 2011.04.26
-// check if the pointer is NULL. if not, free the pointer.
+/**	@brief check if the pointer is NULL, if not ,free the pointer, if so, do nothing.
+*	
+*/
 void free_transfer_function_pointer(color_opacity *& p)
 {
 	if (p != NULL)
@@ -39,14 +46,18 @@ void free_transfer_function_pointer(color_opacity *& p)
 	}
 }
 
-// added by ark @ 2011.04.26
-// free the pointer (if not NULL) and then allocate memory for it
+/**	@brief  free the pointer (if not NULL) and then allocate memory for it
+*	
+*/
 void alloc_transfer_function_pointer(color_opacity *& p, unsigned int dim_x, unsigned int dim_y, unsigned int dim_z)
 {
 	free_transfer_function_pointer(p);
 	p = (color_opacity *)malloc(sizeof(color_opacity) * dim_x * dim_y * dim_z);
 }
 
+/**	@brief set transfer function in HSL color space and using boundary emphasize
+*	
+*/
 void setTransferfunc(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, index;
@@ -60,7 +71,8 @@ void setTransferfunc(color_opacity *& tf, Volume & volume)
 	unsigned int dim_y = volume.getY();
 	unsigned int dim_z = volume.getZ();
 
-	// added by ark @ 2011.04.26
+	//alloc_transfer_function_pointer, tf is the pointer points to the memory stores transfer 
+	//function, dim_x, dim_y and dim_z are dimensions of the volume
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
 
 	if(tf == NULL)
@@ -123,6 +135,13 @@ void setTransferfunc(color_opacity *& tf, Volume & volume)
 	}
 }
 
+/**	@brief set transfer function in RGB color space and using boundary emphasize
+*	get dim_x, dim_y, dim_z using volume.getX(),  volume.getY() and volume.getZ()
+*   respectively, d to get data value using volume.getData(x, y, z)) and  g to get gradient
+*    magnitude using volume.getGrad(x, y, z), using alpha = 
+*    1.0 + 1 / a * log((1.0 - pow(e, -a)) * temp4 + pow(e, -a)) / log(e) to get opacity
+*
+*/
 void setTransferfunc2(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, index, i, j;
@@ -181,6 +200,9 @@ void setTransferfunc2(color_opacity *& tf, Volume & volume)
 	}
 }
 
+/**	@brief set transfer function in HSL color space and using boundary emphasize
+*	
+*/
 void setTransferfunc3(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, index, i,j ;
@@ -278,6 +300,9 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 	}
 }
 
+/**	@brief set transfer function in statistical space and using gradient vector
+*	to set color 
+*/
 void setTransferfunc5(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, i, j, k, p, q, r, index, intensity, num = 0;
@@ -394,6 +419,9 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 	//		cout<<float(num) / float(dim_x * dim_y * dim_z)<<endl;
 }
 
+/**	@brief set transfer function in statistical space and using gradient vector
+*	to set color 
+*/
 void setTransferfunc6(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, i, j, k, p, q, r, index, intensity, num = 0;
@@ -608,6 +636,9 @@ void setTransferfunc6(color_opacity *& tf, Volume & volume)
 	//		cout<<float(num) / float(dim_x * dim_y * dim_z)<<endl;
 }
 
+/**	@brief set transfer function in statistical space and using gradient vector
+*	to set color 
+*/
 void setTransferfunc7(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, i, j, k, p, q, r, index, intensity, num = 0;

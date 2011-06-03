@@ -17,7 +17,7 @@
 *	
 *	Adapted by Shengzhou Luo (ark) 2010-2011
 *	
-*	Transfer functions are written by Xiao Li (BenBen) 2010-2011
+*	Transfer functions are written by BenBen 2010-2011
 *	
 *	The program is implemented using OpenGL and GLSL (OpenGL Shading Language). Properties such as average, variation and local entropy of each voxel are pre-computed because they are constants during the rendering process and a higher frame rate could be reached.
 *	
@@ -60,9 +60,16 @@
 // added by ark @ 2011.04.26
 #include "transfer_function.h"
 //////////////////////////////////////////////////////////////////////////
-
+/**	@brief MAX_KEYS == 256
+*/
 #define MAX_KEYS 256
+
+/**	@brief WINDOW_SIZE == 700
+*/
 #define WINDOW_SIZE 700
+
+/**	@brief VOLUME_TEX_SIZE == 128
+*/
 #define VOLUME_TEX_SIZE 128
 
 using namespace std;
@@ -117,8 +124,17 @@ char * lable;
 
 void NormalTest(void);
 
+/**	@brief select user interested area using v, bounding_angle, r1 and r2
+*/
 void select_user_interested_area(Vector3 v, float bounding_angle, float r1, float r2);
 
+/**	@brief updateButtonState
+*   
+*
+*
+*
+*
+*/
 inline void updateButtonState( const nv::ButtonState &bs, nv::GlutManipulator &manip, int button)
 {
 	int modMask = 0;
@@ -132,6 +148,8 @@ inline void updateButtonState( const nv::ButtonState &bs, nv::GlutManipulator &m
 		manip.mouse( button, GLUT_DOWN, modMask, bs.cursor.x, height - bs.cursor.y);
 }
 
+/**	@brief updateButtonState
+*/
 void doUI()
 {
 	nv::Rect null;
@@ -183,7 +201,7 @@ int data_max, grad_max, df2_max, df3_max;//, dim_x, dim_y, dim_z;
 color_opacity * tf = NULL;
 
 /// Implementation ----------------------------------------
-
+/// print shader information log to report any error that occurs  
 //////////////////////////////////////////////////////////////////////////
 void printShaderInfoLog(GLuint obj)
 {
@@ -201,6 +219,7 @@ void printShaderInfoLog(GLuint obj)
 		free(infoLog);
 	}
 }
+
 
 void printProgramInfoLog(GLuint obj)
 {
