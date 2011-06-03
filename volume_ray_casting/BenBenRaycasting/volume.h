@@ -5,8 +5,11 @@
 #include <cstdlib>
 #include <cmath>
 
-
-
+/**	@brief	rgb triple to store r, g, b color component
+*	
+*	
+*	
+*/
 typedef struct
 {
 	unsigned char r;
@@ -14,6 +17,11 @@ typedef struct
 	unsigned char b;
 }Color;
 
+/**	@brief	grid is used to store coordinate of a given voxel in the volume space
+*	
+*	
+*	
+*/
 typedef struct
 {
 	unsigned int x;
@@ -21,30 +29,37 @@ typedef struct
 	unsigned int z;
 }grid;
 
+/**	@brief	structure LH to store L and H in LH histogram 
+*	
+*	
+*	
+*/
 typedef struct
 {
 	unsigned short FL;
 	unsigned short FH;
 }LH;
 
-/**	@brief	class volume to store dataset 
-*	
-*	
-*	
-*/
+/**	@brief	class volume to store dataset and other data
+*	metrics that are computed, such as gradient magnitude,
+*	second derivative, average value, deviation, etc. All the           
+*	calculations of the volume data are implemented in class 
+*   volume.
+*
+*/ 
 class Volume
 {
 protected:
-	unsigned int length;               //体数据长度
-	unsigned int width;                //体数据宽度
-	unsigned int height;               //体数??高度
-	unsigned int count;                  //体素数
-	char format[50];                     //数据格式
+	unsigned int length;               //
+	unsigned int width;                //
+	unsigned int height;               //
+	unsigned int count;                  //
+	char format[50];                     //
 	void * data;   
-	unsigned int range;                  //灰度级
-	unsigned int * histogram;            //灰度直方图
-	unsigned short dataTypeSize;         //数据类型大小
-	unsigned int * gradient;             //梯度幅值
+	unsigned int range;                  //
+	unsigned int * histogram;            //
+	unsigned short dataTypeSize;         //
+	unsigned int * gradient;             //
 	unsigned int * df2;
 	unsigned int * df3;
 	Color * color;

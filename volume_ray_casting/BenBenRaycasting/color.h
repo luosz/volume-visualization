@@ -11,7 +11,9 @@ const float PI = 3.1415926535;
 #define max3v(v1, v2, v3)   ((v1)<(v2)? ((v2)<(v3)?(v3):(v2)):((v1)<(v3)?(v3):(v1)))   
   
   
-  
+/**	@brief store r, g, b color component in unsigned char format 
+*	
+*/  
 typedef struct  
   
 {   
@@ -24,6 +26,9 @@ typedef struct
   
 }COLOR_RGB;  
 
+/**	@brief store hue, saturation and luminance of HSL color space
+*	
+*/
 typedef struct  
 {   
   
@@ -35,11 +40,17 @@ typedef struct
   
 }COLOR_HSL;   
 
+/**	@brief convert radius of an angle to degree
+*	
+*/
 float rad_to_deg(float r)
 {
 	return (r * PI / 180.0);
 }
 
+/**	@brief convert HSI triple to RGB color space 
+*	
+*/
 void HSI_to_RGB(float H, float S, float I, float * R, float * G, float * B)
 {
 	float r, g, b;
@@ -83,6 +94,9 @@ void HSI_to_RGB(float H, float S, float I, float * R, float * G, float * B)
 	}
 }
 
+/**	@brief convert HSL triple to RGB color space
+*	
+*/
 void HSL2RGB(float H, float S, float L, float * R, float * G, float * B)
 {
 	float temp1, temp2, Rtemp3, Gtemp3, Btemp3;
