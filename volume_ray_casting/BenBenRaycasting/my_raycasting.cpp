@@ -1093,11 +1093,11 @@ void NormalTest()
 							//		cout<<"w = "<<w<<endl;
 							if(w - 0.894 < 0)     
 								;// 0.923 0.935
-							//			cout<<"不符合正态分布"<<endl;
+										cout<<"Not comply to normal distribution"<<endl;
 							else
 							{
 								count++;
-								//			cout<<"符合正态分布"<<endl<<endl<<endl;
+											cout<<"Comply to normal distribution"<<endl<<endl<<endl;
 							}
 
 			}
