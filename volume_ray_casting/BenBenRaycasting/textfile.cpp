@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+/// read text files
 char *textFileRead(char *fn) {
 
 
@@ -43,6 +43,7 @@ char *textFileRead(char *fn) {
 	return content;
 }
 
+/// write text files
 int textFileWrite(char *fn, char *s) {
 
 	FILE *fp;
