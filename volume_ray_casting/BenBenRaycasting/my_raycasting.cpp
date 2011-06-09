@@ -16,9 +16,7 @@
 *	Notice this implementation requires a shader model 3.0 gfxcard
 *	
 *	Adapted by Shengzhou Luo (ark) 2010-2011
-*	
-*	Transfer functions are written by BenBen 2010-2011
-*	
+*		
 *	The program is implemented using OpenGL and GLSL (OpenGL Shading Language). Properties such as average, variation and local entropy of each voxel are pre-computed because they are constants during the rendering process and a higher frame rate could be reached.
 *	
 *	The program is run on a personal computer (AMD Athlon 7750 Dual-Core Processor, 4G memory) equipped with NVIDIA GeForce GT 240 graphics card. Several common datasets that are publicly available on the The Volume Library is tested.
@@ -54,10 +52,8 @@
 #include <nvVector.h>
 
 //////////////////////////////////////////////////////////////////////////
-// added by ark @ 2010.10.15
 #include "../my_raycasting/VolumeReader.h"
 
-// added by ark @ 2011.04.26
 #include "transfer_function.h"
 //////////////////////////////////////////////////////////////////////////
 /**	@brief MAX_KEYS == 256
@@ -111,7 +107,7 @@ GLuint loc_stepsize;
 // added by ark @ 2010.10.15
 volume_utility::VolumeReader volume;
 //////////////////////////////////////////////////////////////////////////
-
+///Aout ui and user interaction
 nv::GlutExamine manipulator;
 nv::GlutUIContext ui;
 
@@ -120,8 +116,10 @@ nv::GlutUIContext ui;
 char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\nucleon.dat";
 //////////////////////////////////////////////////////////////////////////
 
+///record clusters
 char * lable;
 
+///test if voxels comply to normal distribution
 void NormalTest(void);
 
 /**	@brief select user interested area using v, bounding_angle, r1 and r2
@@ -196,8 +194,8 @@ void doUI()
 }
 
 
-
-int data_max, grad_max, df2_max, df3_max;//, dim_x, dim_y, dim_z;
+///intesity max, gradient magnitude max, second derivative max, third derivative max
+int data_max, grad_max, df2_max, df3_max;
 color_opacity * tf = NULL;
 
 /// Implementation ----------------------------------------
@@ -220,7 +218,7 @@ void printShaderInfoLog(GLuint obj)
 	}
 }
 
-
+/// print shader's information
 void printProgramInfoLog(GLuint obj)
 {
 	int infologLength = 0;
@@ -238,7 +236,7 @@ void printProgramInfoLog(GLuint obj)
 	}
 }
 
-// Sets a uniform texture parameter
+/// Sets a uniform texture parameter
 void setTextureUniform(GLuint program, const char* name, int number, GLenum target, GLuint texture) 
 {
 	GLuint location = glGetUniformLocation(program, name);
@@ -247,6 +245,8 @@ void setTextureUniform(GLuint program, const char* name, int number, GLenum targ
 	glBindTexture(target, texture);
 }
 
+
+/// initialize shaders
 void setShaders() {
 
 	char *vs = NULL,*fs = NULL;// ,*fs2 = NULL;
@@ -349,23 +349,31 @@ void setShaders() {
 //	cgGLDisableProfile(fragmentProfile);
 //}
 
+/// render images to buffers
 void enable_renderbuffers()
 {
 	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, framebuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
 }
 
+/// disable render buffers
 void disable_renderbuffers()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+/// face index for setting a vertex
 int face_index = 0;
 //////////////////////////////////////////////////////////////////////////
+
+/// draw a vertex
 void vertex(float x, float y, float z)
 {
 	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	/// set 2D texture coordinates for texture 0
 	float s, t;
 	switch(face_index)
 	{
@@ -383,11 +391,14 @@ void vertex(float x, float y, float z)
 	}
 	glMultiTexCoord2f(GL_TEXTURE0, s, t);
 	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	/// set 3D texture coordinates for texture 1
 	glColor3f(x,y,z);
 	glMultiTexCoord3f(GL_TEXTURE1, x, y, z);
 	glVertex3f(x,y,z);
 }
-// this method is used to draw the front and backside of the volume
+
+/// this method is used to draw the front and backside of the volume
 void drawQuads(float x, float y, float z)
 {
 
@@ -499,11 +510,13 @@ cout << "volume texture created from " << filename << endl;
 */
 
 
-
+///create volume texture
 void create_volume_texture()
 {
 	GLenum glType;
-	if(strcmp(volume.getFormat(), "UCHAR") == 0)
+
+	 ///test volume's data type and get glType
+	if(strcmp(volume.getFormat(), "UCHAR") == 0) 
 		glType = GL_UNSIGNED_BYTE;
 	else if(strcmp(volume.getFormat(), "USHORT") ==0)
 		glType = GL_UNSIGNED_SHORT;
@@ -520,6 +533,8 @@ void create_volume_texture()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_LUMINANCE, glType, volume.getDataAddr());
 }
+
+/// create a test volume texture, here you could load your own volume
 void create_volumetexture()
 {
 	int size = VOLUME_TEX_SIZE*VOLUME_TEX_SIZE*VOLUME_TEX_SIZE* 4;
@@ -593,10 +608,14 @@ void create_volumetexture()
 	cout << "volume texture created" << endl;
 }
 
+
+///create tranfser function texture
 void create_transferfunc()
 {
+	/// set transfer function to be used
 	setTransferfunc3(tf, volume);
 
+	/// bind transfer function texture 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
 	glBindTexture(GL_TEXTURE_3D, transfer_texture);
@@ -608,18 +627,18 @@ void create_transferfunc()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	// added by ark @ 2011.04.26
-	// free the transfer function pointer after texture mapping
+	/// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 }
 
+/// do initilization work
 void init()
 {
 	int x, y, z, index;
 	cout << "glew init " << endl;
 	GLenum err = glewInit();
 
-	// initialize all the OpenGL extensions
+	/// initialize all the OpenGL extensions
 	glewGetExtension("glMultiTexCoord2fvARB");  
 	if(glewGetExtension("GL_EXT_framebuffer_object") )cout << "GL_EXT_framebuffer_object support " << endl;
 	if(glewGetExtension("GL_EXT_renderbuffer_object"))cout << "GL_EXT_renderbuffer_object support " << endl;
@@ -642,6 +661,7 @@ void init()
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,framebuffer);
 
 	//////////////////////////////////////////////////////////////////////////
+	///bind front face 
 	glGenTextures(1, &frontface_buffer);
 	glBindTexture(GL_TEXTURE_2D, frontface_buffer);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -652,7 +672,7 @@ void init()
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, WINDOW_SIZE, WINDOW_SIZE, 0, GL_RGBA, GL_FLOAT, NULL);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, frontface_buffer, 0);
 	//////////////////////////////////////////////////////////////////////////
-
+	///bind back face texture
 	glGenTextures(1, &backface_buffer);
 	glBindTexture(GL_TEXTURE_2D, backface_buffer);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -663,6 +683,7 @@ void init()
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, WINDOW_SIZE, WINDOW_SIZE, 0, GL_RGBA, GL_FLOAT, NULL);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, backface_buffer, 0);
 
+	///bind final image texture
 	glGenTextures(1, &final_image);
 	glBindTexture(GL_TEXTURE_2D, final_image);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -672,6 +693,7 @@ void init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, WINDOW_SIZE, WINDOW_SIZE, 0, GL_RGBA, GL_FLOAT, NULL);
 
+	///bind render buffer texture
 	glGenRenderbuffersEXT(1, &renderbuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
 	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, WINDOW_SIZE, WINDOW_SIZE);
@@ -679,16 +701,20 @@ void init()
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 	//////////////////////////////////////////////////////////////////////////
-	// read volume data file
+	/// read volume data file
 	volume.readVolFile(file1);
 
+	///do some calculations if necessary
+
+	//volume.average_deviation();
+	//volume.calLocalEntropy();
 	//volume.calAverage();
 	//volume.calVariation();
 	//	Volume.calHistogram();
 	//	Volume.calEp();
 	//	Volume.NormalDistributionTest();
-	volume.calGrad();
-	//	volume.calGrad();
+	//volume.calGrad();
+		volume.calGrad();
 	//	volume.calGrad_ex();
 		volume.calDf2();
 	//	volume.average_deviation();
@@ -707,7 +733,7 @@ void init()
 	//	k_means(&Volume, lable);
 	create_volume_texture();
 
-//	volume.calLocalEntropy();
+	
 //	cout<<"local entropy max ="<<volume.getLocalEntropyMax()<<endl;
 
 	create_transferfunc();
@@ -719,7 +745,7 @@ void init()
 }
 
 
-// for contiunes keypresses
+/// for continues key presses
 void ProcessKeys()
 {
 	// Process keys
@@ -743,6 +769,7 @@ void ProcessKeys()
 
 }
 
+// handle keys to be pressed
 void key(unsigned char k, int x, int y)
 {
 	gKeys[k] = true;
@@ -798,6 +825,8 @@ void key(unsigned char k, int x, int y)
 
 }
 
+
+///keyboard callback function
 void KeyboardUpCallback(unsigned char key, int x, int y)
 {
 	gKeys[key] = false;
@@ -817,7 +846,7 @@ void KeyboardUpCallback(unsigned char key, int x, int y)
 	}
 }
 
-// glut idle function
+/// glut idle function
 void idle_func()
 {
 	manipulator.idle();
@@ -826,6 +855,7 @@ void idle_func()
 	glutPostRedisplay();
 }
 
+/// set projection mode to Ortho 2D
 void reshape_ortho(int w, int h)
 {
 	if (h == 0) h = 1;
@@ -836,7 +866,7 @@ void reshape_ortho(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-
+/// resize the window
 void resize(int w, int h)
 {
 	if (h == 0) h = 1;
@@ -849,6 +879,7 @@ void resize(int w, int h)
 	manipulator.reshape(w, h);
 }
 
+/// draw full screen quads
 void draw_fullscreen_quad()
 {
 	glDisable(GL_DEPTH_TEST);
@@ -871,7 +902,7 @@ void draw_fullscreen_quad()
 
 }
 
-// display the final image on the screen
+/// display the final image on the screen
 void render_buffer_to_screen()
 {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -900,7 +931,7 @@ void render_buffer_to_screen()
 }
 
 //////////////////////////////////////////////////////////////////////////
-// render the frontface to the offscreen buffer backface_buffer
+// render the front face to the off screen buffer backface_buffer
 void render_frontface()
 {
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, frontface_buffer, 0);
@@ -912,7 +943,7 @@ void render_frontface()
 }
 //////////////////////////////////////////////////////////////////////////
 
-// render the backface to the offscreen buffer backface_buffer
+/// render the back face to the off screen buffer backface_buffer
 void render_backface()
 {
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, backface_buffer, 0);
@@ -923,6 +954,7 @@ void render_backface()
 	glDisable(GL_CULL_FACE);
 }
 
+/// raycasting 
 void raycasting_pass()
 {
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, final_image, 0);
@@ -949,7 +981,7 @@ void raycasting_pass()
 	//////////////////////////////////////////////////////////////////////////
 }
 
-// This display function is called once pr frame 
+/// This display function is called once pr frame 
 void display()
 {
 	static float rotate = 0; 
@@ -975,16 +1007,19 @@ void display()
 	glutSwapBuffers();
 }
 
+/// handle mouse's movement
 void mouse(int button, int state, int x, int y)
 {
 	ui.mouse( button, state, glutGetModifiers(), x, y);
 }
 
+/// handle mouse interaction
 void motion(int x, int y)
 {
 	ui.mouseMotion( x, y);
 }
 
+/// handle special keys pressed
 void special_keys(int key, int x, int y)
 {
 	switch(key)
@@ -1005,6 +1040,7 @@ void special_keys(int key, int x, int y)
 	}
 }
 
+/// test if voxels comply to normal distribution
 void NormalTest()
 {
 	int x, y, z, i, j, k;
@@ -1068,12 +1104,12 @@ void NormalTest()
 			cout<<float(count) /  (float(volume.getX()) * float(volume.getY()) * float(volume.getZ()));
 }
 
-
+/// the program's entry function
 int main(int argc, char* argv[])
 {
 	//////////////////////////////////////////////////////////////////////////
-	// read filename from arguments if available
-	// added by ark @ 2010.10.15
+	/// read filename from arguments if available
+
 	if (argc > 1)
 	{
 		strcpy(file1, argv[1]);
@@ -1091,7 +1127,8 @@ int main(int argc, char* argv[])
 	manipulator.setDollyActivate( GLUT_LEFT_BUTTON, GLUT_ACTIVE_CTRL);
 	manipulator.setPanActivate( GLUT_LEFT_BUTTON, GLUT_ACTIVE_SHIFT);
 	manipulator.setDollyPosition( -2.5f  );
-
+	
+	///keyboard
 	glutKeyboardFunc(key);
 	glutKeyboardUpFunc(KeyboardUpCallback);
 
@@ -1113,6 +1150,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+/// select user's interested area, denoted by v, bounding_angle, r1 and r2
 void select_user_interested_area(Vector3 v, float bounding_angle, float r1, float r2)
 {
 	int x, y, z, dim_x, dim_y, dim_z, index;

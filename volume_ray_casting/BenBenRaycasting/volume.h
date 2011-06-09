@@ -50,37 +50,37 @@ typedef struct
 class Volume
 {
 protected:
-	unsigned int length;               //
-	unsigned int width;                //
-	unsigned int height;               //
-	unsigned int count;                  //
-	char format[50];                     //
-	void * data;   
-	unsigned int range;                  //
-	unsigned int * histogram;            //
-	unsigned short dataTypeSize;         //
-	unsigned int * gradient;             //
-	unsigned int * df2;
-	unsigned int * df3;
-	Color * color;
-	float * opacity;
-	float * local_entropy;
-	float * average;
-	float * variation;
-	float local_entropy_max;
-	float max_variation;
-	float ex, var, cv;       //cv ±äÒìÏµÊý
+	unsigned int length;               ///length
+	unsigned int width;                ///width
+	unsigned int height;               ///height
+	unsigned int count;                  ///number of voxels
+	char format[50];                     ///data's format
+	void * data;                            ///pointer to store volume data
+	unsigned int range;                  ///data value's range [0, range]
+	unsigned int * histogram;            ///pointer to store histogram
+	unsigned short dataTypeSize;         ///number of bytes of the data type
+	unsigned int * gradient;             ///gradient magnitude
+	unsigned int * df2;                     /// second derivative                    
+	unsigned int * df3;                      /// third derivative
+	Color * color;                            /// color in rgb space
+	float * opacity;                         /// opacity
+	float * local_entropy;                /// local entropy
+	float * average;                        /// statistical property average
+	float * variation;                       /// statistical property variation
+	float local_entropy_max;         /// store maximum local entropy
+	float max_variation;               /// store maximum variation
+	float ex, var, cv;       
 	unsigned char * group;             
 	bool * tag;
 	unsigned int threshold;
-	unsigned int max_data, min_data;
-	unsigned int max_grad, max_df2, max_df3, min_grad, min_df2, min_df3, max_frequency;
-	float max_ep, min_ep;
+	unsigned int max_data, min_data;               /// maximum and minimum data value
+	unsigned int max_grad, max_df2, max_df3, min_grad, min_df2, min_df3, max_frequency; /// maximum and minimum gradient , second derivative and third derivative
+	float max_ep, min_ep;                               /// maximum and minimum elasity
 	float * ep, little_epsilon;
 	float * acc_distribution;
 	int intensity_gradient_histogram[12][12];
 	float spatial_distribution[12][12];
-	LH * LH_Histogram;
+	LH * LH_Histogram;                                /// LH histogram
 public:
 	Volume()
 	{
