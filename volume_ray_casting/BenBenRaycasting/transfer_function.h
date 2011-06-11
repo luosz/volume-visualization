@@ -332,6 +332,7 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 			for(k = 0; k < dim_z; ++k)
 			{
 				index = volume.getIndex(i, j, k);	
+				cout<<index<<endl;
 				if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 				{						
 					a = d = 0; 
@@ -344,7 +345,8 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 						for(q = j - 1; q <= j + 1; ++q)
 							for(r = k - 1; r <= k + 1; ++r)
 								a += float(volume.getData(p, q, r));
-					a /= 27;
+					a /= 27.0;
+					cout<<"a = "<<a<<endl;
 					for(p = i - 1;p <= i + 1;++p)
 						for(q = j - 1; q <= j + 1; ++q)
 							for(r = k - 1; r <= k + 1; ++r)
@@ -355,8 +357,9 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 					if(d > d_max)
 						d_max = d;
 				}
-
+				
 			}
+			cout<<"d_max = "<<d_max<<endl; 
 			for(i = 0;i < dim_x; ++i)
 				for(j = 0;j < dim_y; ++j)
 					for(k = 0;k < dim_z; ++k)
@@ -389,8 +392,8 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 							alpha1 = exp(-1.0 * a / d);
 							alpha2 = ( exp(-beta * (1 - alpha1)) - exp(-beta) ) / (1 - exp(-beta));
 
-								if(unsigned int(d) < unsigned int(0.95 * d_max))
-									alpha2 = 0;
+							//	if(unsigned int(d) < unsigned int(0.95 * d_max))
+							//		alpha2 = 0;
 								
 
 							/*if(volume.getLocalEntropy(i, j, k) > 0.7 * volume.getLocalEntropyMax())
@@ -400,9 +403,9 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 							//	num++;
 							//	//	cout<<alpha2<<endl;
 							//}
-							/*if(alpha2 < 0.8)
+							if(alpha2 < 0.8)
 								alpha2 = 0;
-							else
+					/*		else
 								alpha2 *= 1.5;*/
 					//		alpha2 = 0;
 
@@ -852,6 +855,136 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 
 }
 
+void setTransferfunc9(color_opacity *& tf, Volume & volume)
+{
+	int x, y, z, i, j, k, p, q, r, index, intensity, num = 0;
+	double a, d, d_max = 0, gx, gy, gz, g, g_magnitude;
+	float alpha1, alpha2, alpha3, alpha4, beta;
+
+	unsigned int dim_x = volume.getX();
+	unsigned int dim_y = volume.getY();
+	unsigned int dim_z = volume.getZ();
+	beta = log((dim_x + dim_y + dim_z) / 3.0);
+
+	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
+
+	if(tf == NULL)
+	{
+		fprintf(stderr, "Not enough space for tf");
+	}
+	for(i = 0;i < dim_x; ++i)
+		for(j = 0; j < dim_y; ++j)
+			for(k = 0; k < dim_z; ++k)
+			{
+				index = volume.getIndex(i, j, k);	
+				if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
+				{						
+					a = d = 0; 
+					tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
+				}
+				else
+				{
+					a = d = 0;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								a += float(volume.getData(p, q, r));
+					a /= 27.0;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								d += pow(double(volume.getData(p, q, r)) - a, 2.0);
+					d /= 27.0;
+			//		cout<<d<<endl;
+					if(d == 0)
+						d = 1e-4;
+					if(d > d_max)
+						d_max = d;
+				}
+			}
+			cout<<d_max<<endl;
+		
+	for(i = 0;i < dim_x; ++i)
+		for(j = 0; j < dim_y; ++j)
+			for(k = 0;k < dim_z; ++k)
+			{
+				index = volume.getIndex(i, j, k);	
+			//	cout<<index<<endl;
+				if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
+				{						
+					a = d = 0; 
+					tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
+				}
+				else
+				{
+					a = d = 0;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								a += float(volume.getData(p, q, r));
+					a /= 27.0;
+				//	cout<<"a = "<<a<<endl;
+					for(p = i - 1;p <= i + 1;++p)
+						for(q = j - 1; q <= j + 1; ++q)
+							for(r = k - 1; r <= k + 1; ++r)
+								d += pow(double(volume.getData(p, q, r)) - a, 2.0);
+					d /= 27.0;
+					if(d == 0)
+						d = 1e-4;
+
+					alpha1 = exp(-a / d);
+					alpha2 = ( exp(-beta * (1.0 - alpha1)) - exp(-beta) ) / (1.0 - exp(-beta));
+			//		cout<<d<<endl<<d_max<<endl;
+						if(d < 0.6 * d_max)
+						{
+						//	cout<<"ok"<<endl;
+							alpha2 = 0;
+						}
+						if(alpha2 < 0.9)
+							alpha2 = 0;
+						else alpha2 *= 1.5;
+							
+
+							tf[index].a  = unsigned char(alpha2 * 255);
+
+							x = i;
+							y = j;
+							z = k;
+							if(x == 0)
+								gx = float(volume.getData(x + 1, y, z) - volume.getData(x, y, z));
+							else if(x == dim_x - 1)
+								gx = float(volume.getData(x, y, z) - volume.getData(x - 1, y, z));
+							else
+								gx = float(volume.getData(x + 1, y, z)) - float(volume.getData(x - 1, y, z));
+
+							if(y == 0)
+								gy = float(volume.getData(x , y + 1, z) - volume.getData(x, y, z));
+							else if(y == dim_y - 1)
+								gy = float(volume.getData(x, y, z) - volume.getData(x, y - 1, z));
+							else
+								gy = float(volume.getData(x , y + 1, z)) - float(volume.getData(x , y - 1, z));
+
+							if(z == 0)
+								gz = float(volume.getData(x, y, z + 1) - volume.getData(x, y, z));
+							else if(z == dim_z - 1)
+								gz =float(volume.getData(x, y, z) - volume.getData(x, y, z - 1));
+							else
+								gz = float(volume.getData(x , y, z + 1)) - float(volume.getData(x , y, z - 1));
+
+							g = sqrt(gx * gx + gy * gy + gz * gz);
+							gx =fabs(gx);
+							gy =fabs(gy);
+							gz = fabs(gz);
+
+							tf[index].r = unsigned char(gx / g * 255.0);
+							tf[index].g = unsigned char(gy / g * 255.0);
+							tf[index].b = unsigned char(gz / g * 255.0); 
+				}
+			}	
+}
+	
+				
+			
 
 
 #endif // TRANSFER_FUNCTION_H

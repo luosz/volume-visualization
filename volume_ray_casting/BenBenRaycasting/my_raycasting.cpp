@@ -613,7 +613,7 @@ void create_volumetexture()
 void create_transferfunc()
 {
 	/// set transfer function to be used
-	setTransferfunc3(tf, volume);
+	setTransferfunc9(tf, volume);
 
 	/// bind transfer function texture 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -714,9 +714,9 @@ void init()
 	//	Volume.calEp();
 	//	Volume.NormalDistributionTest();
 	//volume.calGrad();
-		volume.calGrad();
+	//	volume.calGrad();
 	//	volume.calGrad_ex();
-		volume.calDf2();
+	//	volume.calDf2();
 	//	volume.average_deviation();
 	//	NormalTest();
 	//	Volume.calLH();
@@ -1092,7 +1092,7 @@ void NormalTest()
 								w = d1 / d2;
 							//		cout<<"w = "<<w<<endl;
 							if(w - 0.894 < 0)     
-								;// 0.923 0.935
+								// 0.923 0.935
 										cout<<"Not comply to normal distribution"<<endl;
 							else
 							{
