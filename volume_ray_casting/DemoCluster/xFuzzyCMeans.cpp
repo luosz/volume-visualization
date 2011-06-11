@@ -245,7 +245,12 @@ void CxFuzzyCMeans::DistributeSamples()
 
 		//add this pattern to the cluster
 		m_ArrayCluster.at(id).member.push_back(i);
-		m_ArrayLabel.at(i) = id;
+
+		// set a cluster index in the label array
+		if (m_label_ptr == NULL)
+		{
+			m_label_ptr[i] = (unsigned char)id;
+		}
 	}
 
 }

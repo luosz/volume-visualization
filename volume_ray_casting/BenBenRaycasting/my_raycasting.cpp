@@ -1092,7 +1092,7 @@ void NormalTest()
 								w = d1 / d2;
 							//		cout<<"w = "<<w<<endl;
 							if(w - 0.894 < 0)     
-								;// 0.923 0.935
+								// 0.923 0.935
 										cout<<"Not comply to normal distribution"<<endl;
 							else
 							{
