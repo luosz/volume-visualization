@@ -90,12 +90,15 @@ int main(int argc, _TCHAR* argv[])
 	fcm.Run(EPISLON);
 	output(nCluster, fcm);
 
-	cout<<endl;
-	for (int i=0; i<fcm.NumPatterns(); i++)
+	if (fcm.m_label_ptr != NULL)
 	{
-		cout<<fcm.m_ArrayLabel.at(i)<<"\t";
+		cout<<endl;
+		for (int i=0; i<fcm.NumPatterns(); i++)
+		{
+			cout<<fcm.m_label_ptr[i]<<"\t";
+		}
+		cout<<endl;
 	}
-	cout<<endl;
 
 //	CxKMeans kmeans(100, 3, 3);
 //	kmeans.Run(EPISLON);

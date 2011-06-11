@@ -64,7 +64,7 @@ public:
 
 	vector<Pattern> m_ArrayPattern; // 存储待聚类样本;
 	vector<Cluster> m_ArrayCluster; // 聚类结果;
-	vector<int> m_ArrayLabel; // 所属分类的索引
+	unsigned char * m_label_ptr; // 存放分类索引的数组
 
 	int GetDim()      { return m_nDim;     }
 	int NumClusters() { return m_nCluster; }

@@ -34,7 +34,7 @@ CxCluster::CxCluster(int nPattern, int nDim, int nCluster)
 
 	m_ArrayPattern.reserve(nPattern);
 	m_ArrayCluster.resize(nCluster);
-	m_ArrayLabel.resize(nPattern);
+	m_label_ptr = NULL;
 
 	m_Error = EPISLON;
 
