@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DemoCluster", "DemoCluster\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fuzzy_cmeans", "fuzzy_cmeans\fuzzy_cmeans.vcxproj", "{0CF483DB-D7D3-40CB-880C-A3906F350D64}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "clustering", "clustering", "{32772467-6CA0-4ADD-8052-F29B6761A5EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +86,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0CF483DB-D7D3-40CB-880C-A3906F350D64} = {32772467-6CA0-4ADD-8052-F29B6761A5EC}
+		{B83159BF-1DAC-41AF-B403-8228136D1053} = {32772467-6CA0-4ADD-8052-F29B6761A5EC}
 	EndGlobalSection
 EndGlobal
