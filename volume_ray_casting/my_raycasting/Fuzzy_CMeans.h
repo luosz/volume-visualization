@@ -7,15 +7,16 @@
 #include <fstream>
 
 #include "../DemoCluster/xFuzzyCMeans.h"
-#include "../DemoCluster/xKMeans.h"
 
 namespace clustering
 {
-	/**	@brief	An adapter class for xFuzzyCMeans
-	*	
+	/**	@brief	Fuzzy C-means clustering
+	*	This is an adapter class for xFuzzyCMeans
 	*/
 	class Fuzzy_CMeans
 	{
+	public:
+
 		static int get_dimension(const nv::vec2f & v)
 		{
 			return 2;
@@ -64,7 +65,7 @@ namespace clustering
 
 			for (int c=0; c<nCluster; ++c )
 			{
-				vector<double> center = filter.m_ArrayCluster.at(c).center;
+				std::vector<double> center = filter.m_ArrayCluster.at(c).center;
 				std::cout<<"Cluster " << c; 
 				std::cout<<"\ncenter: ["<<center[0]<<", "<<center[1]<<"]\n";
 
@@ -83,15 +84,19 @@ namespace clustering
 		}
 
 		template <class T>
-		static void LoadData(CxFuzzyCMeans& filter, const std::vector<T> & data)
+		static void load_data(CxFuzzyCMeans& filter, const std::vector<T> & data)
 		{
-			for (const std::vector<T>::iterator i=data.begin(); i!=data.end(); i++)
+			for (std::vector<T>::const_iterator i=data.begin(); i!=data.end(); i++)
 			{
 				filter.m_ArrayPattern.push_back(to_Pattern(*i));
 			}
+			//for (int i=0; i<data.size(); i++)
+			//{
+			//	filter.m_ArrayPattern.push_back(to_Pattern(data[i]));
+			//}
 		}
 
-		bool LoadData(CxFuzzyCMeans& filter)
+		static bool load_data(CxFuzzyCMeans& filter)
 		{
 			std::ifstream infile("iris.txt", std::ios::in);
 
@@ -130,17 +135,53 @@ namespace clustering
 			return 1;
 		}
 
+		static std::vector<nv::vec4f> get_data_from_file()
+		{
+			std::vector<nv::vec4f> v;
+
+			std::ifstream infile("../DemoCluster/iris.txt", std::ios::in);
+
+			if ( !infile.is_open())        
+			{
+				std::cout << "Error opening file";
+				return v;
+			}
+
+			int nDim = 4;
+			while ( !infile.eof())
+			{
+				if( infile.fail() )  
+					break;
+
+				char buf[1024];
+				infile.getline(buf, 1024);
+
+				float a, b, c, d;
+				int g;
+
+				if(strlen(buf)<=0)
+					continue;
+
+				sscanf(buf, "%f %f %f %f %d", &a, &b, &c, &d, &g);
+
+				v.push_back(nv::vec4f(a, b, c, d));
+			}
+			infile.close();
+
+			return v;
+		}
+
 		template <class T>
 		static void k_means(const std::vector<T> & data, const int k, unsigned char *& label_ptr)
 		{
 			const unsigned int count = data.size();
 
-			std::vector<std::vector<T>> clusters(k);
-			std::vector<T> centroids0(k);
-			std::vector<T> centroids1(k);
-			std::vector<T> * centroids = &centroids0;
-			std::vector<T> * centroids_new = &centroids1;
-			std::vector<T> * temp_ptr;
+			//std::vector<std::vector<T>> clusters(k);
+			//std::vector<T> centroids0(k);
+			//std::vector<T> centroids1(k);
+			//std::vector<T> * centroids = &centroids0;
+			//std::vector<T> * centroids_new = &centroids1;
+			//std::vector<T> * temp_ptr;
 
 			const double EPISLON = 1e-4;
 
@@ -151,7 +192,7 @@ namespace clustering
 			CxFuzzyCMeans fcm(count, nDim, nCluster);
 			fcm.m_label_ptr = label_ptr;
 
-			LoadData(fcm, data);
+			load_data(fcm, data);
 
 			fcm.InitClusters();
 			fcm.Run(EPISLON);
@@ -162,7 +203,7 @@ namespace clustering
 				cout<<endl;
 				for (int i=0; i<fcm.NumPatterns(); i++)
 				{
-					cout<<fcm.m_label_ptr[i]<<"\t";
+					cout<<(int)fcm.m_label_ptr[i]<<"\t";
 				}
 				cout<<endl;
 			}
