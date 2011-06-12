@@ -85,7 +85,11 @@ int main(int argc, _TCHAR* argv[])
 
 	CxFuzzyCMeans fcm(150, 4, 3);
 
+	unsigned char * label_ptr = new unsigned char[150];
+	fcm.m_label_ptr = label_ptr;
+
 	if ( LoadData(fcm) == 0 ) return 0;
+
 	fcm.InitClusters();
 	fcm.Run(EPISLON);
 	output(nCluster, fcm);
@@ -95,10 +99,12 @@ int main(int argc, _TCHAR* argv[])
 		cout<<endl;
 		for (int i=0; i<fcm.NumPatterns(); i++)
 		{
-			cout<<fcm.m_label_ptr[i]<<"\t";
+			cout<<(int)fcm.m_label_ptr[i]<<"\t";
 		}
 		cout<<endl;
 	}
+
+	delete [] label_ptr;
 
 //	CxKMeans kmeans(100, 3, 3);
 //	kmeans.Run(EPISLON);
