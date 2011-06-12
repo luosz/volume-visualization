@@ -6,7 +6,7 @@
 #include <vector>
 #include <nvMath.h>
 
-/**	@brief	Classes and functions for clustering
+/**	@brief	A namespace includes classes and functions for clustering
 *	
 */
 namespace clustering

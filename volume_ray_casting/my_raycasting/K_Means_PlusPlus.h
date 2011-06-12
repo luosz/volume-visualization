@@ -6,7 +6,7 @@ namespace clustering
 
 #include "kmpp/KMeansPP.h"
 
-	/**	@brief	The k-means++ clustering.
+	/**	@brief	A class for k-means++ clustering.
 	*	
 	*	This class is an adapter for the k-means++ clustering.
 	*	

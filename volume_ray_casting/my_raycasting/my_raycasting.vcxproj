@@ -77,6 +77,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\BenBenRaycasting\Volume.cpp" />
+    <ClCompile Include="..\DemoCluster\xCluster.cpp" />
+    <ClCompile Include="..\DemoCluster\xFuzzyCMeans.cpp" />
+    <ClCompile Include="..\DemoCluster\xKMeans.cpp" />
     <ClCompile Include="kmlocal\KCtree.cpp" />
     <ClCompile Include="kmlocal\KCutil.cpp" />
     <ClCompile Include="kmlocal\KMcenters.cpp" />
@@ -98,6 +101,10 @@
     <ClInclude Include="..\BenBenRaycasting\transfer_function.h" />
     <ClInclude Include="..\BenBenRaycasting\Vector3.h" />
     <ClInclude Include="..\BenBenRaycasting\Volume.h" />
+    <ClInclude Include="..\DemoCluster\xCluster.h" />
+    <ClInclude Include="..\DemoCluster\xFuzzyCMeans.h" />
+    <ClInclude Include="..\DemoCluster\xKMeans.h" />
+    <ClInclude Include="..\DemoCluster\xRand.h" />
     <ClInclude Include="Fuzzy_CMeans.h" />
     <ClInclude Include="filename_utility.h" />
     <ClInclude Include="K_Means_PP_Generic.h" />

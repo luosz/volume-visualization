@@ -10,8 +10,14 @@
 
 namespace clustering
 {
-	/**	@brief	Fuzzy C-means clustering
+	/**	@brief	Fuzzy c-means clustering
 	*	This is an adapter class for xFuzzyCMeans
+	*
+	*	Fuzzy c-means clustering
+	*	http://en.wikipedia.org/wiki/Cluster_analysis#Fuzzy_c-means_clustering
+	*
+	*	A Tutorial on Clustering Algorithms
+	*	http://home.dei.polimi.it/matteucc/Clustering/tutorial_html/cmeans.html
 	*/
 	class Fuzzy_CMeans
 	{

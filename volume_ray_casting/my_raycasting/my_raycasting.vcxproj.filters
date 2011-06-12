@@ -25,6 +25,9 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{26b3aad2-a8eb-4573-b9aa-69677fd9d440}</UniqueIdentifier>
     </Filter>
+    <Filter Include="../DemoCluster">
+      <UniqueIdentifier>{d50c9e7e-06f9-484e-a2b9-43847444063d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp">
@@ -74,6 +77,15 @@
     </ClCompile>
     <ClCompile Include="..\BenBenRaycasting\Volume.cpp">
       <Filter>../BenBenRaycasting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DemoCluster\xFuzzyCMeans.cpp">
+      <Filter>../DemoCluster</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DemoCluster\xCluster.cpp">
+      <Filter>../DemoCluster</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DemoCluster\xKMeans.cpp">
+      <Filter>../DemoCluster</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +178,18 @@
     </ClInclude>
     <ClInclude Include="Fuzzy_CMeans.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DemoCluster\xFuzzyCMeans.h">
+      <Filter>../DemoCluster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DemoCluster\xCluster.h">
+      <Filter>../DemoCluster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DemoCluster\xKMeans.h">
+      <Filter>../DemoCluster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DemoCluster\xRand.h">
+      <Filter>../DemoCluster</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

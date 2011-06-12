@@ -3,7 +3,7 @@
 
 namespace clustering
 {
-	/**	@brief	A k-means++ clustering
+	/**	@brief	A class for k-means++ clustering
 	*	This class is obsolete. Please use K_Means_PP_Generic for k-means++ clustering.
 	* 
 	* A Tutorial on Clustering Algorithms

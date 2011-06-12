@@ -6,7 +6,7 @@ namespace clustering
 
 #include "kmlocal/KMlocal.h"
 
-	/**	@brief	The k-means local clustering.
+	/**	@brief	A class for k-means local clustering.
 	*	
 	*	This class is an adapter for the k-means local clustering.
 	*	
