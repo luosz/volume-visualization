@@ -47,7 +47,7 @@ public:
 	void InitClusters(); // 第一种是从样本随机选择K个样本作为初始中心;FCM-V
 	void InitClusters2();// 第二种是随机生成每个样本的隶属度,然后计算其中心; FCM-U
 
- 	virtual double Run(double epsilon = EPISLON);
+ 	virtual double Run(double epsilon /*= EPISLON*/);
 	virtual double Run(int nIter);
 
 
