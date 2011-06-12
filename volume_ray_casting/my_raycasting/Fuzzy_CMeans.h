@@ -10,6 +10,10 @@
 
 namespace clustering
 {
+	//#ifdef _DEBUG
+	//#define _DEBUG_OUTPUT
+	//#endif
+
 	/**	@brief	Fuzzy c-means clustering
 	*	This is an adapter class for xFuzzyCMeans
 	*
@@ -182,13 +186,6 @@ namespace clustering
 		{
 			const unsigned int count = data.size();
 
-			//std::vector<std::vector<T>> clusters(k);
-			//std::vector<T> centroids0(k);
-			//std::vector<T> centroids1(k);
-			//std::vector<T> * centroids = &centroids0;
-			//std::vector<T> * centroids_new = &centroids1;
-			//std::vector<T> * temp_ptr;
-
 			const double EPISLON = 1e-4;
 
 			int nCluster = k;
@@ -202,17 +199,21 @@ namespace clustering
 
 			fcm.InitClusters();
 			fcm.Run(EPISLON);
+
+#ifdef _DEBUG_OUTPUT
 			output(nCluster, fcm);
 
-			if (fcm.m_label_ptr != NULL)
+			if (label_ptr != NULL)
 			{
 				cout<<endl;
-				for (int i=0; i<fcm.NumPatterns(); i++)
+				for (unsigned int i=0; i<count; i++)
 				{
-					cout<<(int)fcm.m_label_ptr[i]<<"\t";
+					cout<<(int)label_ptr[i]<<"\t";
 				}
 				cout<<endl;
 			}
+#endif
+
 		}
 
 	};

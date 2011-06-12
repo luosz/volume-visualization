@@ -85,6 +85,7 @@
     <ClInclude Include="..\DemoCluster\xKMeans.h" />
     <ClInclude Include="..\DemoCluster\xRand.h" />
     <ClInclude Include="..\my_raycasting\Fuzzy_CMeans.h" />
+    <ClInclude Include="..\my_raycasting\K_Means_PP_Generic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -924,7 +924,7 @@ void cluster(const T *data, const unsigned int count)
 	unsigned char *label_ptr = new unsigned char[count];
 	int k = static_cast<int>(cluster_quantity);
 
-	volume_utility::k_means<T, TYPE_SIZE>(data, count, color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
+	volume_utility::cluster<T, TYPE_SIZE>(data, count, color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
 
 	char label_filename[MAX_STR_SIZE];
 	sprintf(label_filename, "%s.%d.txt", filename_utility::volume_filename, k);

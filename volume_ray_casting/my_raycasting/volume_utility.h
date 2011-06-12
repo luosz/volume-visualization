@@ -10,15 +10,16 @@
 //#include "K_Means_Local.h"
 //#include "K_Means_PlusPlus.h"
 #include "K_Means_PP_Generic.h"
+#include "Fuzzy_CMeans.h"
 
 /**	@brief	Classes and functions for volume manipulation
 *	
 */
 namespace volume_utility
 {
-//#ifdef _DEBUG
-//#define _DEBUG_OUTPUT
-//#endif
+	//#ifdef _DEBUG
+	//#define _DEBUG_OUTPUT
+	//#endif
 
 	/// convert a char to a hex number, the cluster number is represented in 0~9 and a~f
 	unsigned char char_to_number(unsigned char c)
@@ -186,7 +187,7 @@ namespace volume_utility
 
 	/// call the k-means clustering
 	template <class T, int TYPE_SIZE>
-	void k_means(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr, int width, int height, int depth)
+	void cluster(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr, int width, int height, int depth)
 	{
 		unsigned int histogram[TYPE_SIZE] = {0};
 		vector<float> scalar_value(count); // the scalar data in const T *data
@@ -209,7 +210,7 @@ namespace volume_utility
 		std::cout<<"Gradients and second derivatives..."<<std::endl;
 		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 		generate_average_variation(sizes, count, components, scalar_value, average, variation);
-	
+
 		unsigned char *label_ptr_before_filter = new unsigned char[count];
 
 		// adapt to K_Means_PP_Generic::k_means()
@@ -220,18 +221,22 @@ namespace volume_utility
 			//v[i].x = scalar_value[i];
 			//v[i].y = gradient_magnitude[i];
 			//v[i].z = second_derivative_magnitude[i];
-		/*	v[i].w = scalar_value[i];
-			v[i].x = gradient[i].x;
-			v[i].y = gradient[i].y;
-			v[i].z = gradient[i].z;*/
+
+			//v[i].w = scalar_value[i];
+			//v[i].x = gradient[i].x;
+			//v[i].y = gradient[i].y;
+			//v[i].z = gradient[i].z;
+
 			v[i].x = average[i];
 			v[i].y = variation[i];
 		}
 		// call the clustering routine
-		std::cout<<"K-means++..."<<std::endl;
-		//K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
-		//K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, K_Means_PP_Generic::get_distance<nv::vec3f>, K_Means_PP_Generic::get_centroid<nv::vec3f>);
-		clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec2f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec2f>);
+		std::cout<<"Clustering..."<<std::endl;
+
+		//clustering::K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
+		//clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec3f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec3f>);
+		//clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec2f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec2f>);
+		clustering::Fuzzy_CMeans::k_means(v, k, label_ptr_before_filter);
 
 		//std::ofstream label_file_before("d:/label_before.txt");
 		//for (unsigned int i=0; i<count; i++)
@@ -403,8 +408,8 @@ namespace volume_utility
 								{
 									sum += scalar_value[index];
 								}
-						sum /= 27.0;
-						average[index] = sum;
+								sum /= 27.0;
+								average[index] = sum;
 					}
 				}
 			}
@@ -437,7 +442,6 @@ namespace volume_utility
 			}
 		}
 	}
-
 
 }
 
