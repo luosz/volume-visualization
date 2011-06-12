@@ -50,5 +50,8 @@
     <ClInclude Include="..\DemoCluster\xRand.h">
       <Filter>../DemoCluster</Filter>
     </ClInclude>
+    <ClInclude Include="..\my_raycasting\K_Means_PP_Generic.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

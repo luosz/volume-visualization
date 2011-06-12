@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <nvMath.h>
+#include <ctime>
 
 /**	@brief	A namespace includes classes and functions for clustering
 *	
