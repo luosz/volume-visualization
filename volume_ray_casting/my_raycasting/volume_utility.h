@@ -264,12 +264,10 @@ namespace volume_utility
 	template <class T, int TYPE_SIZE>
 	void generate_scalar_histogram(const T *data, const unsigned int count, const unsigned int components, unsigned int *histogram, vector<float> &scalar_value)
 	{
-		unsigned int temp, index;
-
 		for (unsigned int i=0; i<count; i++)
 		{
-			temp = 0;
-			index = i * components;
+			unsigned int temp = 0;
+			unsigned int index = i * components;
 			for (unsigned int j=0; j<components; j++)
 			{
 				temp += data[index + j];
