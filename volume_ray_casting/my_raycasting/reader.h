@@ -17,16 +17,15 @@
 #ifndef _READER_H
 #define _READER_H
 
-/**	@brief	Functions for reading data from files
-*	
-*/
-namespace reader{
+namespace volume_utility{
 
 	typedef enum {DATRAW_UCHAR, DATRAW_FLOAT, DATRAW_USHORT} DataType;
 
+	/// read raw data from files
 	void readData(char *filename, int *sizes, float *dists, void **data, 
 		DataType *type, int *numComponents);
 
+	/// get the size of a data type
 	int getDataTypeSize(DataType t);
 
 //////////////////////////////////////////////////////////////////////////
@@ -120,7 +119,22 @@ namespace reader{
 						"UCHAR and FLOAT* format\n");
 					exit(1);
 				}
-			} else {
+			} 
+			
+			//////////////////////////////////////////////////////////////////////////		
+			else if (strstr(line, "TaggedFileName")) {
+				if (! (cp = strchr(line, ':'))) {
+					parseError = 1;
+					break;
+				}
+				if (sscanf(cp + 1, "%s", rawFilename) != 1)	{
+					parseError = 1;
+					break;
+				}
+			}
+			//////////////////////////////////////////////////////////////////////////
+			
+			else {
 				fprintf(stderr, "skipping line %s", line);
 			}
 		}
