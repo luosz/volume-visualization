@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raycasting tut", "raycastin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BenBenRaycasting", "BenBenRaycasting\BenBenRaycasting.vcxproj", "{55BE2AAB-68CB-48F0-AFF2-558E9B45BE15}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "volume_label", "volume_label\volume_label.vcxproj", "{6C0C3100-00A0-42CB-8A8F-1215AE979383}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,18 @@ Global
 		{55BE2AAB-68CB-48F0-AFF2-558E9B45BE15}.Release|Win32.ActiveCfg = Release|Win32
 		{55BE2AAB-68CB-48F0-AFF2-558E9B45BE15}.Release|Win32.Build.0 = Release|Win32
 		{55BE2AAB-68CB-48F0-AFF2-558E9B45BE15}.Release|x64.ActiveCfg = Release|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Debug|Win32.Build.0 = Debug|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Debug|x64.ActiveCfg = Debug|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Release|Any CPU.ActiveCfg = Release|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Release|Win32.ActiveCfg = Release|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Release|Win32.Build.0 = Release|Win32
+		{6C0C3100-00A0-42CB-8A8F-1215AE979383}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

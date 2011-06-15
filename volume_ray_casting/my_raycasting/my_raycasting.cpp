@@ -1016,20 +1016,20 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 void read_volume_file(char* filename) 
 {
 	float dists[3];
-	reader::DataType type;
+	volume_utility::DataType type;
 
 	if (!data_ptr)
 	{
 		data_ptr = new void *;
 	}
-	reader::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
+	volume_utility::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
 
 	switch (type)
 	{
-	case reader::DATRAW_UCHAR:
+	case volume_utility::DATRAW_UCHAR:
 		gl_type = GL_UNSIGNED_BYTE;
 		break;
-	case reader::DATRAW_USHORT:
+	case volume_utility::DATRAW_USHORT:
 		gl_type = GL_UNSIGNED_SHORT;
 		break;
 	default:
