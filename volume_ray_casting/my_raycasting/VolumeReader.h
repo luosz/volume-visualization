@@ -149,14 +149,14 @@ namespace volume_utility
 		/// read volume data from file using readData in reader.h
 		void readVolume_reader(char* filename)
 		{
-			using namespace reader;
+			using namespace volume_utility;
 
 			void ** data_ptr = new void *;
 			int sizes[3];
 			int color_omponent_number;
 			float dists[3];
 			DataType type;
-			reader::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
+			volume_utility::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
 
 			// Please set the properties of class volume to protected, in order to set their values.
 			length = sizes[0];
