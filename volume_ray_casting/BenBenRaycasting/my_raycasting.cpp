@@ -113,13 +113,14 @@ nv::GlutUIContext ui;
 
 //////////////////////////////////////////////////////////////////////////
 // added by ark @ 2010.10.15
-char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\nucleon.dat";
+//char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\ZhangJiShuai_1_7_NATIVE_SPACE_3D_SUB_20100805.dat";
+char file1[MAX_STR_SIZE] = "";
 //////////////////////////////////////////////////////////////////////////
 
-///record clusters
+/// record clusters
 char * lable;
 
-///test if voxels comply to normal distribution
+/// test if voxels comply to normal distribution
 void NormalTest(void);
 
 /**	@brief select user interested area using v, bounding_angle, r1 and r2
@@ -613,7 +614,7 @@ void create_volumetexture()
 void create_transferfunc()
 {
 	/// set transfer function to be used
-	setTransferfunc9(tf, volume);
+	setTransferfunc3(tf, volume);
 
 	/// bind transfer function texture 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -702,6 +703,11 @@ void init()
 
 	//////////////////////////////////////////////////////////////////////////
 	/// read volume data file
+	if (strlen(file1) <= 0)
+	{
+		cout<<"Input data file: (for example, \\data\\nucleon.dat)"<<endl;
+		cin>>file1;
+	}
 	volume.readVolFile(file1);
 
 	///do some calculations if necessary
@@ -714,9 +720,9 @@ void init()
 	//	Volume.calEp();
 	//	Volume.NormalDistributionTest();
 	//volume.calGrad();
-	//	volume.calGrad();
+		volume.calGrad();
 	//	volume.calGrad_ex();
-	//	volume.calDf2();
+		volume.calDf2();
 	//	volume.average_deviation();
 	//	NormalTest();
 	//	Volume.calLH();
@@ -1109,7 +1115,6 @@ int main(int argc, char* argv[])
 {
 	//////////////////////////////////////////////////////////////////////////
 	/// read filename from arguments if available
-
 	if (argc > 1)
 	{
 		strcpy(file1, argv[1]);
