@@ -1,3 +1,7 @@
+/**	@file
+* All transfer functions are in this file	
+*/
+
 #ifndef TRANSFER_FUNCTION_H
 #define TRANSFER_FUNCTION_H
 
@@ -61,23 +65,23 @@ void alloc_transfer_function_pointer(color_opacity *& p, unsigned int dim_x, uns
 void setTransferfunc(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, index;
-	/// temp value,not final result
+	// temp value,not final result
 	float temp1, temp2,temp3, temp4; 
 	double d, g, df2, a, alpha, elasity, a1, a2, opacity, k = 0.1, f1, f2;
 	float center_x, center_y, center_z;
 	double df_dx, df_dy, df_dz, gradient, df, Ra;
 	float range, q;
-	/// Hue, saturation and Lightness
+	// Hue, saturation and Lightness
 	float H, S, L;                                       
-	/// get X dimension
+	// get X dimension
 	unsigned int dim_x = volume.getX();    
-	/// get Y dimension
+	// get Y dimension
 	unsigned int dim_y = volume.getY();    
-	/// get Z dimension
+	// get Z dimension
 	unsigned int dim_z = volume.getZ();    
 
-	/// alloc_transfer_function_pointer, tf is the pointer points to the memory stores transfer 
-	/// function, dim_x, dim_y and dim_z are dimensions of the volume
+	// alloc_transfer_function_pointer, tf is the pointer points to the memory stores transfer 
+	// function, dim_x, dim_y and dim_z are dimensions of the volume
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
 
 	if(tf == NULL)
@@ -85,29 +89,29 @@ void setTransferfunc(color_opacity *& tf, Volume & volume)
 		fprintf(stderr, "Not enough space for tf");
 	}
 
-	/// compute volume's central position
+	// compute volume's central position
 	center_x = float(volume.getX()) / 2.0; 
 	center_y = float(volume.getY()) / 2.0;
 	center_z = float(volume.getZ()) / 2.0;
 
-	/// iteration to every voxel to compute opacity and color 
+	// iteration to every voxel to compute opacity and color 
 	for(z = 0; z < dim_z; ++z)
 	{
 		for(y = 0;y < dim_y; ++y)
 		{
 			for(x = 0; x < dim_x; ++x)
 			{
-				///compute data's index in the volume data
+				// compute data's index in the volume data
 				index = volume.getIndex(x, y, z);
 				d = 1 / 3.0 * (dim_x + dim_y + dim_z);				
 				range = volume.getRange();
 				H = double(volume.getData(x ,y ,z)) / double(range) * 360.0; 
 
-				//	S = 1 - pow(e , -1.0 * d *double(Volume.getData(x, y, z)));
-				//	S = exp()
+				// S = 1 - pow(e , -1.0 * d *double(Volume.getData(x, y, z)));
+				// S = exp()
 				S = norm(volume.getMinData(), volume.getMaxData(), volume.getData(x, y, z));
 				L = norm(volume.getMinGrad(), volume.getMaxGrad(), volume.getGrad(x, y, z));
-				//			L = double(x) + double(y) + double(z) / (3 * d);
+				// L = double(x) + double(y) + double(z) / (3 * d);
 
 
 				HSL2RGB(H, S, L, &temp1, &temp2, &temp3);
@@ -213,7 +217,7 @@ void setTransferfunc2(color_opacity *& tf, Volume & volume)
 void setTransferfunc3(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, index, i,j ;   
-	/// temp value to store intermediate value
+	// temp value to store intermediate value
 	float temp1, temp2,temp3, temp4;      
 	double d, g, df2, a, alpha;
 	float range;
@@ -227,11 +231,11 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 	float sigma = 4;
 
 
-	///get number of voxels of dimension X
+	// get number of voxels of dimension X
 	unsigned int dim_x = volume.getX();          
-	///get number of voxels of dimension Y
+	// get number of voxels of dimension Y
 	unsigned int dim_y = volume.getY();          
-	///get number of voxels of dimension Z
+	// get number of voxels of dimension Z
 	unsigned int dim_z = volume.getZ();          
 
 	// added by ark @ 2011.04.26
@@ -242,20 +246,20 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 		fprintf(stderr, "Not enough space for tf");
 	}
 
-	/// iteration to every voxel to compute opacity and color 
+	// iteration to every voxel to compute opacity and color 
 	for(z = 0; z < dim_z; ++z)
 	{
 		for(y = 0;y < dim_y; ++y)
 		{
 			for(x = 0; x < dim_x; ++x)
 			{
-				/// compute data's index in the volume data
+				// compute data's index in the volume data
 				index = volume.getIndex(x, y, z);
 
-				/// compute volume's data value range [0,range]
+				// compute volume's data value range [0,range]
 				range = volume.getRange();
 
-				/// compute Hue value according to data value
+				// compute Hue value according to data value
 				if(volume.getData(x, y, z) <= range / 6.0)
 					H = 30;
 				else if(volume.getData(x, y, z) <= range * (1.0 / 3.0))
@@ -269,13 +273,13 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 				else
 					H = 330;
 
-				/// compute saturation according to gradient magnitude
+				// compute saturation according to gradient magnitude
 				S = norm(float(volume.getMinGrad()), float(volume.getMaxGrad()), float(volume.getGrad(x, y, z))) * 360.0; 
 
-				/// compute lightness according to second derivative
+				// compute lightness according to second derivative
 				L = norm(float(volume.getMinDf2()), float(volume.getMaxDf2()), float(volume.getDf2(x, y, z)));
 
-				/// convert H, S, and L to rgb color space, r, g and b componet stored in temp1, temp2 and temp3
+				// convert H, S, and L to rgb color space, r, g and b componet stored in temp1, temp2 and temp3
 				HSL2RGB(H, S, L, &temp1, &temp2, &temp3);
 				temp1 *= 1.5;
 				temp2 *= 1.5;
@@ -287,18 +291,18 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 				if(temp3 > 1.0)
 					temp3 = 1.0;
 
-				/// compute transfer function's color
+				// compute transfer function's color
 				tf[index].r  =  (unsigned char)(temp1 * 255);
 				tf[index].g = (unsigned char)(temp2 * 255);
 				tf[index].b =  (unsigned char)(temp3 * 255);
 
-				/// compute transfer function's opacity
-				/// get data value
+				// compute transfer function's opacity
+				// get data value
 				d = double(volume.getData(x, y, z));
-				/// get gradient magnitude
+				// get gradient magnitude
 				g = double(volume.getGrad(x, y, z));
 				a = log(double(volume.getX() + volume.getY() + volume.getZ()) / 3.0); 
-				/// compute temp opacity
+				// compute temp opacity
 				temp4 = exp(-d / g);
 
 				df1 = (float)volume.getGrad(x, y, z);
@@ -312,7 +316,7 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 				temp4 =	exp(- d / g);
 				alpha = temp4;
 
-				/// correct temp opacity to get final opacity
+				// correct temp opacity to get final opacity
 				alpha = (exp(-a * (1.0 - temp4)) - exp(-a)) / (1 - exp(-a));
 				alpha *= 1.5;
 
@@ -322,7 +326,7 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 				//	alpha = 0;
 				//	alpha = f / f_max * df1 / df1_max;
 
-				/// compute transfer function's opacity and stores it in tf
+				// compute transfer function's opacity and stores it in tf
 				tf[index].a =  unsigned char(alpha * 255);
 			}
 		}
@@ -335,20 +339,20 @@ void setTransferfunc3(color_opacity *& tf, Volume & volume)
 void setTransferfunc5(color_opacity *& tf, Volume & volume)
 {
 	int x, y, z, i, j, k, p, q, r, index, intensity, num = 0;
-	/// statistical property -- 
+	// statistical property -- 
 	float a;  
 	float d;
 	float d_max = 0;
 	float gx, gy, gz, g, g_magnitude;
 	float alpha1, alpha2, alpha3, alpha4, beta;
 
-	///get number of voxels at dimension X, Y and Z respectively
+	// get number of voxels at dimension X, Y and Z respectively
 	unsigned int dim_x = volume.getX();
 	unsigned int dim_y = volume.getY();
 	unsigned int dim_z = volume.getZ();
 	beta = log((dim_x + dim_y + dim_z) / 3.0);
 
-	/// allocate transfer function space
+	// allocate transfer function space
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
 
 	if(tf == NULL)
@@ -356,17 +360,17 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 		fprintf(stderr, "Not enough space for tf");
 	}
 
-	/// iteration to every voxel to compute opacity and color 
+	// iteration to every voxel to compute opacity and color 
 	for(i = 0;i < dim_x; ++i)
 	{
 		for(j = 0; j < dim_y; ++j)
 		{
 			for(k = 0; k < dim_z; ++k)
 			{
-				/// compute data's index in the volume data
+				// compute data's index in the volume data
 				index = volume.getIndex(i, j, k);	
 
-				/// for voxel at the boundary of the volume, all values set to 0
+				// for voxel at the boundary of the volume, all values set to 0
 				if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 				{						
 					a = d = 0; 
@@ -374,17 +378,17 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 				}
 				else
 				{
-					/// initialize average and deviation to 0
+					// initialize average and deviation to 0
 					a = d = 0;
 
-					/// compute average value around the central voxel at (i, j, k)
+					// compute average value around the central voxel at (i, j, k)
 					for(p = i - 1;p <= i + 1;++p)
 						for(q = j - 1; q <= j + 1; ++q)
 							for(r = k - 1; r <= k + 1; ++r)
 								a += float(volume.getData(p, q, r));
 					a /= 27.0;
 
-					/// compute deviation around cenral voxel at (i, j, k)
+					// compute deviation around cenral voxel at (i, j, k)
 					for(p = i - 1;p <= i + 1;++p)
 						for(q = j - 1; q <= j + 1; ++q)
 							for(r = k - 1; r <= k + 1; ++r)
@@ -393,7 +397,7 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 					if(d == 0)
 						d = 1e-4;
 
-					/// compute maximum deviation
+					// compute maximum deviation
 					if(d > d_max)
 						d_max = d;
 				}
@@ -414,14 +418,14 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 						{
 							a = d = 0;
 
-							/// compute average value around the central voxel at (i, j, k)
+							// compute average value around the central voxel at (i, j, k)
 							for(p = i - 1;p <= i + 1;++p)
 								for(q = j - 1; q <= j + 1; ++q)
 									for(r = k - 1; r <= k + 1; ++r)
 										a += float(volume.getData(p, q, r));
 							a /= 27;
 
-							/// compute deviation around cenral voxel at (i, j, k)
+							// compute deviation around cenral voxel at (i, j, k)
 							for(p = i - 1;p <= i + 1;++p)
 								for(q = j - 1; q <= j + 1; ++q)
 									for(r = k - 1; r <= k + 1; ++r)
@@ -433,10 +437,10 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 							//		intensity = Volume.getData(i, j, k);
 							//		g_magnitude = Volume.getGrad(i, j, k);
 
-							/// compute orginal opacity using average and deviation
+							// compute orginal opacity using average and deviation
 							alpha1 = exp(-1.0 * a / d);
 
-							/// correct original opacity to get final result
+							// correct original opacity to get final result
 							alpha2 = ( exp(-beta * (1 - alpha1)) - exp(-beta) ) / (1 - exp(-beta));
 
 							//	if(unsigned int(d) < unsigned int(0.95 * d_max))
@@ -456,21 +460,21 @@ void setTransferfunc5(color_opacity *& tf, Volume & volume)
 							alpha2 *= 1.5;*/
 							//		alpha2 = 0;
 
-							/// comput transfer function's opacity
+							// comput transfer function's opacity
 							tf[index].a = unsigned char(alpha2 * 255);
 
 							/*if(alpha4 < 0.2)
 							alpha4 = 0;
 							tf[index].a  = unsigned char(alpha4 * 255);*/
 
-							/// compute gradient vector of direction x, y and z
+							// compute gradient vector of direction x, y and z
 							gx = fabs(float(volume.getData(i + 1, j, k)) - float(volume.getData(i - 1, j, k)));
 							gy = fabs(float(volume.getData(i , j + 1, k)) - float(volume.getData(i , j - 1, k)));
 							gz = fabs(float(volume.getData(i , j, k + 1)) - float(volume.getData(i , j, k - 1)));
-							/// compute gradient magnitude
+							// compute gradient magnitude
 							g = sqrt(gx * gx + gy * gy + gz * gz);
 
-							/// map normalized gradient vector to rgb component to get transfer function's final color
+							// map normalized gradient vector to rgb component to get transfer function's final color
 							tf[index].r = unsigned char(gx / g * 255.0);
 							tf[index].g = unsigned char(gy / g * 255.0);
 							tf[index].b = unsigned char(gz / g * 255.0); 
@@ -713,16 +717,16 @@ void setTransferfunc7(color_opacity *& tf, Volume & volume)
 
 	ofstream file("E:\\grad_direction.csv", std::ios::out);
 
-	///get number of voxels at dimension x, y and z respectively
+	// get number of voxels at dimension x, y and z respectively
 	unsigned int dim_x = volume.getX();
 	unsigned int dim_y = volume.getY();
 	unsigned int dim_z = volume.getZ();
 	beta = log((dim_x + dim_y + dim_z) / 3.0);
 
-	/// allocate memory for transfer function space
+	// allocate memory for transfer function space
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
 
-	/// initialize transfer function
+	// initialize transfer function
 	for(x = 0; x < dim_x; ++x)
 		for(y = 0; y < dim_y; ++y)
 			for(z = 0; z < dim_z; ++z)
@@ -736,33 +740,33 @@ void setTransferfunc7(color_opacity *& tf, Volume & volume)
 				fprintf(stderr, "Not enough space for tf");
 			}
 
-			///traverse all the voxels to compute opacity and color
+			// traverse all the voxels to compute opacity and color
 			for(i = 0;i < dim_x; ++i)
 			{
 				for(j = 0;j < dim_y; ++j)
 				{
 					for(k = 0;k < dim_z; ++k)
 					{
-						/// get data value's index in the volume 
+						// get data value's index in the volume 
 						index = volume.getIndex(i, j, k);	
 
-						/// for voxels lie on the boundary of the volume data, color and opacity set to 0
+						// for voxels lie on the boundary of the volume data, color and opacity set to 0
 						if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 						{						
 							tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
 						}
 						else
 						{
-							/// compute average value
+							// compute average value
 							a = volume.getAverage(i, j, k);
 
-							/// compute variation value
+							// compute variation value
 							d = volume.getVariation(i, j, k);
 
-							/// compute original opacity
+							// compute original opacity
 							alpha1 = exp(-1.0 * a / d);
 
-							/// compute final opacity 
+							// compute final opacity 
 							alpha2 = ( exp(-beta * (1 - alpha1)) - exp(-beta) ) / (1 - exp(-beta));
 
 							d_max = volume.getMaxVariation();
@@ -776,14 +780,14 @@ void setTransferfunc7(color_opacity *& tf, Volume & volume)
 									alpha2 *= 1.5;
 							}
 
-							/// compute final opacity stored in tf
+							// compute final opacity stored in tf
 							tf[index].a  = unsigned char(alpha2 * 255);
 
 							x = i;
 							y = j;
 							z = k;
 
-							/// compute gradient vector in x direction
+							// compute gradient vector in x direction
 							if(x == 0)
 								gx = float(volume.getData(x + 1, y, z) - volume.getData(x, y, z));
 							else if(x == dim_x - 1)
@@ -791,7 +795,7 @@ void setTransferfunc7(color_opacity *& tf, Volume & volume)
 							else
 								gx = float(volume.getData(x + 1, y, z)) - float(volume.getData(x - 1, y, z));
 
-							/// compute gradient vector in y direction
+							// compute gradient vector in y direction
 							if(y == 0)
 								gy = float(volume.getData(x , y + 1, z) - volume.getData(x, y, z));
 							else if(y == dim_y - 1)
@@ -799,7 +803,7 @@ void setTransferfunc7(color_opacity *& tf, Volume & volume)
 							else
 								gy = float(volume.getData(x , y + 1, z)) - float(volume.getData(x , y - 1, z));
 
-							/// compute gradient vector in z direction
+							// compute gradient vector in z direction
 							if(z == 0)
 								gz = float(volume.getData(x, y, z + 1) - volume.getData(x, y, z));
 							else if(z == dim_z - 1)
@@ -807,14 +811,14 @@ void setTransferfunc7(color_opacity *& tf, Volume & volume)
 							else
 								gz = float(volume.getData(x , y, z + 1)) - float(volume.getData(x , y, z - 1));
 
-							///compute gradient magnitude
+							// compute gradient magnitude
 							g = sqrt(gx * gx + gy * gy + gz * gz);
 							file<<gx<<", "<<gy<<", "<<gz<<endl;
 							gx =fabs(gx);
 							gy =fabs(gy);
 							gz = fabs(gz);
 
-							/// set color r, g, b using normalized gradient vector of x, y and z direction 
+							// set color r, g, b using normalized gradient vector of x, y and z direction 
 							tf[index].r = unsigned char(gx / g * 255.0);
 							tf[index].g = unsigned char(gy / g * 255.0);
 							tf[index].b = unsigned char(gz / g * 255.0); 
@@ -834,13 +838,13 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 
 	float g1, g2;
 	
-	///get number of voxels at dimension x, y and z respectively
+	// get number of voxels at dimension x, y and z respectively
 	unsigned int dim_x = volume.getX();
 	unsigned int dim_y = volume.getY();
 	unsigned int dim_z = volume.getZ();
 	beta = log(double(dim_x + dim_y + dim_z) / 3.0);
 
-	/// allocate memory for transfer function space
+	// allocate memory for transfer function space
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
 	for(x = 0; x < dim_x; ++x)
 		for(y = 0; y < dim_y; ++y)
@@ -855,7 +859,7 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 				fprintf(stderr, "Not enough space for tf");
 			}
 
-			///traverse all the voxels to compute maximum deviation
+			// traverse all the voxels to compute maximum deviation
 			for(i = 0;i < dim_x; ++i)
 			{
 				for(j = 0;j < dim_y; ++j)
@@ -864,7 +868,7 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 					{
 						index = volume.getIndex(i, j, k);	
 						
-						/// for voxels lie on the boundary of the volume data, color and opacity set to 0
+						// for voxels lie on the boundary of the volume data, color and opacity set to 0
 						if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 						{						
 							tf[index].a = tf[index].r = tf[index].g = tf[index].b = 0;
@@ -873,17 +877,17 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 						{
 							index = volume.getIndex(i, j, k);	
 							
-							///get average value
+							// get average value
 							a = double(volume.getAverage(i, j, k));
-							/// get variation value
+							// get variation value
 							d = double(volume.getVariation(i, j, k));
 							d = sqrt(d);
 							//		cout<<"a = "<<a<<"   d  ="<<d<<endl;
 							
-							///compute original opacity using average value and deviation value
+							// compute original opacity using average value and deviation value
 							alpha1 = exp(-a / d);
 
-							/// compute final opacity 
+							// compute final opacity 
 							alpha2 = ( exp(-beta * (1.0 - alpha1)) - exp(-beta) ) / (1.0 - exp(-beta));
 
 							alpha2 *= 1.5;
@@ -900,14 +904,14 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 							alpha2 *= 1.5;
 							}*/
 
-							/// compute final opacity stored in tf
+							// compute final opacity stored in tf
 							tf[index].a  = unsigned char(alpha2 * 255);
 
 							x = i;
 							y = j;
 							z = k;
 
-							/// compute gradient vector in x direction
+							// compute gradient vector in x direction
 							if(x == 0)
 								gx = float(volume.getData(x + 1, y, z) - volume.getData(x, y, z));
 							else if(x == dim_x - 1)
@@ -915,7 +919,7 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 							else
 								gx = float(volume.getData(x + 1, y, z)) - float(volume.getData(x - 1, y, z));
 
-							/// compute gradient vector in y direction
+							// compute gradient vector in y direction
 							if(y == 0)
 								gy = float(volume.getData(x , y + 1, z) - volume.getData(x, y, z));
 							else if(y == dim_y - 1)
@@ -923,7 +927,7 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 							else
 								gy = float(volume.getData(x , y + 1, z)) - float(volume.getData(x , y - 1, z));
 
-							/// compute gradient vector in z direction
+							// compute gradient vector in z direction
 							if(z == 0)
 								gz = float(volume.getData(x, y, z + 1) - volume.getData(x, y, z));
 							else if(z == dim_z - 1)
@@ -931,13 +935,13 @@ void setTransferfunc8(color_opacity *& tf, Volume & volume)
 							else
 								gz = float(volume.getData(x , y, z + 1)) - float(volume.getData(x , y, z - 1));
 
-							///compute gradient magnitude
+							// compute gradient magnitude
 							g = sqrt(gx * gx + gy * gy + gz * gz);
 							gx =fabs(gx);
 							gy =fabs(gy);
 							gz = fabs(gz);
 
-							/// set color r, g, b using normalized gradient vector of x, y and z direction 
+							// set color r, g, b using normalized gradient vector of x, y and z direction 
 							tf[index].r = unsigned char(gx / g * 255.0);
 							tf[index].g = unsigned char(gy / g * 255.0);
 							tf[index].b = unsigned char(gz / g * 255.0); 
@@ -955,14 +959,14 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 	double a, d, d_max = 0, gx, gy, gz, g, g_magnitude;
 	float alpha1, alpha2, alpha3, alpha4, beta;
 
-	///get number of voxels at dimension x, y and z respectively
+	// get number of voxels at dimension x, y and z respectively
 	unsigned int dim_x = volume.getX();
 	unsigned int dim_y = volume.getY();
 	unsigned int dim_z = volume.getZ();
-	/// compute beta
+	// compute beta
 	beta = log((dim_x + dim_y + dim_z) / 3.0);
 
-	/// allocate memory for transfer function space
+	// allocate memory for transfer function space
 	alloc_transfer_function_pointer(tf, dim_x, dim_y, dim_z);
 
 	if(tf == NULL)
@@ -970,15 +974,15 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 		fprintf(stderr, "Not enough space for tf");
 	}
 
-	///traverse all the voxels to compute maximum deviation
+	// traverse all the voxels to compute maximum deviation
 	for(i = 0;i < dim_x; ++i)
 		for(j = 0; j < dim_y; ++j)
 			for(k = 0; k < dim_z; ++k)
 			{
-				/// get data value's index in the volume 
+				// get data value's index in the volume 
 				index = volume.getIndex(i, j, k);	
 				
-				/// for voxels lie on the boundary of the volume data, color and opacity set to 0
+				// for voxels lie on the boundary of the volume data, color and opacity set to 0
 				if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 				{						
 					a = d = 0; 
@@ -988,14 +992,14 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 				{
 					a = d = 0;
 					
-					///compute average value around central voxel at (i, j, k)
+					// compute average value around central voxel at (i, j, k)
 					for(p = i - 1;p <= i + 1;++p)
 						for(q = j - 1; q <= j + 1; ++q)
 							for(r = k - 1; r <= k + 1; ++r)
 								a += float(volume.getData(p, q, r));
 					a /= 27.0;
 					
-					///compute variation value around central voxel at (i, j, k)
+					// compute variation value around central voxel at (i, j, k)
 					for(p = i - 1;p <= i + 1;++p)
 						for(q = j - 1; q <= j + 1; ++q)
 							for(r = k - 1; r <= k + 1; ++r)
@@ -1006,23 +1010,23 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 					if(d == 0)
 						d = 1e-4;
 
-					///compute maximum deviation
+					// compute maximum deviation
 					if(d > d_max)
 						d_max = d;
 				}
 			}
 			//cout<<d_max<<endl;
 
-			/// traverse all the voxels to set opacity and color
+			// traverse all the voxels to set opacity and color
 			for(i = 0;i < dim_x; ++i)
 				for(j = 0; j < dim_y; ++j)
 					for(k = 0;k < dim_z; ++k)
 					{
-						/// get data value's index in the volume
+						// get data value's index in the volume
 						index = volume.getIndex(i, j, k);	
 						//	cout<<index<<endl;
 
-						/// for voxels lie on the boundary of the volume data, color and opacity set to 0
+						// for voxels lie on the boundary of the volume data, color and opacity set to 0
 						if(i == 0 || i == dim_x - 1|| j == 0 || j == dim_y - 1 || k == 0 || k == dim_z - 1)
 						{						
 							a = d = 0; 
@@ -1032,7 +1036,7 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 						{
 							a = d = 0;
 							
-							/// compute average value around central voxel at (i, j, k)
+							// compute average value around central voxel at (i, j, k)
 							for(p = i - 1;p <= i + 1;++p)
 								for(q = j - 1; q <= j + 1; ++q)
 									for(r = k - 1; r <= k + 1; ++r)
@@ -1040,7 +1044,7 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 							a /= 27.0;
 							//	cout<<"a = "<<a<<endl;
 
-							/// compute deviation value around central voxel at (i, j, k)
+							// compute deviation value around central voxel at (i, j, k)
 							for(p = i - 1;p <= i + 1;++p)
 								for(q = j - 1; q <= j + 1; ++q)
 									for(r = k - 1; r <= k + 1; ++r)
@@ -1049,10 +1053,10 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 							if(d == 0)
 								d = 1e-4;
 							
-							///compute original opacity using average value and deviation value
+							// compute original opacity using average value and deviation value
 							alpha1 = exp(-a / d);
 
-							/// compute final opacity 
+							// compute final opacity 
 							alpha2 = ( exp(-beta * (1.0 - alpha1)) - exp(-beta) ) / (1.0 - exp(-beta));
 							//		cout<<d<<endl<<d_max<<endl;
 							if(d < 0.6 * d_max)
@@ -1064,14 +1068,14 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 								alpha2 = 0;
 							else alpha2 *= 1.5;
 
-							/// compute final opacity stored in tf
+							// compute final opacity stored in tf
 							tf[index].a  = unsigned char(alpha2 * 255);
 
 							x = i;
 							y = j;
 							z = k;
 							
-							/// compute gradient vector in x direction
+							// compute gradient vector in x direction
 							if(x == 0)
 								gx = float(volume.getData(x + 1, y, z) - volume.getData(x, y, z));
 							else if(x == dim_x - 1)
@@ -1079,7 +1083,7 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 							else
 								gx = float(volume.getData(x + 1, y, z)) - float(volume.getData(x - 1, y, z));
 
-							/// compute gradient vector in y direction
+							// compute gradient vector in y direction
 							if(y == 0)
 								gy = float(volume.getData(x , y + 1, z) - volume.getData(x, y, z));
 							else if(y == dim_y - 1)
@@ -1087,7 +1091,7 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 							else
 								gy = float(volume.getData(x , y + 1, z)) - float(volume.getData(x , y - 1, z));
 							
-							/// compute gradient vector in z direction
+							// compute gradient vector in z direction
 							if(z == 0)
 								gz = float(volume.getData(x, y, z + 1) - volume.getData(x, y, z));
 							else if(z == dim_z - 1)
@@ -1095,13 +1099,13 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 							else
 								gz = float(volume.getData(x , y, z + 1)) - float(volume.getData(x , y, z - 1));
 							
-							///compute gradient magnitude
+							// compute gradient magnitude
 							g = sqrt(gx * gx + gy * gy + gz * gz);
 							gx =fabs(gx);
 							gy =fabs(gy);
 							gz = fabs(gz);
 
-							/// set color r, g, b using normalized gradient vector of x, y and z direction 
+							// set color r, g, b using normalized gradient vector of x, y and z direction 
 							tf[index].r = unsigned char(gx / g * 255.0);
 							tf[index].g = unsigned char(gy / g * 255.0);
 							tf[index].b = unsigned char(gz / g * 255.0); 

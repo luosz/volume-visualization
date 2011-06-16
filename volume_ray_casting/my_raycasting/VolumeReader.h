@@ -115,7 +115,6 @@ namespace volume_utility
 			}
 			fclose(fp);
 
-			//////////////////////////////////////////////////////////////////////////
 			// get the raw file path and filename
 			//std::cout<<"VolumeReader::readVolFile - get the raw file path and filename"<<std::endl;
 			char str[MAX_STR_SIZE];
@@ -135,7 +134,6 @@ namespace volume_utility
 					std::cerr<<"Unsupported data type in "<<s<<std::endl;
 				}
 			}
-			//////////////////////////////////////////////////////////////////////////
 
 			return true;
 		}

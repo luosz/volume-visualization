@@ -40,18 +40,18 @@ namespace filename_utility
 		}
 	}
 
-	/// print about information
+	// print about information
 	void print_about(int argc, char* argv[])
 	{
 		char about[MAX_STR_SIZE * 4] = 
-"//////////////////////////////////////////////////////////////////////////\n\
+"************************************************************************\n\
 GPU raycasting demo\n\
 Copyright (c) 2010 Shengzhou Luo, Shenzhen Institute of Advanced Technology, Chinese Academy of Sciences.\n\
 \n\
 Usage:\n\
 %s [source]\n\
 source - File to load.\n\
-//////////////////////////////////////////////////////////////////////////\n\n";
+************************************************************************\n\n";
 		const char *p = filename_utility::get_file_path_separator_position(argv[0]);
 		if (NULL == p)
 		{

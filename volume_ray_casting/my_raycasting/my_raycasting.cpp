@@ -1,8 +1,9 @@
-/**	@file	GPU raycasting
-*	adapted from
+/**	@file
+*	GPU raycasting adapted from
 *	GPU raycasting tutorial
 *	http://www.daimi.au.dk/~trier/?page_id=98
 */
+
 // --------------------------------------------------------------------------
 // GPU raycasting tutorial
 // Made by Peter Trier jan 2007
@@ -316,7 +317,7 @@ void doUI()
 		nv::Rect rect_slider(0,0,600,0);
 		ui_context.doHorizontalSlider(rect_slider, STEPSIZE_MIN, STEPSIZE_MAX, &stepsize);
 
-		/// show peeling widgets
+		// show peeling widgets
 		switch(peeling_option)
 		{
 		case PEELING_OPACITY_IMPORTANCE:
@@ -356,7 +357,7 @@ void doUI()
 			break;
 		}
 
-		/// show transfer function widgets
+		// show transfer function widgets
 		if (transfer_function_option == TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
 		{
 			sprintf(str, "k-means k=%f", cluster_quantity);
@@ -399,7 +400,7 @@ void doUI()
 		ui_context.endGroup();
 	}
 
-	/// Pass non-ui mouse events to the manipulator
+	// Pass non-ui mouse events to the manipulator
 	if (!ui_context.isOnFocus()) {
 		const nv::ButtonState &lbState = ui_context.getMouseState(0);
 		const nv::ButtonState &mbState = ui_context.getMouseState(1);
@@ -479,7 +480,7 @@ GLuint add_texture_uniform(GLuint program, const char* name, int number, GLenum 
 	glActiveTexture(GL_TEXTURE0 + number);
 	glBindTexture(target, texture);
 
-	/// restore active texture unit to GL_TEXTURE0
+	// restore active texture unit to GL_TEXTURE0
 	glActiveTexture(GL_TEXTURE0);
 	return location;
 }
@@ -491,7 +492,7 @@ void set_texture_uniform(GLuint location, GLuint program, const char* name, int 
 	glActiveTexture(GL_TEXTURE0 + number);
 	glBindTexture(target, texture);
 
-	/// restore active texture unit to GL_TEXTURE0
+	// restore active texture unit to GL_TEXTURE0
 	glActiveTexture(GL_TEXTURE0);
 }
 
@@ -544,7 +545,7 @@ void set_shaders() {
 	loc_alpha_opacity = glGetUniformLocation(p, "alpha_opacity");
 	loc_fusion_factor = glGetUniformLocation(p, "fusion_factor");
 
-	/// set textures
+	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
 	add_texture_uniform(p, "back", 2, GL_TEXTURE_2D, backface_buffer);
 	loc_volume = add_texture_uniform(p, "volume", 3, GL_TEXTURE_3D, volume_texture_from_file);
@@ -554,7 +555,7 @@ void set_shaders() {
 	loc_importance_texture =  add_texture_uniform(p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
 	loc_transfer_texture2 = add_texture_uniform(p, "transfer_texture2", 8, GL_TEXTURE_3D, transfer_texture2);
 
-	/// disable the shader program
+	// disable the shader program
 	glUseProgram(0);
 }
 
@@ -579,7 +580,7 @@ int face_index = 0;
 void vertex(float x, float y, float z)
 {
 	//////////////////////////////////////////////////////////////////////////
-	/// set 2D texture coordinates for texture 0
+	// set 2D texture coordinates for texture 0
 	float s, t;
 	switch(face_index)
 	{
@@ -597,7 +598,7 @@ void vertex(float x, float y, float z)
 	}
 	glMultiTexCoord2f(GL_TEXTURE0, s, t);
 	//////////////////////////////////////////////////////////////////////////
-	/// set 3D texture coordinates for texture 1
+	// set 3D texture coordinates for texture 1
 	glColor3f(x,y,z);
 	glMultiTexCoord3f(GL_TEXTURE1, x, y, z);
 	glVertex3f(x,y,z);
@@ -764,7 +765,7 @@ void create_transferfunc_Ben()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	/// free the transfer function pointer after texture mapping
+	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 }
 
@@ -793,7 +794,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	/// free the transfer function pointer after texture mapping
+	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 
 	color_opacity * tf2 = NULL;
@@ -810,7 +811,7 @@ void create_transferfunc_fusion()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf2);
 
-	/// free the transfer function pointer after texture mapping
+	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf2);
 }
 
@@ -967,14 +968,14 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	volume_utility::find_min_max_scalar_in_histogram<T, TYPE_SIZE>(count, histogram, scalar_min_normalized, scalar_max_normalized);
 	volume_utility::generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
 
-	/// draw scalar histogram
+	// draw scalar histogram
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, histogram_buffer, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glLoadIdentity();
-	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); /// set projection mode to Ortho 2D
+	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); // set projection mode to Ortho 2D
 	glDisable(GL_DEPTH_TEST);
 
-	/// draw quadrangle strips to make a histogram
+	// draw quadrangle strips to make a histogram
 	glBegin(GL_QUAD_STRIP);
 	float x, y, height = (1/(1-0.618)) * float(count) / TYPE_SIZE;
 	for (unsigned int i = 0; i<TYPE_SIZE; i++)
@@ -989,7 +990,7 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	}
 	glEnd();
 
-	/// draw gradient histogram
+	// draw gradient histogram
 	if (max_gradient_magnitude > 0)
 	{
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, histogram_gradient_buffer, 0);
@@ -999,7 +1000,7 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		/// draw points to make a gradient histogram
+		// draw points to make a gradient histogram
 		glBegin(GL_POINTS);
 		for (unsigned int i = 0; i<count; i++)
 		{
@@ -1013,7 +1014,7 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	resize(WINDOW_SIZE,WINDOW_SIZE); /// set projection mode back to 3D
+	resize(WINDOW_SIZE,WINDOW_SIZE); // set projection mode back to 3D
 }
 
 /// read volume data from file
@@ -1197,7 +1198,7 @@ inline float decrease(const float value, const float dec, const float min)
 /// for continue keypresses
 void key_hold()
 {
-	/// Process keys
+	// Process keys
 	for (int i = 0; i < 256; i++)
 	{
 		if (!gKeys[i])  { continue; }
@@ -1336,7 +1337,7 @@ void key_release(unsigned char key, int x, int y)
 		button_lock_viewpoint = !button_lock_viewpoint;
 		break;
 	case 'i':
-		/// image to render
+		// image to render
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
 			render_option = (render_option - 1 + RENDER_COUNT) % RENDER_COUNT;
@@ -1346,11 +1347,11 @@ void key_release(unsigned char key, int x, int y)
 		}
 		break;
 	case 'u':
-		/// turn UI on/off
+		// turn UI on/off
 		ui_on = !ui_on;
 		break;
 	case 't':
-		/// transfer function
+		// transfer function
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
 			transfer_function_option = (transfer_function_option - 1 + TRANSFER_FUNCTION_COUNT) % TRANSFER_FUNCTION_COUNT;
@@ -1360,7 +1361,7 @@ void key_release(unsigned char key, int x, int y)
 		}
 		break;
 	case 'p':
-		/// peeling
+		// peeling
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
 			peeling_option = (peeling_option - 1 + PEELING_COUNT) % PEELING_COUNT;
@@ -1417,7 +1418,7 @@ void render_buffer_to_screen()
 	glLoadIdentity();
 	glEnable(GL_TEXTURE_2D);
 
-	/// choose the buffer to render 
+	// choose the buffer to render 
 	switch(render_option)
 	{
 	case RENDER_FINAL_IMAGE:
@@ -1442,19 +1443,19 @@ void render_buffer_to_screen()
 		std::cerr<<"Unknown Render Option!"<<endl;
 	}
 
-	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); /// set projection mode to Ortho 2D
-	draw_fullscreen_quad(); /// draw a full screen quadrangle to show the content in the texture buffer
+	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); // set projection mode to Ortho 2D
+	draw_fullscreen_quad(); // draw a full screen quadrangle to show the content in the texture buffer
 	glDisable(GL_TEXTURE_2D);
 }
 
 /// render the 2D transfer function
 void render_transfer_function_2D()
 {
-	/// how many colors
+	// how many colors
 	const int N = 7;
-	/// the positions to draw quadrangle strips
+	// the positions to draw quadrangle strips
 	const float p[7] = {0, 1/6., 2/6., 3/6., 4/6., 5/6., 1};
-	/// the colors of the transfer function
+	// the colors of the transfer function
 	const float colors[7][3] = {
 		1, 0, 0,
 		1, 1, 0,
@@ -1468,9 +1469,9 @@ void render_transfer_function_2D()
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, transfer_function_2D_buffer, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glLoadIdentity();
-	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); /// set projection mode to Ortho 2D
+	reshape_ortho(WINDOW_SIZE,WINDOW_SIZE); // set projection mode to Ortho 2D
 
-	/// draw a full screen quadrangle to show the content in the texture buffer
+	// draw a full screen quadrangle to show the content in the texture buffer
 	glDisable(GL_DEPTH_TEST);
 	glBegin(GL_QUAD_STRIP);
 	for (unsigned int i = 0; i<N; i++)

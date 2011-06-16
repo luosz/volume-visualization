@@ -422,7 +422,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	//bool cluster_limit_reached = false;
 	int peeling_counter = 0;
 
-	//// for peeling counting
+	// for peeling counting
 	//int counter1 = 0, counter2 = 0, counter3 = 0;
 
 	// for gradient peeling

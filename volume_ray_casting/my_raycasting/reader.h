@@ -1,5 +1,5 @@
-/**	@file	volume data reader
-*	This file is from
+/**	@file
+*	A volume data reader from
 *	A Simple and Flexible Volume Rendering Framework for Graphics-Hardware-based Raycasting
 *	http://cumbia.informatik.uni-stuttgart.de/ger/research/fields/current/spvolren/
 */
@@ -23,6 +23,16 @@
 #ifndef _READER_H
 #define _READER_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#include "sysconf.h"
+
+/**	@brief	This namespace contains functions that read and write text files
+*	
+*/
 namespace file_utility
 {
 	typedef enum {DATRAW_UCHAR, DATRAW_FLOAT, DATRAW_USHORT} DataType;
@@ -31,8 +41,6 @@ namespace file_utility
 		DataType *type, int *numComponents);
 
 	int getDataTypeSize(DataType t);
-
-	//////////////////////////////////////////////////////////////////////////
 
 	/*
 	* Copyright (c) 2005  Institute for Visualization and Interactive
@@ -49,14 +57,6 @@ namespace file_utility
 	* Filename: reader.c
 	*
 	*/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
-#include "reader.h"
-#include "sysconf.h"
 
 	void readData(char *filename, int *sizes, float *dists, void **data,
 		DataType *type, int *numComponents)

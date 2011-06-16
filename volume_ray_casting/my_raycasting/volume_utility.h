@@ -36,7 +36,6 @@ namespace volume_utility
 		return c;
 	}
 
-	//////////////////////////////////////////////////////////////////////////
 	/// estimate the interval among clusters
 	/// interval = (2^int(log(2, 256/k)))/256
 	float get_cluster_interval( int k ) 
@@ -199,7 +198,7 @@ namespace volume_utility
 		vector<float> second_derivative_magnitude(count);
 		float max_gradient_magnitude, max_second_derivative_magnitude;
 
-		//// median filter
+		// median filter
 		//vector<float> scalar_value_before(count);
 		//generate_scalar_histogram<T, TYPE_SIZE>(data, count, components, histogram, scalar_value_before);
 		//median_filter(scalar_value_before, scalar_value, width, height, depth);
