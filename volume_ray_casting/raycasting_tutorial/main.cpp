@@ -32,7 +32,7 @@ using namespace std;
 // Globals ------------------------------------------------------------------
 
 bool gKeys[MAX_KEYS];
-bool render_option = true;
+bool toggle_visuals = true;
 CGcontext context; 
 CGprofile vertexProfile, fragmentProfile; 
 CGparameter param1,param2;
@@ -113,7 +113,7 @@ void vertex(float x, float y, float z)
 	glVertex3f(x,y,z);
 }
 // this method is used to draw the front and backside of the volume
-void draw_quads(float x, float y, float z)
+void drawQuads(float x, float y, float z)
 {
 	
 	glBegin(GL_QUADS);
@@ -243,7 +243,7 @@ void create_volumetexture()
 
 // ok let's start things up 
 
-void initialize()
+void init()
 {
 	cout << "glew init " << endl;
 	GLenum err = glewInit();
@@ -342,7 +342,7 @@ void initialize()
 
 
 // for contiunes keypresses
-void process_keys()
+void ProcessKeys()
 {
 	// Process keys
 	for (int i = 0; i < 256; i++)
@@ -365,12 +365,12 @@ void process_keys()
 
 }
 
-void key_press(unsigned char k, int x, int y)
+void key(unsigned char k, int x, int y)
 {
 	gKeys[k] = true;
 }
 
-void key_release(unsigned char key, int x, int y)
+void KeyboardUpCallback(unsigned char key, int x, int y)
 {
 	gKeys[key] = false;
 
@@ -381,7 +381,7 @@ void key_release(unsigned char key, int x, int y)
 			exit(0); break; 
 		}
 	case ' ':
-		render_option = !render_option;
+		toggle_visuals = !toggle_visuals;
 		break;
 	}
 }
@@ -389,7 +389,7 @@ void key_release(unsigned char key, int x, int y)
 // glut idle function
 void idle_func()
 {
-	process_keys();
+	ProcessKeys();
 	glutPostRedisplay();
 }
 
@@ -442,7 +442,7 @@ void render_buffer_to_screen()
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glLoadIdentity();
 	glEnable(GL_TEXTURE_2D);
-	if(render_option)
+	if(toggle_visuals)
 		glBindTexture(GL_TEXTURE_2D,final_image);
 	else
 		glBindTexture(GL_TEXTURE_2D,backface_buffer);
@@ -458,7 +458,7 @@ void render_backface()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
-	draw_quads(1.0,1.0, 1.0);
+	drawQuads(1.0,1.0, 1.0);
 	glDisable(GL_CULL_FACE);
 }
 
@@ -475,7 +475,7 @@ void raycasting_pass()
 	set_tex_param("volume_tex",volume_texture,fragment_main,param2);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	draw_quads(1.0,1.0, 1.0);
+	drawQuads(1.0,1.0, 1.0);
 	glDisable(GL_CULL_FACE);
 	cgGLDisableProfile(vertexProfile);
 	cgGLDisableProfile(fragmentProfile);
@@ -507,14 +507,14 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutCreateWindow("GPU raycasting tutorial");
 	glutReshapeWindow(WINDOW_SIZE,WINDOW_SIZE);
-	glutKeyboardFunc(key_press);
-	glutKeyboardUpFunc(key_release);
+	glutKeyboardFunc(key);
+	glutKeyboardUpFunc(KeyboardUpCallback);
 	
 	glutDisplayFunc(display);
 	glutIdleFunc(idle_func);
 	glutReshapeFunc(resize);
 	resize(WINDOW_SIZE,WINDOW_SIZE);
-	initialize();
+	init();
 	glutMainLoop();
 	return 0;
 }

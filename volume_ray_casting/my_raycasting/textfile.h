@@ -1,3 +1,9 @@
+/**	@file	text file reader
+*	This file is from
+*	Hello World in GLSL
+*	http://www.lighthouse3d.com/tutorials/glsl-tutorial/hello-world-in-glsl/
+*/
+
 // textfile.h: interface for reading and writing text files
 // www.lighthouse3d.com
 //
@@ -6,16 +12,14 @@
 // or explicit are given
 //////////////////////////////////////////////////////////////////////
 
+#ifndef TEXTFILE_H
+#define TEXTFILE_H
+
 namespace file_utility
 {
-	/// read text from text file
 	char *textFileRead(char *fn);
-
-	/// write text to text file
 	int textFileWrite(char *fn, char *s);
 
-	//////////////////////////////////////////////////////////////////////////
-	// The codes below are from textfile.cpp
 	//////////////////////////////////////////////////////////////////////////
 
 	// textfile.cpp
@@ -34,7 +38,7 @@ namespace file_utility
 #include <stdlib.h>
 #include <string.h>
 
-	/// read text files
+
 	char *textFileRead(char *fn)
 	{
 
@@ -67,7 +71,6 @@ namespace file_utility
 		return content;
 	}
 
-	/// write text files
 	int textFileWrite(char *fn, char *s)
 	{
 
@@ -90,3 +93,5 @@ namespace file_utility
 	}
 
 }
+
+#endif // TEXTFILE_H

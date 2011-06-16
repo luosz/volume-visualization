@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>raycasting tut</ProjectName>
+    <ProjectName>raycasting_tutorial</ProjectName>
     <ProjectGuid>{58D0475A-0CA6-4851-B0A9-E03F627FED1C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -36,11 +36,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -56,6 +56,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
+      <OutputFile>Marple_cutter.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Level_representation.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
@@ -72,6 +73,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -83,28 +85,19 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="cg.lib" />
+    <Library Include="cgGL.lib" />
+    <Library Include="glew32.lib" />
+    <Library Include="glut32.lib" />
+  </ItemGroup>
+  <ItemGroup>
     <ResourceCompile Include="Jelly ball.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Quad 5.ico" />
-    <None Include="raycasting_shader.cg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="cg.lib">
-      <FileType>Document</FileType>
-    </Library>
-    <Library Include="cgGL.lib">
-      <FileType>Document</FileType>
-    </Library>
-    <Library Include="glew32.lib">
-      <FileType>Document</FileType>
-    </Library>
-    <Library Include="glut32.lib">
-      <FileType>Document</FileType>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Vector3.h" />
+    <None Include="raycasting_shader.cg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

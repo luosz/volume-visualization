@@ -1,3 +1,9 @@
+/**	@file	volume data reader
+*	This file is from
+*	A Simple and Flexible Volume Rendering Framework for Graphics-Hardware-based Raycasting
+*	http://cumbia.informatik.uni-stuttgart.de/ger/research/fields/current/spvolren/
+*/
+
 /*
 * Copyright (c) 2005  Institute for Visualization and Interactive
 * Systems, University of Stuttgart, Germany
@@ -19,20 +25,37 @@
 
 namespace file_utility
 {
-	/// data type of volume data
 	typedef enum {DATRAW_UCHAR, DATRAW_FLOAT, DATRAW_USHORT} DataType;
 
-	/// read raw data from files
 	void readData(char *filename, int *sizes, float *dists, void **data,
 		DataType *type, int *numComponents);
 
-	/// get the size of a data type
 	int getDataTypeSize(DataType t);
 
 	//////////////////////////////////////////////////////////////////////////
-	// The codes below are from reader.c
-	//////////////////////////////////////////////////////////////////////////
 
+	/*
+	* Copyright (c) 2005  Institute for Visualization and Interactive
+	* Systems, University of Stuttgart, Germany
+	*
+	* This source code is distributed as part of the single-pass volume
+	* rendering project. Details about this project can be found on the
+	* project web page at http://www.vis.uni-stuttgart.de/eng/research/
+	* fields/current/spvolren. This file may be distributed, modified,
+	* and used free of charge as long as this copyright notice is
+	* included in its original form. Commercial use is strictly
+	* prohibited.
+	*
+	* Filename: reader.c
+	*
+	*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#include "reader.h"
 #include "sysconf.h"
 
 	void readData(char *filename, int *sizes, float *dists, void **data,
@@ -150,23 +173,6 @@ namespace file_utility
 					exit(1);
 				}
 			}
-
-			//////////////////////////////////////////////////////////////////////////
-			else if (strstr(line, "TaggedFileName"))
-			{
-				if (! (cp = strchr(line, ':')))
-				{
-					parseError = 1;
-					break;
-				}
-				if (sscanf(cp + 1, "%s", rawFilename) != 1)
-				{
-					parseError = 1;
-					break;
-				}
-			}
-			//////////////////////////////////////////////////////////////////////////
-
 			else
 			{
 				fprintf(stderr, "skipping line %s", line);
@@ -234,4 +240,4 @@ namespace file_utility
 
 }
 
-#endif
+#endif // _READER_H

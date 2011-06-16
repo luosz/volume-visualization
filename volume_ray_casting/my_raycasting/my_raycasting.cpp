@@ -1,4 +1,8 @@
-
+/**	@file	GPU raycasting
+*	adapted from
+*	GPU raycasting tutorial
+*	http://www.daimi.au.dk/~trier/?page_id=98
+*/
 // --------------------------------------------------------------------------
 // GPU raycasting tutorial
 // Made by Peter Trier jan 2007
