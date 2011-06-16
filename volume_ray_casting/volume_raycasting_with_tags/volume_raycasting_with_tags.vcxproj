@@ -74,6 +74,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ogl3.cpp" />
+    <ClCompile Include="textfile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="minimal.frag">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="minimal.vert">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="textfile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
