@@ -137,8 +137,6 @@
     <None Include="kmlocal\ReadMe.txt" />
     <None Include="kmpp\README.txt" />
     <None Include="my_raycasting.frag.cc" />
-    <None Include="ray_casting.frag.backup" />
-    <None Include="simple_fragment.frag.backup" />
     <None Include="simple_vertex.vert.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

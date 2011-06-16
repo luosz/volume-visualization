@@ -1,6 +1,13 @@
-// volume data and transfer functions
-uniform sampler2D back, front, transfer_function_2D;
+// Data
+
+// back and front faces of the cube
+uniform sampler2D back, front;
+// 2D transfer function
+uniform sampler2D transfer_function_2D;
+// volume data and 3D transfer functions
 uniform sampler3D volume, transfer_texture, cluster_texture, importance_texture, transfer_texture2;
+
+// fusion factor between 0 and 1
 uniform float fusion_factor;
 
 // for raycasting
@@ -11,7 +18,8 @@ varying vec4 pos; // vertex position, pos = gl_Position;
 uniform int peeling_option, transfer_function_option;
 uniform float threshold_low, threshold_high;
 
-uniform vec3 sizes; // size of the volume data
+// size of the volume data
+uniform vec3 sizes; 
 
 // for cluster peeling
 uniform float cluster_interval;
@@ -109,6 +117,7 @@ vec4 median_filter_9(vec4 v1, vec4 v2, vec4 v3, vec4 v4, vec4 v5, vec4 v6, vec4 
 	return data[N2];
 }
 
+// median filter and converter
 vec4 median_filter_to_position(vec3 p)
 {
 	const int N = 7, N2 = N / 2;
@@ -380,6 +389,7 @@ vec4 multisample_9(vec3 v1, vec3 p)
 		);
 }
 
+// the direct rendering process
 vec4 directRendering(vec3 frontPos, vec3 backPos)
 {
 	vec3 dir = backPos - frontPos;
@@ -911,8 +921,11 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 void main(void)
 {
-	vec2 tex_coord = ((pos.xy / pos.w) + 1.) / 2.; // find the right place to lookup in the backside buffer
-	vec4 start = gl_TexCoord[1]; // the start position of the ray is stored in the texturecoordinate
+	// find the right place to lookup in the backside buffer
+	vec2 tex_coord = ((pos.xy / pos.w) + 1.) / 2.;
+
+	// the start position of the ray is stored in the texturecoordinate
+	vec4 start = gl_TexCoord[1]; 
 	vec4 back_position  = texture2D(back, tex_coord);
 	vec3 backPos = back_position.xyz;
 	vec3 frontPos = start.xyz;
@@ -920,10 +933,12 @@ void main(void)
 	vec4 dir = back_position - start;
 
 	//determine whether the ray has to be casted
-	if (frontPos == backPos) {
+	if (frontPos == backPos) 
+	{
 		//background need no raycasting
 		discard;
-	} else {
+	} else 
+	{
 		//fragCoords are lying inside the boundingbox
 		gl_FragColor = directRendering(frontPos, backPos);
 	}
