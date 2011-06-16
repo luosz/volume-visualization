@@ -235,8 +235,8 @@ namespace volume_utility
 
 		//clustering::K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
 		//clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec3f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec3f>);
-		//clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec2f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec2f>);
-		clustering::Fuzzy_CMeans::k_means(v, k, label_ptr_before_filter);
+		clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec2f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec2f>);
+		//clustering::Fuzzy_CMeans::k_means(v, k, label_ptr_before_filter);
 
 		//std::ofstream label_file_before("d:/label_before.txt");
 		//for (unsigned int i=0; i<count; i++)
