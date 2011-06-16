@@ -1,5 +1,5 @@
 /**	@file
-* A class for volume data manipulation
+* A header file for the Volume class
 */
 
 #ifndef _VOLUME_

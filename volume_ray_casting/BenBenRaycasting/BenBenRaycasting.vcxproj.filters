@@ -27,15 +27,6 @@
     <ClInclude Include="k_means.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sysconf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="textfile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="transfer_function.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -46,6 +37,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\my_raycasting\VolumeReader.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="story.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\textfile.h">
       <Filter>../my_raycasting</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,9 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="textfile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Volume.cpp">

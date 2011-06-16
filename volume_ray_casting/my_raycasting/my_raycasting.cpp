@@ -18,14 +18,12 @@
 *	
 *	This file contains all the elements nessesary to implement a simple 
 *	GPU volume raycaster.
-*	Notice this implementation requires a shader model 3.0 gfxcard
+*	Notice this implementation requires a shader model 3.0 gfxcard.
 *	
 *	Adapted by Shengzhou Luo (ark) 2010-2011
-*	
 *	Transfer functions, peeling, and importance driven rendering are written by Shengzhou Luo (ark)
 *	
 *	We implemented our approach with OpenGL and GLSL (OpenGL Shading Language) on a personal computer equipped with an AMD Athlon 7750 Dual-Core processor, 4GB memory and a NVIDIA GeForce GT 240 graphics card.
-*	
 *	Experiments are conducted on several common datasets that are publicly available on the Volume Library. The original datasets in PVM format are converted into RAW format with the PVM tools distributed with the V^3 (Versatile Volume Viewer) volume rendering package.
 */
 
@@ -246,9 +244,9 @@ enum TransferFunctionOption
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
 GLuint loc_transfer_function_option;
 
-//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
 /// Implementation
-//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
 
 /// GLUT callback function, for special keys
 void special(int c, int x, int y) {
@@ -434,9 +432,9 @@ void passiveMotion(int x, int y) {
 	ui_context.mouseMotion(x, y);
 }
 
-//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
 /// Shader initilization
-//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
 void printShaderInfoLog(GLuint obj)
 {
 	int infologLength = 0;
@@ -525,8 +523,8 @@ void set_shaders() {
 	glAttachShader(p,v);
 	glAttachShader(p,f);
 
-	///Initial program setup.
-	glLinkProgram(p); ///Initial link
+	// Initial program setup.
+	glLinkProgram(p); // Initial link
 
 	glUseProgram(p);
 	loc_stepsize = glGetUniformLocation(p, "stepsize");
@@ -572,14 +570,14 @@ void disable_renderbuffers()
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
-//////////////////////////////////////////////////////////////////////////
+/************************************************************************/
 /// face index for setting a vertex
 int face_index = 0;
 
 /// draw a vertex
 void vertex(float x, float y, float z)
 {
-	//////////////////////////////////////////////////////////////////////////
+	/************************************************************************/
 	// set 2D texture coordinates for texture 0
 	float s, t;
 	switch(face_index)
@@ -597,7 +595,7 @@ void vertex(float x, float y, float z)
 		t = z;
 	}
 	glMultiTexCoord2f(GL_TEXTURE0, s, t);
-	//////////////////////////////////////////////////////////////////////////
+	/************************************************************************/
 	// set 3D texture coordinates for texture 1
 	glColor3f(x,y,z);
 	glMultiTexCoord3f(GL_TEXTURE1, x, y, z);
@@ -838,7 +836,7 @@ void resize(int w, int h)
 
 	ui_context.reshape(w, h);
 
-	///pass the change along to the controller
+	// pass the change along to the controller
 	manipulator.reshape(w, h);
 }
 
@@ -1381,7 +1379,7 @@ void idle_func()
 {
 	if(button_auto_rotate)
 	{
-		///increment the rotation
+		// increment the rotation
 		manipulator.idle();
 	}
 

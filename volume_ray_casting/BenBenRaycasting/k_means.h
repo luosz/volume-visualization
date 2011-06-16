@@ -1,3 +1,7 @@
+/**	@file
+* a header file for k-means clustering
+*/
+
 #ifndef K_MEANS
 #define K_MEANS
 #include <iostream>
