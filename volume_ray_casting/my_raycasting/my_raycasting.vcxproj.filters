@@ -33,9 +33,6 @@
     <ClCompile Include="my_raycasting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="textfile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="kmpp\KmTree.cpp">
       <Filter>kmpp</Filter>
     </ClCompile>

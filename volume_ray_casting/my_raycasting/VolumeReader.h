@@ -155,8 +155,8 @@ namespace volume_utility
 			int sizes[3];
 			int color_omponent_number;
 			float dists[3];
-			DataType type;
-			volume_utility::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
+			file_utility::DataType type;
+			file_utility::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
 
 			// Please set the properties of class volume to protected, in order to set their values.
 			length = sizes[0];
@@ -166,13 +166,13 @@ namespace volume_utility
 
 			switch (type)
 			{
-			case DATRAW_UCHAR:
+			case file_utility::DATRAW_UCHAR:
 				strcpy(format, "UCHAR");
 				dataTypeSize = sizeof(unsigned char);
 				range = 256;
 				accessor = new AccessGeneric<unsigned char *>(data);
 				break;
-			case DATRAW_USHORT:
+			case file_utility::DATRAW_USHORT:
 				strcpy(format, "USHORT");
 				dataTypeSize = sizeof(unsigned short);
 				range = 65536;

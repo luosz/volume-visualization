@@ -94,7 +94,6 @@
     <ClCompile Include="kmpp\KmTree.cpp" />
     <ClCompile Include="kmpp\KmUtils.cpp" />
     <ClCompile Include="my_raycasting.cpp" />
-    <ClCompile Include="textfile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\BenBenRaycasting\color.h" />
