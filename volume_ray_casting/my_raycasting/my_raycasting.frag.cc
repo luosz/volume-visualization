@@ -661,8 +661,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			}
 
 			// color blending
-
-			//////////////////////////////////////////////////////////////////////////
+			/************************************************************************/
 			// version 1
 			//alpha_sample = color_sample.a * stepsize;
 			//alpha_acc += alpha_sample;
@@ -671,16 +670,16 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			// black or white background
 			//col_acc += (1.0 - alpha_acc) * color_sample * alpha_sample * luminance;
 			////col_acc -= (1.0 - alpha_acc) * color_sample * alpha_sample * luminance;
-			//////////////////////////////////////////////////////////////////////////
+			/************************************************************************/
 
-			//////////////////////////////////////////////////////////////////////////
+			/************************************************************************/
 			// version 2, behave the same as version 1, but uses fewer variables
 			//color_sample.a = color_sample.a * stepsize;
 			//col_acc.a += color_sample.a;
 			//col_acc.rgb += (1.0 - col_acc.a) * color_sample.rgb * color_sample.a * luminance;
-			//////////////////////////////////////////////////////////////////////////
+			/************************************************************************/
 
-			//////////////////////////////////////////////////////////////////////////
+			/************************************************************************/
 			// version 3, uses mix() in GLSL to interpolate the colors
 			// Accumulate RGB : acc.rgb = voxelColor.rgb*voxelColor.a + (1.0 - voxelColor.a)*acc.rgb;
 			//acc.rgb = mix(acc.rgb, voxelColor.rgb, voxelColor.a)*LightIntensity;
@@ -690,9 +689,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			color_sample.a = color_sample.a * stepsize;
 			col_acc.rgb = mix(col_acc.rgb, color_sample.rgb, color_sample.a);
 			col_acc.a = mix(color_sample.a, 1.0, col_acc.a);
-			//////////////////////////////////////////////////////////////////////////
+			/************************************************************************/
 
-			//////////////////////////////////////////////////////////////////////////
+			/************************************************************************/
 			// peeling
 			if(peeling_option == 1)
 			{

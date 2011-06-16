@@ -1,3 +1,7 @@
+/**	@file
+*	a header file for volume data manipulation
+*/
+
 #ifndef volume_utility_h
 #define volume_utility_h
 

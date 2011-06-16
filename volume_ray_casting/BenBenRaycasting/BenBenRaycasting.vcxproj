@@ -74,12 +74,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\my_raycasting\textfile.h" />
     <ClInclude Include="..\my_raycasting\VolumeReader.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="k_means.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="sysconf.h" />
-    <ClInclude Include="textfile.h" />
+    <ClInclude Include="story.h" />
     <ClInclude Include="transfer_function.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Volume.h" />
@@ -94,7 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp" />
-    <ClCompile Include="textfile.cpp" />
     <ClCompile Include="Volume.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

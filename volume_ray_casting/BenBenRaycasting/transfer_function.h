@@ -1,5 +1,5 @@
 /**	@file
-* All transfer functions are in this file	
+* a header file for transfer functions
 */
 
 #ifndef TRANSFER_FUNCTION_H

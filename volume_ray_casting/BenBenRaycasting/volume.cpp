@@ -1,5 +1,5 @@
 /**	@file
-* A class for volume data manipulation
+* A source code file for the Volume class
 */
 
 /// header file to be included

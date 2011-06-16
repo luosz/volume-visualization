@@ -18,15 +18,16 @@
 *	
 *	This file contains all the elements nessesary to implement a simple 
 *	GPU volume raycaster.
-*	Notice this implementation requires a shader model 3.0 gfxcard
+*	Notice this implementation requires a shader model 3.0 gfxcard.
 *	
-*	Adapted by Shengzhou Luo (ark) 2010-2011
+*	Adapted by Shengzhou Luo (ark) 2010-2011.
+*	Transfer functions are wirtten by Xiao Li (Ben) 2010-2011.
 *		
 *	The program is implemented using OpenGL and GLSL (OpenGL Shading Language). Properties such as average, variation and local entropy of each voxel are pre-computed because they are constants during the rendering process and a higher frame rate could be reached.
-*	
 *	The program is run on a personal computer (AMD Athlon 7750 Dual-Core Processor, 4G memory) equipped with NVIDIA GeForce GT 240 graphics card. Several common datasets that are publicly available on the The Volume Library is tested.
-*	
 *	The original datasets in pvm format are converted into raw format with the pvm tools distributed with the V^3 (Versatile Volume Viewer) volume rendering package.
+*
+*	You may like to read an autobiographic story by Ben (one of the authors). Here is @ref story.
 */
 
 #include <windows.h>
@@ -46,7 +47,6 @@
 #include "Vector3.h"
 //////////////////////////////////////////////////////////////////////////
 #include <memory>
-#include "textfile.h"
 #include "color.h"
 //#include "reader.h"
 #include "volume.h"
@@ -57,6 +57,7 @@
 #include <nvVector.h>
 
 //////////////////////////////////////////////////////////////////////////
+#include "../my_raycasting/textfile.h"
 #include "../my_raycasting/VolumeReader.h"
 
 #include "transfer_function.h"
@@ -262,9 +263,9 @@ void setShaders() {
 	//f2 = glCreateShader(GL_FRAGMENT_SHADER);
 
 
-	vs = textFileRead("simple_vertex.vert");
-	//fs = textFileRead("simple_fragment.frag");
-	fs = textFileRead("my_raycasting.frag");
+	vs = file_utility::textFileRead("simple_vertex.vert");
+	//fs = file_utility::textFileRead("simple_fragment.frag");
+	fs = file_utility::textFileRead("my_raycasting.frag");
 
 	const char * vv = vs;
 	const char * ff = fs;

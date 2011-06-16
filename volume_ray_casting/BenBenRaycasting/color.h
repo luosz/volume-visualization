@@ -1,3 +1,7 @@
+/**	@file
+* a header file for color manipulation
+*/
+
 #ifndef _COLOR_
 #define _COLOR_
 
