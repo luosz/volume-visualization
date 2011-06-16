@@ -85,8 +85,12 @@
     <ClInclude Include="Volume.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="my_raycasting.frag" />
-    <None Include="simple_vertex.vert" />
+    <None Include="my_raycasting.frag">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="simple_vertex.vert">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="my_raycasting.cpp" />

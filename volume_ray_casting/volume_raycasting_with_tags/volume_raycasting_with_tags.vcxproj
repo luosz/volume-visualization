@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6C0C3100-00A0-42CB-8A8F-1215AE979383}</ProjectGuid>
+    <ProjectGuid>{64D0CFC0-F795-40F6-82B1-7469BF825284}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>volume_label</RootNamespace>
+    <RootNamespace>volume_raycasting_with_tags</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

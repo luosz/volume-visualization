@@ -135,8 +135,14 @@
   <ItemGroup>
     <None Include="kmlocal\ReadMe.txt" />
     <None Include="kmpp\README.txt" />
-    <None Include="my_raycasting.frag.cc" />
-    <None Include="simple_vertex.vert.cc" />
+    <None Include="my_raycasting.frag.cc">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </None>
+    <None Include="simple_vertex.vert.cc">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
