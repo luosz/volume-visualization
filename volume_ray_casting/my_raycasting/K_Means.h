@@ -34,9 +34,9 @@ namespace clustering
 			ofstream fc("D:\\centroids.txt", ios::out);
 #endif
 
-			/// Make initial guesses for the means m1, m2, ..., mk
-			/// Seed the random-number generator with the current time so that
-			/// the numbers will be different every time we run.
+			// Make initial guesses for the means m1, m2, ..., mk
+			// Seed the random-number generator with the current time so that
+			// the numbers will be different every time we run.
 			srand((unsigned)time(NULL));
 			for (int i=0; i<k; i++)
 			{

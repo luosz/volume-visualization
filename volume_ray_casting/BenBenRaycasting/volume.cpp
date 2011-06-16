@@ -1,4 +1,8 @@
-///header file to be included
+/**	@file
+* A class for volume data manipulation
+*/
+
+/// header file to be included
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -8,7 +12,7 @@
 
 using namespace std;
 
-///read volume's description file
+/// read volume's description file
 bool Volume::readVolFile(char * s)
 {
 	char * cp, line[100], rawFilename[100];
@@ -66,7 +70,7 @@ bool Volume::readVolFile(char * s)
 	return true;
 }
 
-///read data file to store in data
+/// read data file to store in data
 bool Volume::readData(char * s)
 {
 	FILE * fp = fopen(s, "rb");
@@ -173,7 +177,7 @@ unsigned int Volume::getZ(void)
 	return height;
 }
 
-///calculate histogram of a dataset
+/// calculate histogram of a dataset
 void Volume::calHistogram()
 {
 	int i, c, total;
@@ -237,7 +241,7 @@ void Volume::calHistogram()
 	file<<histogram[i];
 }
 
-///get volume data at position(x, y, z)
+/// get volume data at position(x, y, z)
 unsigned int Volume::getData(unsigned int x, unsigned int y, unsigned int z)
 {
 	int index;
@@ -507,7 +511,6 @@ void Volume::calGrad_ex()
 			}			
 }
 
-
 /// calculate second derivative
 void Volume::calDf2(void)
 {
@@ -682,7 +685,7 @@ unsigned int Volume::getMaxGrad(void)
 	return max_grad; 
 }
 
-///get data's range
+/// get data's range
 unsigned int Volume::getRange(void)
 {
 	return range;
@@ -700,7 +703,7 @@ unsigned int Volume::getMaxDf3(void)
 	return max_df3;
 }
 
-///get second derivative at position (x, y, z)
+/// get second derivative at position (x, y, z)
 unsigned int Volume::getDf2(unsigned int x, unsigned int y, unsigned int z)
 {
 	return df2[getIndex(x, y, z)];
@@ -724,7 +727,7 @@ void * Volume::getDataAddr(void)
 	return data;
 }
 
-///return minimum gradient magnitude
+/// return minimum gradient magnitude
 unsigned int Volume::getMinGrad(void)
 {
 	return min_grad;
@@ -771,7 +774,7 @@ bool Volume::allTraverse(bool * tag)
 	return true; 
 }
 
-///set tag to voxel at position(x, y, z)
+/// set tag to voxel at position(x, y, z)
 void Volume::setTag(unsigned int x, unsigned int y, unsigned int z)
 {
 	int index;
@@ -987,25 +990,25 @@ void Volume::calEp(void)
 			}
 }
 
-///return elasticity at position (x, y, z)
+/// return elasticity at position (x, y, z)
 float Volume::getEp(unsigned int x, unsigned int y, unsigned int z)
 {
 	return ep[getIndex(x, y, z)];
 }
 
-///return maximum elasticity 
+/// return maximum elasticity 
 float Volume::getMaxEp()
 {
 	return max_ep;
 }
 
-///return minimum elasticity
+/// return minimum elasticity
 float Volume::getMinEp()
 {
 	return min_ep;
 }
 
-///return number of voxels of the dataset
+/// return number of voxels of the dataset
 unsigned int Volume::getCount()
 {
 	return length * width * height;
@@ -1128,7 +1131,7 @@ void Volume::calLH()
 					}
 }
 
-///calculate intensity-gradient magnitude scatter plot
+/// calculate intensity-gradient magnitude scatter plot
 void Volume::Intensity_gradient_histogram()
 {
 	int i, j;
@@ -1176,7 +1179,7 @@ void Volume::Intensity_gradient_histogram()
 		
 }
 
-///return data's spatial distribution at (i, j)
+/// return data's spatial distribution at (i, j)
 float Volume::getSpatialDistribution(int i, int j)
 {
 	return spatial_distribution[i][j];
@@ -1188,7 +1191,7 @@ unsigned int Volume::getIntensity_gradient_histogram(int i, int j)
 	return intensity_gradient_histogram[i][j];
 }
 
-///test if voxels comply to normal distribution
+/// test if voxels comply to normal distribution
 void Volume::NormalDistributionTest()
 {
 	int x, y, z, i, j, k;
@@ -1252,7 +1255,7 @@ void Volume::NormalDistributionTest()
 			while(1);
 }
 
-///filter voxels to shape edges 
+/// filter voxels to shape edges 
 void Volume::filter()
 {
 	unsigned char * data_char;
@@ -1421,7 +1424,7 @@ void Volume::calLocalEntropy()
 		}
 }
 
-///return local entropy at (x, y, z)
+/// return local entropy at (x, y, z)
 float Volume::getLocalEntropy(unsigned int x, unsigned int y, unsigned int z)
 {
 	int index = getIndex(x, y, z);
@@ -1429,13 +1432,13 @@ float Volume::getLocalEntropy(unsigned int x, unsigned int y, unsigned int z)
 	return local_entropy[index];
 }
 
-///return maximum local entropy
+/// return maximum local entropy
 float Volume::getLocalEntropyMax()
 {
 	return local_entropy_max;
 }
 
-///calculate local statistical property - average value 
+/// calculate local statistical property - average value 
 void Volume::calAverage()
 {
 	int x, y, z, i, j, k, index;
@@ -1472,7 +1475,7 @@ void Volume::calAverage()
 			}
 }
 
-///return average value at position (x, y, z)
+/// return average value at position (x, y, z)
 float Volume::getAverage(unsigned int x, unsigned int y, unsigned int z)
 {
 	int index = getIndex(x, y, z);
@@ -1523,7 +1526,7 @@ void Volume::calVariation()
 			}
 }
 
-///return variation at position (x, y, z)
+/// return variation at position (x, y, z)
 float Volume::getVariation(unsigned int x, unsigned int y, unsigned int z)
 {
 	int index = getIndex(x, y, z);
@@ -1531,7 +1534,7 @@ float Volume::getVariation(unsigned int x, unsigned int y, unsigned int z)
 	return variation[index];
 }
 
-///return maximum variation of the dataset
+/// return maximum variation of the dataset
 float Volume::getMaxVariation()
 {
 	return max_variation;

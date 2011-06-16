@@ -1,5 +1,5 @@
-/**	@file	text file reader
-*	This file is from
+/**	@file
+*	A text file reader from
 *	Hello World in GLSL
 *	http://www.lighthouse3d.com/tutorials/glsl-tutorial/hello-world-in-glsl/
 */
@@ -10,17 +10,18 @@
 // You may use these functions freely.
 // they are provided as is, and no warranties, either implicit,
 // or explicit are given
-//////////////////////////////////////////////////////////////////////
 
 #ifndef TEXTFILE_H
 #define TEXTFILE_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 namespace file_utility
 {
 	char *textFileRead(char *fn);
 	int textFileWrite(char *fn, char *s);
-
-	//////////////////////////////////////////////////////////////////////////
 
 	// textfile.cpp
 	//
@@ -31,13 +32,6 @@ namespace file_utility
 	// You may use these functions freely.
 	// they are provided as is, and no warranties, either implicit,
 	// or explicit are given
-	//////////////////////////////////////////////////////////////////////
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 
 	char *textFileRead(char *fn)
 	{

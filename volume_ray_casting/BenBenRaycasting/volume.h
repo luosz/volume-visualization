@@ -1,3 +1,7 @@
+/**	@file
+* A class for volume data manipulation
+*/
+
 #ifndef _VOLUME_
 #define _VOLUME_
 
