@@ -168,6 +168,7 @@ namespace volume_utility
 		}
 	}
 
+	/// shift the cluster labels into the range of 0 to 255
 	void shift_labels(const int k, const unsigned int count, unsigned char *& label_ptr)
 	{
 		int shift = static_cast<int>(std::log(256.0 / k) / std::log(2.0));
@@ -188,7 +189,7 @@ namespace volume_utility
 		}
 	}
 
-	/// call the k-means clustering
+	/// calculate the gradient and derivatives and do clustering on voxels
 	template <class T, int TYPE_SIZE>
 	void cluster(const T *data, const unsigned int count, const unsigned int components, const int k, unsigned char *& label_ptr, int width, int height, int depth)
 	{

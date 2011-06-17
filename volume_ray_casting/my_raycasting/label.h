@@ -1,3 +1,7 @@
+/**	@file
+* a header file for segmentation tags manipulation
+*/
+
 #include <set>
 #include <map>
 

@@ -1,3 +1,7 @@
+/**	@file
+* a header file for the K_Means_PP class
+*/
+
 #ifndef K_Means_PP_DIY_h
 #define K_Means_PP_DIY_h
 

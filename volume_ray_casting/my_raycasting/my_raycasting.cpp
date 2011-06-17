@@ -42,10 +42,16 @@ using namespace std;
 
 #include "../BenBenRaycasting/transfer_function.h"
 #include "VolumeReader.h"
-#include "filename.h"
 #include "textfile.h"
 #include "reader.h"
 #include "volume_utility.h"
+#include "filename_utility.h"
+
+/**
+/* filename can be set in command arguments
+/* in Visual Studio, it is in the project's Properties->Debugging->Command Arguments
+*/
+char volume_filename[MAX_STR_SIZE] = "data\\nucleon.dat";
 
 /// call finailize() to free the memory before exit
 void ** data_ptr = NULL;
@@ -742,7 +748,7 @@ void create_volumetexture_a_cube()
 void create_transferfunc_Ben()
 {
 	volume_utility::VolumeReader volume;
-	volume.readVolFile(filename_utility::volume_filename);
+	volume.readVolFile(volume_filename);
 	volume.calHistogram();
 	volume.calGrad_ex();
 	volume.calDf2();
@@ -771,7 +777,7 @@ void create_transferfunc_Ben()
 void create_transferfunc_fusion()
 {
 	volume_utility::VolumeReader volume;
-	volume.readVolFile(filename_utility::volume_filename);
+	volume.readVolFile(volume_filename);
 	volume.calHistogram();
 	volume.calGrad_ex();
 	volume.calDf2();
@@ -868,9 +874,9 @@ void load_importance_label(const unsigned int count)
 	unsigned char *replacement = new unsigned char[k];
 
 	char label_filename[MAX_STR_SIZE];
-	sprintf(label_filename, "%s.%d.txt", filename_utility::volume_filename, k);
+	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
 	char label_filename_replaced[MAX_STR_SIZE];
-	sprintf(label_filename_replaced, "%s.%d.replaced.txt", filename_utility::volume_filename, k);
+	sprintf(label_filename_replaced, "%s.%d.replaced.txt", volume_filename, k);
 
 	std::cout<<"Input a replacement list (e.g. 01234567 for k=8, 0123456789abcdef for k=16)"<<std::endl;
 	for (int i=0; i<k; i++)
@@ -930,7 +936,7 @@ void cluster(const T *data, const unsigned int count)
 	volume_utility::cluster<T, TYPE_SIZE>(data, count, color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
 
 	char label_filename[MAX_STR_SIZE];
-	sprintf(label_filename, "%s.%d.txt", filename_utility::volume_filename, k);
+	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
 
 	std::cout<<"Write labels to file "<<label_filename<<std::endl;
 	std::ofstream label_file(label_filename);
@@ -1174,7 +1180,7 @@ void initialize()
 	//manipulator.setPanActivate(GLUT_LEFT_BUTTON, GLUT_ACTIVE_SHIFT);
 
 	// read volume data file
-	read_volume_file(filename_utility::volume_filename);
+	read_volume_file(volume_filename);
 	// init shaders
 	set_shaders();
 }
@@ -1651,14 +1657,20 @@ int main(int argc, char* argv[])
 	// read filename from arguments if available
 	if (argc > 1)
 	{
-		strcpy(filename_utility::volume_filename, argv[1]);
+		strcpy(volume_filename, argv[1]);
+	} 
+	else
+	{
+		// read volume data filename from command line
+		cout<<"Input data file: (for example, data\\nucleon.dat)"<<endl;
+		cin>>volume_filename;
 	}
 
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 
 	char str[MAX_STR_SIZE];
-	sprintf(str, "GPU raycasting - %s", filename_utility::volume_filename);
+	sprintf(str, "GPU raycasting - %s", volume_filename);
 	glutCreateWindow(str);
 	glutReshapeWindow(WINDOW_SIZE,WINDOW_SIZE);
 

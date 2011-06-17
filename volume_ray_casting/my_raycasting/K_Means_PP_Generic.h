@@ -1,3 +1,7 @@
+/**	@file
+* a header file for the K_Means_PP_Generic class
+*/
+
 #pragma once
 
 #ifndef K_Means_PP_Generic_h

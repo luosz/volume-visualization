@@ -1,3 +1,7 @@
+/**	@file
+* a header file for the Fuzzy_CMeans class
+*/
+
 #ifndef FUZZY_CMEANS_H
 #define FUZZY_CMEANS_H
 

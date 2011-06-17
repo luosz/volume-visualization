@@ -119,8 +119,7 @@ nv::GlutUIContext ui;
 
 //////////////////////////////////////////////////////////////////////////
 // added by ark @ 2010.10.15
-//char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\ZhangJiShuai_1_7_NATIVE_SPACE_3D_SUB_20100805.dat";
-char file1[MAX_STR_SIZE] = "";
+char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\ZhangJiShuai_1_7_NATIVE_SPACE_3D_SUB_20100805.dat";
 //////////////////////////////////////////////////////////////////////////
 
 /// record clusters
@@ -380,7 +379,7 @@ void vertex(float x, float y, float z)
 {
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	/// set 2D texture coordinates for texture 0
+	// set 2D texture coordinates for texture 0
 	float s, t;
 	switch(face_index)
 	{
@@ -399,7 +398,7 @@ void vertex(float x, float y, float z)
 	glMultiTexCoord2f(GL_TEXTURE0, s, t);
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	/// set 3D texture coordinates for texture 1
+	// set 3D texture coordinates for texture 1
 	glColor3f(x,y,z);
 	glMultiTexCoord3f(GL_TEXTURE1, x, y, z);
 	glVertex3f(x,y,z);
@@ -522,7 +521,7 @@ void create_volume_texture()
 {
 	GLenum glType;
 
-	 ///test volume's data type and get glType
+	// test volume's data type and get glType
 	if(strcmp(volume.getFormat(), "UCHAR") == 0) 
 		glType = GL_UNSIGNED_BYTE;
 	else if(strcmp(volume.getFormat(), "USHORT") ==0)
@@ -548,57 +547,61 @@ void create_volumetexture()
 	GLubyte *data = new GLubyte[size];
 
 	for(int x = 0; x < VOLUME_TEX_SIZE; x++)
-	{for(int y = 0; y < VOLUME_TEX_SIZE; y++)
-	{for(int z = 0; z < VOLUME_TEX_SIZE; z++)
 	{
-		data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = z%250;
-		data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%250;
-		data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-		data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 230;
-
-		nv::vec3f p =	nv::vec3f(x,y,z)- nv::vec3f(VOLUME_TEX_SIZE-20,VOLUME_TEX_SIZE-30,VOLUME_TEX_SIZE-30);
-		bool test = (length(p) < 42);
-		if(test)
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
-
-		p =	nv::vec3f(x,y,z)- nv::vec3f(VOLUME_TEX_SIZE/2,VOLUME_TEX_SIZE/2,VOLUME_TEX_SIZE/2);
-		test = (length(p) < 24);
-		if(test)
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
-
-
-		if(x > 20 && x < 40 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
+		for(int y = 0; y < VOLUME_TEX_SIZE; y++)
 		{
+			for(int z = 0; z < VOLUME_TEX_SIZE; z++)
+			{
+				data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = z%250;
+				data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%250;
+				data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 230;
 
-			data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 100;
-			data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-			data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				nv::vec3f p =	nv::vec3f(x,y,z)- nv::vec3f(VOLUME_TEX_SIZE-20,VOLUME_TEX_SIZE-30,VOLUME_TEX_SIZE-30);
+				bool test = (length(p) < 42);
+				if(test)
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
+
+				p =	nv::vec3f(x,y,z)- nv::vec3f(VOLUME_TEX_SIZE/2,VOLUME_TEX_SIZE/2,VOLUME_TEX_SIZE/2);
+				test = (length(p) < 24);
+				if(test)
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
+
+
+				if(x > 20 && x < 40 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
+				{
+
+					data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 100;
+					data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+					data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				}
+
+				if(x > 50 && x < 70 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
+				{
+
+					data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+					data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+					data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				}
+
+				if(x > 80 && x < 100 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
+				{
+
+					data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+					data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 70;
+					data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
+				}
+
+				p =	nv::vec3f(x,y,z)- nv::vec3f(24,24,24);
+				test = (length(p) < 40);
+				if(test)
+					data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
+			}
 		}
-
-		if(x > 50 && x < 70 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
-		{
-
-			data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-			data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-			data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-		}
-
-		if(x > 80 && x < 100 && y > 0 && y < VOLUME_TEX_SIZE && z > 10 &&  z < 50)
-		{
-
-			data[(x*4)   + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-			data[(x*4)+1 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 70;
-			data[(x*4)+2 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = y%100;
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 250;
-		}
-
-		p =	nv::vec3f(x,y,z)- nv::vec3f(24,24,24);
-		test = (length(p) < 40);
-		if(test)
-			data[(x*4)+3 + (y * VOLUME_TEX_SIZE * 4) + (z * VOLUME_TEX_SIZE * VOLUME_TEX_SIZE * 4)] = 0;
-	}}}
+	}
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 	glGenTextures(1, &volume2);
@@ -619,10 +622,10 @@ void create_volumetexture()
 ///create tranfser function texture
 void create_transferfunc()
 {
-	/// set transfer function to be used
+	// set transfer function to be used
 	setTransferfunc3(tf, volume);
 
-	/// bind transfer function texture 
+	// bind transfer function texture 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
 	glBindTexture(GL_TEXTURE_3D, transfer_texture);
@@ -634,7 +637,7 @@ void create_transferfunc()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
-	/// free the transfer function pointer after texture mapping
+	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
 }
 
@@ -645,7 +648,7 @@ void init()
 	cout << "glew init " << endl;
 	GLenum err = glewInit();
 
-	/// initialize all the OpenGL extensions
+	// initialize all the OpenGL extensions
 	glewGetExtension("glMultiTexCoord2fvARB");  
 	if(glewGetExtension("GL_EXT_framebuffer_object") )cout << "GL_EXT_framebuffer_object support " << endl;
 	if(glewGetExtension("GL_EXT_renderbuffer_object"))cout << "GL_EXT_renderbuffer_object support " << endl;
@@ -663,12 +666,12 @@ void init()
 
 	glEnable(GL_CULL_FACE);
 	glClearColor(0, 0, 0, 0);
-//		glClearColor(1, 1, 1, 1);
+	//		glClearColor(1, 1, 1, 1);
 	glGenFramebuffersEXT(1, &framebuffer);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,framebuffer);
 
 	//////////////////////////////////////////////////////////////////////////
-	///bind front face 
+	// bind front face 
 	glGenTextures(1, &frontface_buffer);
 	glBindTexture(GL_TEXTURE_2D, frontface_buffer);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -679,7 +682,7 @@ void init()
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, WINDOW_SIZE, WINDOW_SIZE, 0, GL_RGBA, GL_FLOAT, NULL);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, frontface_buffer, 0);
 	//////////////////////////////////////////////////////////////////////////
-	///bind back face texture
+	// bind back face texture
 	glGenTextures(1, &backface_buffer);
 	glBindTexture(GL_TEXTURE_2D, backface_buffer);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -690,7 +693,7 @@ void init()
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, WINDOW_SIZE, WINDOW_SIZE, 0, GL_RGBA, GL_FLOAT, NULL);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, backface_buffer, 0);
 
-	///bind final image texture
+	// bind final image texture
 	glGenTextures(1, &final_image);
 	glBindTexture(GL_TEXTURE_2D, final_image);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -700,23 +703,16 @@ void init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, WINDOW_SIZE, WINDOW_SIZE, 0, GL_RGBA, GL_FLOAT, NULL);
 
-	///bind render buffer texture
+	//bind render buffer texture
 	glGenRenderbuffersEXT(1, &renderbuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
 	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, WINDOW_SIZE, WINDOW_SIZE);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderbuffer);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-	//////////////////////////////////////////////////////////////////////////
-	/// read volume data file
-	if (strlen(file1) <= 0)
-	{
-		cout<<"Input data file: (for example, \\data\\nucleon.dat)"<<endl;
-		cin>>file1;
-	}
 	volume.readVolFile(file1);
 
-	///do some calculations if necessary
+	//do some calculations if necessary
 
 	//volume.average_deviation();
 	//volume.calLocalEntropy();
@@ -726,9 +722,9 @@ void init()
 	//	Volume.calEp();
 	//	Volume.NormalDistributionTest();
 	//volume.calGrad();
-		volume.calGrad();
+	volume.calGrad();
 	//	volume.calGrad_ex();
-		volume.calDf2();
+	volume.calDf2();
 	//	volume.average_deviation();
 	//	NormalTest();
 	//	Volume.calLH();
@@ -745,8 +741,8 @@ void init()
 	//	k_means(&Volume, lable);
 	create_volume_texture();
 
-	
-//	cout<<"local entropy max ="<<volume.getLocalEntropyMax()<<endl;
+
+	//	cout<<"local entropy max ="<<volume.getLocalEntropyMax()<<endl;
 
 	create_transferfunc();
 
@@ -1105,11 +1101,11 @@ void NormalTest()
 							//		cout<<"w = "<<w<<endl;
 							if(w - 0.894 < 0)     
 								// 0.923 0.935
-										cout<<"Not comply to normal distribution"<<endl;
+								cout<<"Not comply to normal distribution"<<endl;
 							else
 							{
 								count++;
-											cout<<"Comply to normal distribution"<<endl<<endl<<endl;
+								cout<<"Comply to normal distribution"<<endl<<endl<<endl;
 							}
 
 			}
@@ -1120,10 +1116,16 @@ void NormalTest()
 int main(int argc, char* argv[])
 {
 	//////////////////////////////////////////////////////////////////////////
-	/// read filename from arguments if available
+	// read filename from arguments if available
 	if (argc > 1)
 	{
 		strcpy(file1, argv[1]);
+	} 
+	else
+	{
+		// read volume data filename from command line
+		cout<<"Input data file: (for example, data\\nucleon.dat)"<<endl;
+		cin>>file1;
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -1138,7 +1140,7 @@ int main(int argc, char* argv[])
 	manipulator.setDollyActivate( GLUT_LEFT_BUTTON, GLUT_ACTIVE_CTRL);
 	manipulator.setPanActivate( GLUT_LEFT_BUTTON, GLUT_ACTIVE_SHIFT);
 	manipulator.setDollyPosition( -2.5f  );
-	
+
 	///keyboard
 	glutKeyboardFunc(key);
 	glutKeyboardUpFunc(KeyboardUpCallback);

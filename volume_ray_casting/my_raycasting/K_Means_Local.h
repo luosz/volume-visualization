@@ -1,3 +1,7 @@
+/**	@file
+* a header file for the K_Means_Local class
+*/
+
 #ifndef K_Means_Local_h
 #define K_Means_Local_h
 
