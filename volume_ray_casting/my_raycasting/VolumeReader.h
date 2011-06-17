@@ -1,3 +1,7 @@
+/**	@file
+* a header file for the VolumeReader class
+*/
+
 #ifndef VolumeReader_h
 #define VolumeReader_h
 

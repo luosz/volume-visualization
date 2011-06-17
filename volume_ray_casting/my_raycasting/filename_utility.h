@@ -1,3 +1,7 @@
+/**	@file
+* a header file for filename manipulation
+*/
+
 #ifndef filename_utility_h
 #define filename_utility_h
 

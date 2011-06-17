@@ -1,16 +1,5 @@
 #ifndef filename_h
-#define filename_h
-
-#include "filename_utility.h"
-
-namespace filename_utility
-{
-	/**
-	/* filename can be set in command arguments
-	/* in Visual Studio, it is in the project's Properties->Debugging->Command Arguments
-	*/
-	char volume_filename[MAX_STR_SIZE] = "data\\nucleon.dat";
-}
+#endif filename_h
 
 /************************************************************************
 Common volume data: Tooth Engine foot head256 VisMale CT_Head_small CT_Head_large lobster

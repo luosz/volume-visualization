@@ -1,3 +1,7 @@
+/**	@file
+* a header file for the K_Means_PlusPlus class
+*/
+
 #ifndef K_Means_PlusPlus_h
 #define K_Means_PlusPlus_h
 

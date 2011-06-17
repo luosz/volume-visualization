@@ -1244,11 +1244,11 @@ void Volume::NormalDistributionTest()
 					//			cout<<"w = "<<w<<endl;
 							if(w - 0.935 < 0)     
 							;	// 0.923 0.935
-				//						cout<<"²»·ûºÏÕýÌ¬·Ö²¼"<<endl;
+				//						cout<<"ä¸ç¬¦åˆæ­£æ€åˆ†å¸ƒ"<<endl;
 							else
 							{
 								number++;
-				//				cout<<"·ûºÏÕýÌ¬·Ö²¼"<<endl;
+				//				cout<<"ç¬¦åˆæ­£æ€åˆ†å¸ƒ"<<endl;
 							}
 			}
 			cout<<float(number) /  float(getCount());

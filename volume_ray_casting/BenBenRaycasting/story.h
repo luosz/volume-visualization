@@ -1,3 +1,6 @@
+#ifndef story_h
+#endif story_h
+
 /**	@page	story	BenBen's Story
 *
 *	BenBen's story is an autobiographic story by Ben (one of the authors of the codes).
@@ -14,3 +17,5 @@
 *
 *	OK, today's bull shit is enough and it's time for supper. Besides, I am hungry. To be continued....
 */
+
+#endif // story_h
