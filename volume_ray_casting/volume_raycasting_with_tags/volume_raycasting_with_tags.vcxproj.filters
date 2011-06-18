@@ -16,13 +16,19 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{19ad2b3f-20b1-406d-8ecc-6a7db6f42d60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="../my_raycasting">
+      <UniqueIdentifier>{d8018486-f9e9-4365-935e-dcfbb6e7287c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="../BenBenRaycasting">
+      <UniqueIdentifier>{70769e35-f9ee-46bf-ab50-8ca8991853e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ogl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="textfile.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\BenBenRaycasting\Volume.cpp">
+      <Filter>../BenBenRaycasting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -34,8 +40,32 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="textfile.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\my_raycasting\textfile.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\VolumeReader.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\filename_utility.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\reader.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\volume_utility.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\color.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\transfer_function.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\Vector3.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\Volume.h">
+      <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

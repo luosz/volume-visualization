@@ -74,8 +74,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\BenBenRaycasting\Volume.cpp" />
     <ClCompile Include="ogl3.cpp" />
-    <ClCompile Include="textfile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="minimal.frag">
@@ -86,7 +86,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="textfile.h" />
+    <ClInclude Include="..\BenBenRaycasting\color.h" />
+    <ClInclude Include="..\BenBenRaycasting\transfer_function.h" />
+    <ClInclude Include="..\BenBenRaycasting\Vector3.h" />
+    <ClInclude Include="..\BenBenRaycasting\Volume.h" />
+    <ClInclude Include="..\my_raycasting\filename_utility.h" />
+    <ClInclude Include="..\my_raycasting\reader.h" />
+    <ClInclude Include="..\my_raycasting\textfile.h" />
+    <ClInclude Include="..\my_raycasting\VolumeReader.h" />
+    <ClInclude Include="..\my_raycasting\volume_utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
