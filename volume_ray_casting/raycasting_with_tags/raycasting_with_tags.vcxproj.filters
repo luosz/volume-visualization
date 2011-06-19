@@ -13,48 +13,25 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="shaders">
-      <UniqueIdentifier>{19ad2b3f-20b1-406d-8ecc-6a7db6f42d60}</UniqueIdentifier>
+    <Filter Include="../BenBenRaycasting">
+      <UniqueIdentifier>{3f060fc1-5bd0-4c01-a58b-ffda6ebc15ff}</UniqueIdentifier>
     </Filter>
     <Filter Include="../my_raycasting">
-      <UniqueIdentifier>{d8018486-f9e9-4365-935e-dcfbb6e7287c}</UniqueIdentifier>
+      <UniqueIdentifier>{15162141-b087-4bc4-aa07-21ed7218776b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="../BenBenRaycasting">
-      <UniqueIdentifier>{70769e35-f9ee-46bf-ab50-8ca8991853e0}</UniqueIdentifier>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{5172a029-c368-4b90-bc98-0a3ac3894095}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ogl3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\BenBenRaycasting\Volume.cpp">
       <Filter>../BenBenRaycasting</Filter>
     </ClCompile>
+    <ClCompile Include="ogl3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="minimal.vert">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="minimal.frag">
-      <Filter>shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\my_raycasting\textfile.h">
-      <Filter>../my_raycasting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\my_raycasting\VolumeReader.h">
-      <Filter>../my_raycasting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\my_raycasting\filename_utility.h">
-      <Filter>../my_raycasting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\my_raycasting\reader.h">
-      <Filter>../my_raycasting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\my_raycasting\volume_utility.h">
-      <Filter>../my_raycasting</Filter>
-    </ClInclude>
     <ClInclude Include="..\BenBenRaycasting\color.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
@@ -67,5 +44,28 @@
     <ClInclude Include="..\BenBenRaycasting\Volume.h">
       <Filter>../BenBenRaycasting</Filter>
     </ClInclude>
+    <ClInclude Include="..\my_raycasting\filename_utility.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\reader.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\textfile.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\VolumeReader.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\volume_utility.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="minimal.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="minimal.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
