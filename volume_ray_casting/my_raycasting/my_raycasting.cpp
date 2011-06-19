@@ -178,15 +178,16 @@ bool ui_on = true;
 #define VOLUME_TEX_SIZE 128
 bool gKeys[MAX_KEYS];
 
-/// UI widgets and trackball manipulator
-float diameter; //diameter of the model
-nv::vec3f center(0.0f, 0.0f, 0.0f); //center of the model
+/// diameter of the model
+float diameter;
+// center of the model
+nv::vec3f center(0.0f, 0.0f, 0.0f);
 
+/// UI widgets and trackball manipulator
 /// model controller
 nv::GlutExamine manipulator;
-
 /// ui context
-nv::GlutUIContext ui_context;
+nv::GlutUIContext ui;
 
 /// for rendering
 bool button_show_generated_cube = false;
@@ -256,7 +257,7 @@ GLuint loc_transfer_function_option;
 
 /// GLUT callback function, for special keys
 void special(int c, int x, int y) {
-	ui_context.keyboard(c, x, y);
+	ui.keyboard(c, x, y);
 }
 
 /// update button states for ui widgets
@@ -286,40 +287,40 @@ void doUI()
 
 	glDisable(GL_CULL_FACE);
 
-	ui_context.begin();
+	ui.begin();
 
 	if (ui_on)
 	{
-		ui_context.beginGroup();
+		ui.beginGroup();
 
-		ui_context.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
+		ui.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
 		//ui.doCheckButton(none, "Test cube", &button_show_generated_cube);
-		ui_context.doCheckButton(none, "Rotate", &button_auto_rotate);
-		ui_context.doCheckButton(none, "Lock view", &button_lock_viewpoint);
-		ui_context.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
-		ui_context.doButton(none, "Generate histogram", &button_generate_histogram);
-		ui_context.doButton(none, "Cluster", &button_cluster);
-		ui_context.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
-		ui_context.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
-		ui_context.doButton(none, "Do all", &button_all);
-		ui_context.doButton(none, "Load label", &button_load_importance_label);
-		ui_context.endGroup();
+		ui.doCheckButton(none, "Rotate", &button_auto_rotate);
+		ui.doCheckButton(none, "Lock view", &button_lock_viewpoint);
+		ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
+		ui.doButton(none, "Generate histogram", &button_generate_histogram);
+		ui.doButton(none, "Cluster", &button_cluster);
+		ui.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
+		ui.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
+		ui.doButton(none, "Do all", &button_all);
+		ui.doButton(none, "Load label", &button_load_importance_label);
+		ui.endGroup();
 
-		ui_context.doComboBox(none, RENDER_COUNT, render_str, &render_option);
-		ui_context.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
-		ui_context.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
+		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
+		ui.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
+		ui.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
 
 		//ui.doLineEdit(none, text, MAX_STR_SIZE, &chars_returned);
 
-		ui_context.endGroup();
+		ui.endGroup();
 
-		ui_context.beginGroup(nv::GroupFlags_GrowDownFromRight);
+		ui.beginGroup(nv::GroupFlags_GrowDownFromRight);
 		char str[MAX_STR_SIZE];
 		sprintf(str, "Step size: %f", stepsize);
-		ui_context.doLabel(none, str);
+		ui.doLabel(none, str);
 
 		nv::Rect rect_slider(0,0,600,0);
-		ui_context.doHorizontalSlider(rect_slider, STEPSIZE_MIN, STEPSIZE_MAX, &stepsize);
+		ui.doHorizontalSlider(rect_slider, STEPSIZE_MIN, STEPSIZE_MAX, &stepsize);
 
 		// show peeling widgets
 		switch(peeling_option)
@@ -328,22 +329,22 @@ void doUI()
 		case PEELING_OPACITY:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
-			ui_context.doLabel(none, str);
-			ui_context.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_low);
-			ui_context.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_high);
+			ui.doLabel(none, str);
+			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_low);
+			ui.doHorizontalSlider(rect_slider, OPACITY_THRESHOLD_MIN, OPACITY_THRESHOLD_MAX, &threshold_high);
 			break;
 		case PEELING_FEATURE:
 			sprintf(str, "slope threshold: %f", slope_threshold);
-			ui_context.doLabel(none, str);
-			ui_context.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
+			ui.doLabel(none, str);
+			ui.doHorizontalSlider(rect_slider, SLOPE_THRESHOLD_MIN, SLOPE_THRESHOLD_MAX, &slope_threshold);
 			break;
 		case PEELING_GRADIENT_IMPORTANCE:
 		case PEELING_GRADIENT:
 			// if(accumulated>high && sampled<low)
 			sprintf(str, "peeling condition: accumulated>high && sampled<low    threshold low: %f threshold high: %f", threshold_low, threshold_high);
-			ui_context.doLabel(none, str);
-			ui_context.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_low);
-			ui_context.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_high);
+			ui.doLabel(none, str);
+			ui.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_low);
+			ui.doHorizontalSlider(rect_slider, GRADIENT_THRESHOLD_MIN, GRADIENT_THRESHOLD_MAX, &threshold_high);
 			break;
 		}
 		switch(peeling_option)
@@ -356,8 +357,8 @@ void doUI()
 		case PEELING_OPACITY_IMPORTANCE:
 		case PEELING_GRADIENT_IMPORTANCE:
 			sprintf(str, "peeling_layer: %f", peeling_layer);
-			ui_context.doLabel(none, str);
-			ui_context.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
+			ui.doLabel(none, str);
+			ui.doHorizontalSlider(rect_slider, LAYER_MIN, LAYER_MAX, &peeling_layer);
 			break;
 		}
 
@@ -365,54 +366,54 @@ void doUI()
 		if (transfer_function_option == TRANSFER_FUNCTION_K_MEANS || transfer_function_option == TRANSFER_FUNCTION_K_MEANS_EQUALIZED)
 		{
 			sprintf(str, "k-means k=%f", cluster_quantity);
-			ui_context.doLabel(none, str);
-			ui_context.doHorizontalSlider(rect_slider, 1, 16, &cluster_quantity);
+			ui.doLabel(none, str);
+			ui.doHorizontalSlider(rect_slider, 1, 16, &cluster_quantity);
 		}else
 		{
 			if (button_show_alpha_blending && (transfer_function_option == TRANSFER_FUNCTION_SOBEL || transfer_function_option == TRANSFER_FUNCTION_SOBEL_3D))
 			{
 				sprintf(str, "opacity=mix(gradient,scalar,alpha)    alpha=%f", alpha_opacity);
-				ui_context.doLabel(none, str);
-				ui_context.doHorizontalSlider(rect_slider, 0, 1, &alpha_opacity);
+				ui.doLabel(none, str);
+				ui.doHorizontalSlider(rect_slider, 0, 1, &alpha_opacity);
 			}else
 			{
 				if (transfer_function_option == TRANSFER_FUNCTION_FUSION)
 				{
 					sprintf(str, "fusion factor = %f", fusion_factor);
-					ui_context.doLabel(none, str);
-					ui_context.doHorizontalSlider(rect_slider, 0, 1, &fusion_factor);
+					ui.doLabel(none, str);
+					ui.doHorizontalSlider(rect_slider, 0, 1, &fusion_factor);
 				}
 			}
 		}
 
-		ui_context.endGroup();
+		ui.endGroup();
 
-		ui_context.beginGroup(nv::GroupFlags_GrowUpFromLeft);
+		ui.beginGroup(nv::GroupFlags_GrowUpFromLeft);
 		nv::Rect full_slider(-5,0,800,0);
-		ui_context.doHorizontalSlider(full_slider, LUMINANCE_MIN, LUMINANCE_MAX, &luminance);
+		ui.doHorizontalSlider(full_slider, LUMINANCE_MIN, LUMINANCE_MAX, &luminance);
 		sprintf(str, "Luminance: %f", luminance);
-		ui_context.doLabel(none, str);
-		ui_context.doHorizontalSlider(full_slider, CLIP_MIN, CLIP_MAX, &clip);
+		ui.doLabel(none, str);
+		ui.doHorizontalSlider(full_slider, CLIP_MIN, CLIP_MAX, &clip);
 		sprintf(str, "Clip: %f", clip);
-		ui_context.doLabel(none, str);
+		ui.doLabel(none, str);
 		if (render_option == RENDER_HISTOGRAM)
 		{
-			ui_context.doHorizontalSlider(full_slider, 0.00001, 1.0, &picked);
+			ui.doHorizontalSlider(full_slider, 0.00001, 1.0, &picked);
 			sprintf(str, "Histogram value picked: %f", picked);
-			ui_context.doLabel(none, str);
+			ui.doLabel(none, str);
 		}
-		ui_context.endGroup();
+		ui.endGroup();
 	}
 
 	// Pass non-ui mouse events to the manipulator
-	if (!ui_context.isOnFocus()) {
-		const nv::ButtonState &lbState = ui_context.getMouseState(0);
-		const nv::ButtonState &mbState = ui_context.getMouseState(1);
-		const nv::ButtonState &rbState =  ui_context.getMouseState(2);
+	if (!ui.isOnFocus()) {
+		const nv::ButtonState &lbState = ui.getMouseState(0);
+		const nv::ButtonState &mbState = ui.getMouseState(1);
+		const nv::ButtonState &rbState =  ui.getMouseState(2);
 
 		if (!button_lock_viewpoint)
 		{
-			manipulator.motion(ui_context.getCursorX(), WINDOW_SIZE - ui_context.getCursorY());
+			manipulator.motion(ui.getCursorX(), WINDOW_SIZE - ui.getCursorY());
 		}
 
 		updateButtonState(lbState, manipulator, GLUT_LEFT_BUTTON);
@@ -420,22 +421,22 @@ void doUI()
 		updateButtonState(rbState, manipulator, GLUT_RIGHT_BUTTON);
 	}
 
-	ui_context.end();
+	ui.end();
 }
 
 /// GLUT callback function, trigger when mouse buttons are pressed
 void mouse(int button, int state, int x, int y) {
-	ui_context.mouse(button, state, glutGetModifiers(), x, y);
+	ui.mouse(button, state, glutGetModifiers(), x, y);
 }
 
 /// GLUT callback function, trigger when mouse move and buttons are pressed
 void motion(int x, int y) {
-	ui_context.mouseMotion(x, y);
+	ui.mouseMotion(x, y);
 }
 
 /// GLUT callback function, trigger when mouse moves
 void passiveMotion(int x, int y) {
-	ui_context.mouseMotion(x, y);
+	ui.mouseMotion(x, y);
 }
 
 /************************************************************************/
@@ -840,7 +841,7 @@ void resize(int w, int h)
 	gluPerspective(60.0, (GLfloat)w/(GLfloat)h, 0.01, 400.0);
 	glMatrixMode(GL_MODELVIEW);
 
-	ui_context.reshape(w, h);
+	ui.reshape(w, h);
 
 	// pass the change along to the controller
 	manipulator.reshape(w, h);

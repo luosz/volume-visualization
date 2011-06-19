@@ -112,14 +112,15 @@ GLuint loc_stepsize;
 //////////////////////////////////////////////////////////////////////////
 // added by ark @ 2010.10.15
 volume_utility::VolumeReader volume;
+
 //////////////////////////////////////////////////////////////////////////
-///Aout ui and user interaction
+/// for ui and user interaction
 nv::GlutExamine manipulator;
 nv::GlutUIContext ui;
 
 //////////////////////////////////////////////////////////////////////////
 // added by ark @ 2010.10.15
-char file1[MAX_STR_SIZE] = "E:\\BenBenRaycasting\\BenBenRaycasting\\data\\ZhangJiShuai_1_7_NATIVE_SPACE_3D_SUB_20100805.dat";
+char volume_filename[MAX_STR_SIZE] = "data\\nucleon.dat";
 //////////////////////////////////////////////////////////////////////////
 
 /// record clusters
@@ -710,7 +711,7 @@ void init()
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, renderbuffer);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-	volume.readVolFile(file1);
+	volume.readVolFile(volume_filename);
 
 	//do some calculations if necessary
 
@@ -1119,13 +1120,13 @@ int main(int argc, char* argv[])
 	// read filename from arguments if available
 	if (argc > 1)
 	{
-		strcpy(file1, argv[1]);
+		strcpy(volume_filename, argv[1]);
 	} 
 	else
 	{
 		// read volume data filename from command line
 		cout<<"Input data file: (for example, data\\nucleon.dat)"<<endl;
-		cin>>file1;
+		cin>>volume_filename;
 	}
 	//////////////////////////////////////////////////////////////////////////
 
