@@ -1,5 +1,6 @@
 /**	@file
-*	GPU raycasting adapted from
+*	GPU raycasting with transfer functions and peeling
+*	
 *	GPU raycasting tutorial
 *	http://www.daimi.au.dk/~trier/?page_id=98
 */
@@ -153,7 +154,7 @@ const float STEPSIZE_MIN = 1e-4;
 const float STEPSIZE_INC = STEPSIZE_MIN;
 float stepsize = 1.0/100.0;
 
-/// the OpenGL shaders
+/// GLSL shaders
 GLuint v,f,p;
 
 GLuint loc_stepsize;
@@ -189,7 +190,7 @@ nv::GlutExamine manipulator;
 /// ui context
 nv::GlutUIContext ui;
 
-/// for rendering
+/// for button widgets
 bool button_show_generated_cube = false;
 bool button_show_generated_cube_backup = false;
 bool button_auto_rotate = false;
@@ -553,7 +554,7 @@ void set_shaders() {
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
 	add_texture_uniform(p, "back", 2, GL_TEXTURE_2D, backface_buffer);
-	loc_volume = add_texture_uniform(p, "volume", 3, GL_TEXTURE_3D, volume_texture_from_file);
+	loc_volume = add_texture_uniform(p, "volume_texture", 3, GL_TEXTURE_3D, volume_texture_from_file);
 	add_texture_uniform(p, "transfer_function_2D", 4, GL_TEXTURE_2D, transfer_function_2D_buffer);
 	loc_transfer_texture = add_texture_uniform(p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
 	loc_cluster_texture =  add_texture_uniform(p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
@@ -610,7 +611,7 @@ void vertex(float x, float y, float z)
 }
 
 /// this method is used to draw the front and backside of the volume
-void draw_quads(float x, float y, float z)
+void drawQuads(float x, float y, float z)
 {
 	glBegin(GL_QUADS);
 	/* Back side */
@@ -1499,7 +1500,7 @@ void render_frontface()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	draw_quads(1.0,1.0, 1.0);
+	drawQuads(1.0,1.0, 1.0);
 	glDisable(GL_CULL_FACE);
 }
 
@@ -1510,7 +1511,7 @@ void render_backface()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
-	draw_quads(1.0,1.0, 1.0);
+	drawQuads(1.0,1.0, 1.0);
 	glDisable(GL_CULL_FACE);
 }
 
@@ -1577,14 +1578,14 @@ void raycasting_pass()
 	// draw front faces
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	draw_quads(1.0,1.0, 1.0);
+	drawQuads(1.0,1.0, 1.0);
 	glDisable(GL_CULL_FACE);
 
 	// Disable shaders
 	glUseProgram(0);
 }
 
-/// GLUT callback function. This display function is called once pr frame
+/// GLUT callback function. This display function is called once per frame
 void display()
 {
 	static float rotate = 0; 

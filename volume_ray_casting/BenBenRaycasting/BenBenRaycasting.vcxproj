@@ -84,10 +84,10 @@
     <ClInclude Include="Volume.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="my_raycasting.frag">
+    <None Include="BenBenRaycasting.frag.cc">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="simple_vertex.vert">
+    <None Include="simple_vertex.vert.cc">
       <DeploymentContent>true</DeploymentContent>
     </None>
   </ItemGroup>

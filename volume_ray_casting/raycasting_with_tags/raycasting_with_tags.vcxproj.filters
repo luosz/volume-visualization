@@ -61,10 +61,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="minimal.frag">
+    <None Include="simple_vertex.vert.cc">
       <Filter>shaders</Filter>
     </None>
-    <None Include="minimal.vert">
+    <None Include="raycasting_with_tags.frag.cc">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

@@ -47,10 +47,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="simple_vertex.vert">
+    <None Include="BenBenRaycasting.frag.cc">
       <Filter>shaders</Filter>
     </None>
-    <None Include="my_raycasting.frag">
+    <None Include="simple_vertex.vert.cc">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

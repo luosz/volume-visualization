@@ -1,5 +1,6 @@
 /**	@file
-*	GPU raycasting adapted from
+*	GPU raycasting with transfer functions
+*	
 *	GPU raycasting tutorial
 *	http://www.daimi.au.dk/~trier/?page_id=98
 */
@@ -106,7 +107,7 @@ GLuint final_image;
 float stepsize = 1.0/1000.0;
 //////////////////////////////////////////////////////////////////////////
 GLuint frontface_buffer; // the FBO buffers
-GLuint v,f,p;//,f2 // the OpenGL shaders
+GLuint v,f,p; // the OpenGL shaders
 GLuint loc_stepsize;
 
 //////////////////////////////////////////////////////////////////////////
@@ -256,16 +257,13 @@ void setTextureUniform(GLuint program, const char* name, int number, GLenum targ
 /// initialize shaders
 void setShaders() {
 
-	char *vs = NULL,*fs = NULL;// ,*fs2 = NULL;
+	char *vs = NULL,*fs = NULL;
 
 	v = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
-	//f2 = glCreateShader(GL_FRAGMENT_SHADER);
 
-
-	vs = file_utility::textFileRead("simple_vertex.vert");
-	//fs = file_utility::textFileRead("simple_fragment.frag");
-	fs = file_utility::textFileRead("my_raycasting.frag");
+	vs = file_utility::textFileRead("simple_vertex.vert.cc");
+	fs = file_utility::textFileRead("BenBenRaycasting.frag.cc");
 
 	const char * vv = vs;
 	const char * ff = fs;

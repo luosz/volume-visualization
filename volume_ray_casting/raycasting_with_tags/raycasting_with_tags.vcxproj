@@ -89,8 +89,12 @@
     <ClInclude Include="..\my_raycasting\volume_utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="minimal.frag" />
-    <None Include="minimal.vert" />
+    <None Include="raycasting_with_tags.frag.cc">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="simple_vertex.vert.cc">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
