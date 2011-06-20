@@ -75,7 +75,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\BenBenRaycasting\Volume.cpp" />
-    <ClCompile Include="ogl3.cpp" />
+    <ClCompile Include="raycasting_with_tags.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\BenBenRaycasting\color.h" />

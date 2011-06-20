@@ -92,7 +92,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="my_raycasting.cpp" />
+    <ClCompile Include="BenBenRaycasting.cpp" />
     <ClCompile Include="Volume.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
