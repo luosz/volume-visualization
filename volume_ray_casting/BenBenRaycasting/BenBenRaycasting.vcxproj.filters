@@ -55,10 +55,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="my_raycasting.cpp">
+    <ClCompile Include="Volume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Volume.cpp">
+    <ClCompile Include="BenBenRaycasting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

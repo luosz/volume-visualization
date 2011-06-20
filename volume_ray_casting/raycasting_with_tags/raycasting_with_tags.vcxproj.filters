@@ -27,7 +27,7 @@
     <ClCompile Include="..\BenBenRaycasting\Volume.cpp">
       <Filter>../BenBenRaycasting</Filter>
     </ClCompile>
-    <ClCompile Include="ogl3.cpp">
+    <ClCompile Include="raycasting_with_tags.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
