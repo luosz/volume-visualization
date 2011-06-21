@@ -2,6 +2,9 @@
 * a header file for segmentation tags manipulation
 */
 
+#ifndef tag_h
+#define tag_h
+
 #include <set>
 #include <map>
 
@@ -9,7 +12,7 @@ namespace volume_utility
 {
 	/// normalize labels in the label volume
 	template <class T, int TYPE_SIZE>
-	void normalize_label(T * data_new, const T *data, const unsigned int count, const unsigned int components)
+	void normalize_tag(T * data_new, const T *data, const unsigned int count, const unsigned int components)
 	{
 		for (unsigned int j=0; j<components; j++)
 		{
@@ -38,3 +41,5 @@ namespace volume_utility
 		}
 	}
 }
+
+#endif // tag_h
