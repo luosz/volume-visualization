@@ -5,6 +5,7 @@
 #ifndef filename_utility_h
 #define filename_utility_h
 
+#include <iostream>
 #include <cstring>
 
 #ifdef MAX_PATH
@@ -45,7 +46,7 @@ namespace filename_utility
 	}
 
 	// print about information
-	void print_about(int argc, char* argv[])
+	void print_about(const int argc, char * argv[])
 	{
 		char about[MAX_STR_SIZE * 4] = 
 "************************************************************************\n\
@@ -65,6 +66,23 @@ source - File to load.\n\
 			printf(about, p + 1);
 		}
 	}
+
+	// get filename from arguments or console input
+	void get_filename(const int argc, char * argv[], char * volume_filename)
+	{
+		// read filename from arguments if available
+		if (argc > 1)
+		{
+			strcpy(volume_filename, argv[1]);
+		}
+		else
+		{
+			// read volume data filename from command line
+			std::cout<<"Input data file: (for example, data\\nucleon.dat)"<<std::endl;
+			std::cin>>volume_filename;
+		}
+	}
+
 }
 
 #endif // filename_utility_h
