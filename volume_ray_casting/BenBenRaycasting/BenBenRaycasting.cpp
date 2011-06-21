@@ -1114,19 +1114,11 @@ void NormalTest()
 /// the program's entry function
 int main(int argc, char* argv[])
 {
-	//////////////////////////////////////////////////////////////////////////
-	// read filename from arguments if available
-	if (argc > 1)
-	{
-		strcpy(volume_filename, argv[1]);
-	} 
-	else
-	{
-		// read volume data filename from command line
-		cout<<"Input data file: (for example, data\\nucleon.dat)"<<endl;
-		cin>>volume_filename;
-	}
-	//////////////////////////////////////////////////////////////////////////
+	// print about information
+	filename_utility::print_about(argc, argv);
+
+	// get volume filename from arguments or console input
+	filename_utility::get_filename(argc, argv, volume_filename);
 
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
