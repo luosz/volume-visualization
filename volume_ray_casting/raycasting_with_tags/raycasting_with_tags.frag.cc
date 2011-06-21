@@ -16,7 +16,7 @@ uniform float stepsize, luminance;
 uniform int transfer_function_option;
 
 // the current position of the ray
-varying vec4 pos;
+varying vec4 position;
 
 float sum3(vec4 c)
 {
@@ -118,7 +118,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 void main(void)
 {
 	// find the right place to lookup in the backside buffer
-	vec2 tex_coord = ((pos.xy / pos.w) + 1.) / 2.;
+	vec2 tex_coord = ((position.xy / position.w) + 1.) / 2.;
 
 	// the start position of the ray is stored in the texturecoordinate
 	vec4 start = gl_TexCoord[1];
