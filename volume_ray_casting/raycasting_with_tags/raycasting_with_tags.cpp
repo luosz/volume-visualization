@@ -3,12 +3,8 @@
 */
 
 /*
-
-
   Simple Demo for GLSL
-
   www.lighthouse3d.com
-
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +21,8 @@ using namespace std;
 #include <nvGlutManipulators.h>
 #include <nvGlutWidgets.h>
 
+#include "../BenBenRaycasting/transfer_function.h"
+#include "../my_raycasting/VolumeReader.h"
 #include "../my_raycasting/textfile.h"
 #include "../my_raycasting/filename_utility.h"
 #include "../my_raycasting/reader.h"
@@ -81,12 +79,12 @@ GLuint v,f,p;
 GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture, loc_transfer_texture2;
-const float LUMINANCE_MAX = 50;
+const float LUMINANCE_MAX = 1000;
 const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
 float luminance = 1;
 GLuint loc_luminance;
-GLuint loc_sizes;
+//GLuint loc_sizes;
 
 /// for UI widgets
 bool ui_on = true;
@@ -109,6 +107,7 @@ nv::GlutUIContext ui;
 /// for button widgets
 bool button_auto_rotate = false;
 bool button_lock_viewpoint = false;
+bool button_generate_Ben_transfer_function = false;
 
 /// for output image
 enum RenderOption
@@ -128,17 +127,7 @@ enum TransferFunctionOption
 {
 	TRANSFER_FUNCTION_NONE,
 	TRANSFER_FUNCTION_2D,
-	TRANSFER_FUNCTION_3D,
-	TRANSFER_FUNCTION_GRADIENTS_AS_COLORS,
-	TRANSFER_FUNCTION_2ND_DERIVATIVE,
-	TRANSFER_FUNCTION_SOBEL,
-	TRANSFER_FUNCTION_SOBEL_3D,
-	TRANSFER_FUNCTION_K_MEANS,
-	TRANSFER_FUNCTION_K_MEANS_EQUALIZED,
-	TRANSFER_FUNCTION_K_MEANS_IMPORTANCE,
-	TRANSFER_FUNCTION_K_MEANS_EQUALIZED_IMPORTANCE,
-	TRANSFER_FUNCTION_SOBEL_3D_IMPORTANCE,
-	TRANSFER_FUNCTION_FUSION,
+	TRANSFER_FUNCTION_BEN,
 	TRANSFER_FUNCTION_COUNT
 };
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
@@ -172,8 +161,7 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	//const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Opacity with importance", "Gradient with importance"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance", "Sobel 3D importance", "Fusion"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -186,11 +174,11 @@ void doUI()
 		ui.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
 		//ui.doCheckButton(none, "Test cube", &button_show_generated_cube);
 		ui.doCheckButton(none, "Rotate", &button_auto_rotate);
-		ui.doCheckButton(none, "Lock view", &button_lock_viewpoint);
+		ui.doCheckButton(none, "View lock", &button_lock_viewpoint);
 		//ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
 		//ui.doButton(none, "Generate histogram", &button_generate_histogram);
 		//ui.doButton(none, "Cluster", &button_cluster);
-		//ui.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
+		ui.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
 		//ui.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
 		//ui.doButton(none, "Do all", &button_all);
 		//ui.doButton(none, "Load label", &button_load_importance_label);
@@ -329,57 +317,6 @@ void passiveMotion(int x, int y) {
 	ui.mouseMotion(x, y);
 }
 
-//void changeSize(int w, int h)
-//{
-//
-//    // Prevent a divide by zero, when window is too short
-//    // (you cant make a window of zero width).
-//    if(h == 0)
-//        h = 1;
-//
-//    float ratio = 1.0* w / h;
-//
-//    // Reset the coordinate system before modifying
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//
-//    // Set the viewport to be the entire window
-//    glViewport(0, 0, w, h);
-//
-//    // Set the correct perspective.
-//    gluPerspective(45,ratio,1,1000);
-//    glMatrixMode(GL_MODELVIEW);
-//
-//
-//}
-
-//float a = 0;
-//
-//void renderScene(void)
-//{
-//
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//    glLoadIdentity();
-//    gluLookAt(0.0,0.0,5.0,
-//              0.0,0.0,-1.0,
-//              0.0f,1.0f,0.0f);
-//
-//    //glLightfv(GL_LIGHT0, GL_POSITION, lpos);
-//    glRotatef(a,0,1,1);
-//    glutSolidTeapot(1);
-//    a+=0.1;
-//
-//    glutSwapBuffers();
-//}
-
-//void processNormalKeys(unsigned char key, int x, int y)
-//{
-//
-//    if (key == 27)
-//        exit(0);
-//}
-
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 
 int printOglError(char *file, int line)
@@ -501,7 +438,7 @@ void setShaders()
 	//loc_peeling_option = glGetUniformLocation(p, "peeling_option");
 	loc_transfer_function_option = glGetUniformLocation(p, "transfer_function_option");
 	loc_luminance = glGetUniformLocation(p, "luminance");
-	loc_sizes = glGetUniformLocation(p, "sizes");
+	//loc_sizes = glGetUniformLocation(p, "sizes");
 	//loc_clip = glGetUniformLocation(p, "clip");
 	//loc_slope_threshold = glGetUniformLocation(p, "slope_threshold");
 	//loc_cluster_interval = glGetUniformLocation(p, "cluster_interval");
@@ -857,6 +794,35 @@ void render_backface()
 	glDisable(GL_CULL_FACE);
 }
 
+/// load a transfer function by Ben
+void create_transferfunc_Ben()
+{
+	volume_utility::VolumeReader volume;
+	volume.readVolFile(volume_filename);
+	volume.calHistogram();
+	volume.calGrad_ex();
+	volume.calDf2();
+	volume.calDf3();
+	volume.statistics();
+
+	color_opacity * tf = NULL;
+	setTransferfunc3(tf, volume);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &transfer_texture);
+	glBindTexture(GL_TEXTURE_3D, transfer_texture);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
+
+	// free the transfer function pointer after texture mapping
+	free_transfer_function_pointer(tf);
+}
+
 /// a raycasting pass
 void raycasting_pass()
 {
@@ -881,7 +847,7 @@ void raycasting_pass()
 	//glUniform1f(loc_threshold_low, threshold_low);
 	glUniform1f(loc_luminance, luminance);
 	//glUniform1f(loc_clip, clip);
-	glUniform3f(loc_sizes, sizes[0], sizes[1], sizes[2]);
+	//glUniform3f(loc_sizes, sizes[0], sizes[1], sizes[2]);
 	//glUniform1f(loc_cluster_interval, cluster_interval);
 	//glUniform1f(loc_scalar_min_normalized, scalar_min_normalized);
 	//glUniform1f(loc_scalar_max_normalized, scalar_max_normalized);
@@ -893,12 +859,12 @@ void raycasting_pass()
 	glUniform1i(loc_transfer_function_option, transfer_function_option);
 	//glUniform1i(loc_peeling_layer, peeling_layer_int);
 
-	//if(button_generate_Ben_transfer_function)
-	//{
-	//	button_generate_Ben_transfer_function = false;
-	//	create_transferfunc_Ben();
-	//	set_texture_uniform(loc_transfer_texture, p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
-	//}
+	if(button_generate_Ben_transfer_function)
+	{
+		button_generate_Ben_transfer_function = false;
+		create_transferfunc_Ben();
+		set_texture_uniform(loc_transfer_texture, p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
+	}
 
 	//if(button_generate_fusion_transfer_function)
 	//{
