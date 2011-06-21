@@ -18,7 +18,7 @@ uniform float stepsize, luminance, clip;
 // for choosing a transfer function
 uniform int transfer_function_option;
 
-varying vec4 pos; // vertex position, pos = gl_Position;
+varying vec4 position; // vertex position, pos = gl_Position;
 
 // for threshold peeling
 uniform int peeling_option;
@@ -921,7 +921,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 void main(void)
 {
 	// find the right place to lookup in the backside buffer
-	vec2 tex_coord = ((pos.xy / pos.w) + 1.) / 2.;
+	vec2 tex_coord = ((position.xy / position.w) + 1.) / 2.;
 
 	// the start position of the ray is stored in the texturecoordinate
 	vec4 start = gl_TexCoord[1];
