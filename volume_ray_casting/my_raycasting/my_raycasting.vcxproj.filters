@@ -188,9 +188,6 @@
     <ClInclude Include="..\DemoCluster\xRand.h">
       <Filter>../DemoCluster</Filter>
     </ClInclude>
-    <ClInclude Include="label.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="kmlocal\ReadMe.txt">

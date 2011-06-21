@@ -12,8 +12,8 @@
 #include <fstream>
 
 #include "../BenBenRaycasting/Volume.h"
-#include "../my_raycasting/reader.h"
-#include "../my_raycasting/filename_utility.h"
+#include "filename_utility.h"
+#include "reader.h"
 
 namespace volume_utility
 {
