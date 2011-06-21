@@ -160,7 +160,7 @@ GLuint v,f,p;
 GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture, loc_transfer_texture2;
-const float LUMINANCE_MAX = 50;
+const float LUMINANCE_MAX = 1000;
 const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
 float luminance = 1;
@@ -236,7 +236,7 @@ enum TransferFunctionOption
 {
 	TRANSFER_FUNCTION_NONE,
 	TRANSFER_FUNCTION_2D,
-	TRANSFER_FUNCTION_3D,
+	TRANSFER_FUNCTION_BEN,
 	TRANSFER_FUNCTION_GRADIENTS_AS_COLORS,
 	TRANSFER_FUNCTION_2ND_DERIVATIVE,
 	TRANSFER_FUNCTION_SOBEL,
@@ -297,7 +297,7 @@ void doUI()
 		ui.beginGroup(nv::GroupFlags_GrowRightFromBottom|nv::GroupFlags_LayoutNoMargin);
 		//ui.doCheckButton(none, "Test cube", &button_show_generated_cube);
 		ui.doCheckButton(none, "Rotate", &button_auto_rotate);
-		ui.doCheckButton(none, "Lock view", &button_lock_viewpoint);
+		ui.doCheckButton(none, "View lock", &button_lock_viewpoint);
 		ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
 		ui.doButton(none, "Generate histogram", &button_generate_histogram);
 		ui.doButton(none, "Cluster", &button_cluster);
@@ -503,7 +503,7 @@ void set_texture_uniform(GLuint location, GLuint program, const char* name, int 
 }
 
 /// load shaders from files and set shaders
-void set_shaders() {
+void setShaders() {
 
 	char *vs = NULL, *fs = NULL;
 
@@ -758,7 +758,7 @@ void create_transferfunc_Ben()
 	volume.statistics();
 
 	color_opacity * tf = NULL;
-	setTransferfunc(tf, volume);
+	setTransferfunc3(tf, volume);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &transfer_texture);
@@ -1183,8 +1183,9 @@ void initialize()
 
 	// read volume data file
 	read_volume_file(volume_filename);
+
 	// init shaders
-	set_shaders();
+	setShaders();
 }
 
 /// increase a parameter

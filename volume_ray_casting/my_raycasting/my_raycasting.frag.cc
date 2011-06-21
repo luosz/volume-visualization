@@ -2,8 +2,10 @@
 
 // back and front faces of the cube
 uniform sampler2D back, front;
+
 // 2D transfer function
 uniform sampler2D transfer_function_2D;
+
 // volume data and 3D transfer functions
 uniform sampler3D volume_texture, transfer_texture, cluster_texture, importance_texture, transfer_texture2;
 
@@ -12,10 +14,14 @@ uniform float fusion_factor;
 
 // for raycasting
 uniform float stepsize, luminance, clip;
+
+// for choosing a transfer function
+uniform int transfer_function_option;
+
 varying vec4 pos; // vertex position, pos = gl_Position;
 
 // for threshold peeling
-uniform int peeling_option, transfer_function_option;
+uniform int peeling_option;
 uniform float threshold_low, threshold_high;
 
 // size of the volume data
@@ -398,17 +404,14 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	vec3 delta_dir = norm_dir * stepsize;
 	float delta_dir_len = length(delta_dir);
 	vec3 ray = frontPos;
-	//float alpha_acc = 0.;
 	float length_acc = 0.;
 	vec4 color_sample;
-	//float alpha_sample;
 
 	// black or white background
 	vec4 col_acc = vec4(0, 0, 0, 0);
 	//vec4 col_acc = vec4(1,1,1,1);
 
 	int sample_number = int(len / stepsize);
-	//bool threshold_reached = false;
 
 	// calculate difference to sharpen the image
 	const vec4 mask = vec4(1, 0, 0, 0);
@@ -418,12 +421,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	float second_derivative_magnitude;
 
 	// for culstering peeling
-	//int cluster_number = -1, cluster_number_new, cluster_count = 0;
-	//bool cluster_limit_reached = false;
 	int peeling_counter = 0;
-
-	// for peeling counting
-	//int counter1 = 0, counter2 = 0, counter3 = 0;
 
 	// for gradient peeling
 	vec3 gradient_acc = vec3(0, 0, 0);
@@ -914,7 +912,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		if(length_acc >= len || col_acc.a >= 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
 	}
 
+	// set the luminance of the ray
 	col_acc.rgb *= luminance;
+
 	return col_acc;
 }
 
@@ -924,11 +924,18 @@ void main(void)
 	vec2 tex_coord = ((pos.xy / pos.w) + 1.) / 2.;
 
 	// the start position of the ray is stored in the texturecoordinate
-	vec4 start = gl_TexCoord[1]; 
+	vec4 start = gl_TexCoord[1];
+
+	// get the back position from the texture coordinate
 	vec4 back_position  = texture2D(back, tex_coord);
+
+	// get the back vector from back position
 	vec3 backPos = back_position.xyz;
+
+	// get the front vector from start position
 	vec3 frontPos = start.xyz;
 
+	// calculate the direction vector
 	vec4 dir = back_position - start;
 
 	//determine whether the ray has to be casted

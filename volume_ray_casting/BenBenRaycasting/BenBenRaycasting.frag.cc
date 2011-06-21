@@ -31,7 +31,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	float delta_dir_len = length(delta_dir);
 
 	// the front position
-	vec3 vec = frontPos;
+	vec3 ray = frontPos;
 
 	// accumulated alpha value
 	float alpha_acc = 0.;
@@ -57,7 +57,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	for(int i = 0; i < count; i++)
 	{
 		// get the current color sample from the transfer function 
-		color_sample = texture3D(transfer_texture, vec);
+		color_sample = texture3D(transfer_texture, ray);
 
 		// calculate the alpha sample by color sample and stepsize
 		alpha_sample = color_sample.a * stepsize;
@@ -66,7 +66,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		col_acc += (1.0 - alpha_acc) * color_sample * stepsize;
 
 		// calculate the accumulated color by alpha sample
-		col_acc   += (1.0 - alpha_acc) * color_sample * alpha_sample *10;
+		col_acc   += (1.0 - alpha_acc) * color_sample * alpha_sample * 10.0;
 	//	col_acc   -= (1.0 - alpha_acc) * color_sample * alpha_sample ;
 
 		// calculate the accumulated alpha value
@@ -74,7 +74,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	//	alpha_acc -= alpha_sample;
 
 		// the ray position vector
-		vec += delta_dir;
+		ray += delta_dir;
 
 		// increase the length
 		length_acc += delta_dir_len;
