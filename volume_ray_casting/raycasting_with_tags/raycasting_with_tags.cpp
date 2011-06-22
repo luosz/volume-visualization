@@ -893,26 +893,6 @@ void raycasting_pass()
 	glUseProgram(0);
 }
 
-///// This display function is called once per frame 
-//void display()
-//{
-//	static float rotate = 0; 
-//	rotate += 0.25;
-//
-//	resize(WINDOW_SIZE,WINDOW_SIZE);
-//	enable_renderbuffers();
-//
-//	glLoadIdentity();
-//	glTranslatef(0,0,-2.25);
-//	glRotatef(rotate,0,1,1);
-//	glTranslatef(-0.5,-0.5,-0.5); // center the texturecube
-//	render_backface();
-//	raycasting_pass();
-//	disable_renderbuffers();
-//	render_buffer_to_screen();
-//	glutSwapBuffers();
-//}
-
 /// GLUT callback function. This display function is called once per frame
 void display()
 {
