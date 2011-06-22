@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="libs">
+      <UniqueIdentifier>{7f6fbf2d-2ffd-4d8a-b4db-4efb4bbe52c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media">
+      <UniqueIdentifier>{a659bea5-e952-4a03-85bc-6e26e1384bed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{c62bdd40-6972-49b9-bc46-7af9a7dd2787}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="cg.lib">
+      <Filter>libs</Filter>
+    </Library>
+    <Library Include="cgGL.lib">
+      <Filter>libs</Filter>
+    </Library>
+    <Library Include="glew32.lib">
+      <Filter>libs</Filter>
+    </Library>
+    <Library Include="glut32.lib">
+      <Filter>libs</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Jelly ball.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Quad 5.ico" />
+    <None Include="raycasting_shader.cg">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>

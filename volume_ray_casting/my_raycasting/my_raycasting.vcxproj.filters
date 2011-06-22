@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="kmpp">
+      <UniqueIdentifier>{d8a3feb0-b4f8-4b02-aa5c-cf42774476af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kmlocal">
+      <UniqueIdentifier>{602eb9a7-35a1-469a-b1c2-11b9a4551252}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="../BenBenRaycasting">
+      <UniqueIdentifier>{d854886c-a38d-4867-88d5-f62cb4feddb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{26b3aad2-a8eb-4573-b9aa-69677fd9d440}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="../DemoCluster">
+      <UniqueIdentifier>{d50c9e7e-06f9-484e-a2b9-43847444063d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="my_raycasting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kmpp\KmTree.cpp">
+      <Filter>kmpp</Filter>
+    </ClCompile>
+    <ClCompile Include="kmpp\KmUtils.cpp">
+      <Filter>kmpp</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KCtree.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KCutil.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KM_ANN.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KMcenters.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KMdata.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KMeans.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KMfilterCenters.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KMlocal.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KMrand.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmlocal\KMterm.cpp">
+      <Filter>kmlocal</Filter>
+    </ClCompile>
+    <ClCompile Include="kmpp\KMeansPP.cpp">
+      <Filter>kmpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BenBenRaycasting\Volume.cpp">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DemoCluster\xFuzzyCMeans.cpp">
+      <Filter>../DemoCluster</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DemoCluster\xCluster.cpp">
+      <Filter>../DemoCluster</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DemoCluster\xKMeans.cpp">
+      <Filter>../DemoCluster</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="textfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sysconf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kmpp\KmTree.h">
+      <Filter>kmpp</Filter>
+    </ClInclude>
+    <ClInclude Include="kmpp\KmUtils.h">
+      <Filter>kmpp</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KCtree.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KCutil.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KM_ANN.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KMcenters.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KMdata.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KMeans.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KMfilterCenters.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KMlocal.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KMrand.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="kmlocal\KMterm.h">
+      <Filter>kmlocal</Filter>
+    </ClInclude>
+    <ClInclude Include="K_Means.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="K_Means_Local.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="K_Means_PlusPlus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kmpp\KMeansPP.h">
+      <Filter>kmpp</Filter>
+    </ClInclude>
+    <ClInclude Include="volume_utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filename.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\color.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="filename_utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\Volume.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="K_Means_PP_Generic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\Vector3.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\transfer_function.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="K_Means_PP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Fuzzy_CMeans.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DemoCluster\xFuzzyCMeans.h">
+      <Filter>../DemoCluster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DemoCluster\xCluster.h">
+      <Filter>../DemoCluster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DemoCluster\xKMeans.h">
+      <Filter>../DemoCluster</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DemoCluster\xRand.h">
+      <Filter>../DemoCluster</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="kmlocal\ReadMe.txt">
+      <Filter>kmlocal</Filter>
+    </None>
+    <None Include="kmpp\README.txt">
+      <Filter>kmpp</Filter>
+    </None>
+    <None Include="my_raycasting.frag.cc">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="simple_vertex.vert.cc">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>

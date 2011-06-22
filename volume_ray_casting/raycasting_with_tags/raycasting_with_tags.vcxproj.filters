@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="../BenBenRaycasting">
+      <UniqueIdentifier>{3f060fc1-5bd0-4c01-a58b-ffda6ebc15ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="../my_raycasting">
+      <UniqueIdentifier>{15162141-b087-4bc4-aa07-21ed7218776b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{5172a029-c368-4b90-bc98-0a3ac3894095}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\BenBenRaycasting\Volume.cpp">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClCompile>
+    <ClCompile Include="raycasting_with_tags.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\BenBenRaycasting\color.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\transfer_function.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\Vector3.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BenBenRaycasting\Volume.h">
+      <Filter>../BenBenRaycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\filename_utility.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\reader.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\textfile.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\VolumeReader.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\my_raycasting\volume_utility.h">
+      <Filter>../my_raycasting</Filter>
+    </ClInclude>
+    <ClInclude Include="tag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="simple_vertex.vert.cc">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="raycasting_with_tags.frag.cc">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
