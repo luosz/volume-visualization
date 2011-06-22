@@ -50,8 +50,8 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	// color sample 
 	vec4 color_sample;
 
-	// alpha sample
-	vec4 alpha_sample;
+	//// alpha sample
+	//vec4 alpha_sample;
 
 	// initial accumulated color
 	vec4 col_acc = vec4(0,0,0,0);
@@ -65,59 +65,35 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	// the loop for ray casting
 	for(int i = 0; i < count; i++)
 	{
-		//// get the current color sample from the transfer function 
-		//color_sample = texture3D(volume_texture, vec);
-
-		//// transfer functions
-		//switch(transfer_function_option)
-		//{
-		//case 0:
-		//	// Raw scalar values without a transfer function
-		//	color_sample = texture3D(volume_texture, ray);
-		//	break;
-
-		//case 1:
-		//	// Simple 2D transfer function
-		//	color_sample = texture3D(volume_texture, ray);
-		//	color_sample = mask.xxxw * texture2D(transfer_function_2D, color_sample.xy) + mask.wwwx * sum3(color_sample);
-		//	break;
-
-		//case 2:
-		//	// Ben transfer function
-		//	color_sample = texture3D(transfer_texture, ray);
-		//	break;
-
-		//default:
-		//	// Raw scalar values without a transfer function
-		//	color_sample = texture3D(volume_texture, ray);
-		//}
-
-		//// calculate the alpha sample by color sample and stepsize
-		//color_sample.a = color_sample.a * stepsize;
-
-		//// calculate the accumulated color
-		//col_acc.rgb = mix(col_acc.rgb, color_sample.rgb, color_sample.a);
-
-		//// calculate the accumulated alpha value
-		//col_acc.a = mix(color_sample.a, 1.0, col_acc.a);
-
-		//////////////////////////////////////////////////////////////////////////
 		// get the current color sample from the transfer function 
-		color_sample = texture3D(transfer_texture, ray);
+		switch(transfer_function_option)
+		{
+		case 0:
+			// Raw scalar values without a transfer function
+			color_sample = texture3D(volume_texture, ray);
+			break;
 
-		// calculate the alpha sample by color sample and stepsize
-		alpha_sample = color_sample.a * stepsize;
+		case 1:
+			// Simple 2D transfer function
+			color_sample = texture3D(volume_texture, ray);
+			color_sample = mask.xxxw * texture2D(transfer_function_2D, color_sample.xy) + mask.wwwx * sum3(color_sample);
+			break;
+
+		case 2:
+			// Ben transfer function
+			color_sample = texture3D(transfer_texture, ray);
+			break;
+
+		default:
+			// Raw scalar values without a transfer function
+			color_sample = texture3D(volume_texture, ray);
+		}
 
 		// calculate the accumulated color by stepsize
 		col_acc += (1.0 - alpha_acc) * color_sample * stepsize;
 
-		// calculate the accumulated color by alpha sample
-		col_acc   += (1.0 - alpha_acc) * color_sample * alpha_sample * 10.0;
-		//	col_acc   -= (1.0 - alpha_acc) * color_sample * alpha_sample ;
-
 		// calculate the accumulated alpha value
-		alpha_acc += alpha_sample;
-		//	alpha_acc -= alpha_sample;
+		alpha_acc += color_sample.a * stepsize;
 		//////////////////////////////////////////////////////////////////////////
 
 		// the ray position vector
