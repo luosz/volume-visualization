@@ -135,11 +135,6 @@ void NormalTest(void);
 void select_user_interested_area(Vector3 v, float bounding_angle, float r1, float r2);
 
 /**	@brief updateButtonState
-*   
-*
-*
-*
-*
 */
 inline void updateButtonState( const nv::ButtonState &bs, nv::GlutManipulator &manip, int button)
 {
@@ -201,14 +196,15 @@ void doUI()
 	ui.end();
 }
 
-
 ///intesity max, gradient magnitude max, second derivative max, third derivative max
 int data_max, grad_max, df2_max, df3_max;
 color_opacity * tf = NULL;
 
-/// Implementation ----------------------------------------
-/// print shader information log to report any error that occurs  
 //////////////////////////////////////////////////////////////////////////
+/// Implementation ----------------------------------------
+//////////////////////////////////////////////////////////////////////////
+
+/// print shader information log to report any error that occurs  
 void printShaderInfoLog(GLuint obj)
 {
 	int infologLength = 0;
@@ -252,7 +248,6 @@ void setTextureUniform(GLuint program, const char* name, int number, GLenum targ
 	glActiveTexture(GL_TEXTURE0 + number);
 	glBindTexture(target, texture);
 }
-
 
 /// initialize shaders
 void setShaders() {
@@ -304,56 +299,6 @@ void setShaders() {
 	glUseProgram(0);
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-//void cgErrorCallback()
-//{
-//	CGerror lastError = cgGetError(); 
-//	if(lastError)
-//	{
-//		cout << cgGetErrorString(lastError) << endl;
-//		if(context != NULL)
-//			cout << cgGetLastListing(context) << endl;
-//		exit(0);
-//	}
-//}
-
-//// Sets a uniform texture parameter
-//void set_tex_param(char* par, GLuint tex,const CGprogram &program,CGparameter param) 
-//{
-//	param = cgGetNamedParameter(program, par); 
-//	cgGLSetTextureParameter(param, tex); 
-//	cgGLEnableTextureParameter(param);
-//}
-
-//// load_vertex_program: loading a vertex program
-//void load_vertex_program(CGprogram &v_program,char *shader_path, char *program_name)
-//{
-//	assert(cgIsContext(context));
-//	v_program = cgCreateProgramFromFile(context, CG_SOURCE,shader_path,
-//		vertexProfile,program_name, NULL);	
-//	if (!cgIsProgramCompiled(v_program))
-//		cgCompileProgram(v_program);
-//
-//	cgGLEnableProfile(vertexProfile);
-//	cgGLLoadProgram(v_program);
-//	cgGLDisableProfile(vertexProfile);
-//}
-
-//// load_fragment_program: loading a fragment program
-//void load_fragment_program(CGprogram &f_program,char *shader_path, char *program_name)
-//{
-//	assert(cgIsContext(context));
-//	f_program = cgCreateProgramFromFile(context, CG_SOURCE, shader_path,
-//		fragmentProfile,program_name, NULL);	
-//	if (!cgIsProgramCompiled(f_program))
-//		cgCompileProgram(f_program);
-//
-//	cgGLEnableProfile(fragmentProfile);
-//	cgGLLoadProgram(f_program);
-//	cgGLDisableProfile(fragmentProfile);
-//}
-
 /// render images to buffers
 void enable_renderbuffers()
 {
@@ -367,17 +312,12 @@ void disable_renderbuffers()
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
 /// face index for setting a vertex
 int face_index = 0;
-//////////////////////////////////////////////////////////////////////////
 
 /// draw a vertex
 void vertex(float x, float y, float z)
 {
-	//////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////
 	// set 2D texture coordinates for texture 0
 	float s, t;
 	switch(face_index)
@@ -395,8 +335,7 @@ void vertex(float x, float y, float z)
 		t = z;
 	}
 	glMultiTexCoord2f(GL_TEXTURE0, s, t);
-	//////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////
+
 	// set 3D texture coordinates for texture 1
 	glColor3f(x,y,z);
 	glMultiTexCoord3f(GL_TEXTURE1, x, y, z);
@@ -634,7 +573,7 @@ void create_transferfunc()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, volume.getX(), volume.getY(), volume.getZ(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tf);
 
 	// free the transfer function pointer after texture mapping
 	free_transfer_function_pointer(tf);
@@ -680,6 +619,7 @@ void init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, WINDOW_SIZE, WINDOW_SIZE, 0, GL_RGBA, GL_FLOAT, NULL);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, frontface_buffer, 0);
+
 	//////////////////////////////////////////////////////////////////////////
 	// bind back face texture
 	glGenTextures(1, &backface_buffer);
@@ -751,7 +691,6 @@ void init()
 	//	//////////////////////////////////////////////////////////////////////////
 }
 
-
 /// for continues key presses
 void ProcessKeys()
 {
@@ -776,7 +715,7 @@ void ProcessKeys()
 
 }
 
-// handle keys to be pressed
+/// handle keys to be pressed
 void key(unsigned char k, int x, int y)
 {
 	gKeys[k] = true;
@@ -831,7 +770,6 @@ void key(unsigned char k, int x, int y)
 	}
 
 }
-
 
 ///keyboard callback function
 void KeyboardUpCallback(unsigned char key, int x, int y)
@@ -948,8 +886,8 @@ void render_frontface()
 	drawQuads(1.0,1.0, 1.0);
 	glDisable(GL_CULL_FACE);
 }
-//////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
 /// render the back face to the off screen buffer backface_buffer
 void render_backface()
 {
