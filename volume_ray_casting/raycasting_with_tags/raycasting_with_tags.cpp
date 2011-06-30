@@ -25,7 +25,8 @@ using namespace std;
 #include "../my_raycasting/VolumeReader.h"
 #include "../my_raycasting/textfile.h"
 #include "../my_raycasting/filename_utility.h"
-#include "../my_raycasting/reader.h"
+#include "reader_tag.h"
+#include "tag.h"
 
 /**
 /* filename can be set in command arguments
@@ -37,7 +38,7 @@ char volume_filename[MAX_STR_SIZE] = "data\\nucleon.dat";
 void ** data_ptr = NULL;
 GLenum gl_type;
 int sizes[3];
-int color_omponent_number;
+int color_component_number;
 
 /// buffers, textures
 GLuint renderbuffer; 
@@ -969,7 +970,7 @@ void read_volume_file(char* filename)
 	{
 		data_ptr = new void *;
 	}
-	file_utility::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
+	file_utility::readData(filename, sizes, dists, data_ptr, &type, &color_component_number);
 
 	switch (type)
 	{
@@ -992,9 +993,91 @@ void read_volume_file(char* filename)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0, color_omponent_number, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, gl_type, *data_ptr);
+	glTexImage3D(GL_TEXTURE_3D, 0, color_component_number, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, gl_type, *data_ptr);
 
 	cout << "volume texture created from " << filename << endl;
+}
+
+/// read volume data from file with tags
+void read_volume_file_with_tag(char* filename)
+{
+	float dists[3];
+	file_utility::DataType type;
+
+	if (!data_ptr)
+	{
+		data_ptr = new void *;
+	}
+	char tag_filename[MAX_STR_SIZE] = "";
+	file_utility::readData_with_tag(filename, sizes, dists, data_ptr, &type, &color_component_number, tag_filename);
+
+	switch (type)
+	{
+	case file_utility::DATRAW_UCHAR:
+		gl_type = GL_UNSIGNED_BYTE;
+		break;
+	case file_utility::DATRAW_USHORT:
+		gl_type = GL_UNSIGNED_SHORT;
+		break;
+	default:
+		std::cerr<<"Unsupported data type in "<<filename<<endl;
+	}
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &volume_texture_from_file);
+	glBindTexture(GL_TEXTURE_3D, volume_texture_from_file);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(GL_TEXTURE_3D, 0, color_component_number, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, gl_type, *data_ptr);
+
+	cout << "volume texture created from " << filename << endl;
+
+	// load tags volume as texture
+	if (strlen(tag_filename) > 0)
+	{
+		char tag_filename_with_path[MAX_STR_SIZE];
+		filename_utility::get_path_from_other_filename(filename, tag_filename, tag_filename_with_path);
+		std::cout<<"tag\t"<<tag_filename<<endl;
+		std::cout<<"tag\t"<<tag_filename_with_path<<endl;
+		int tag_sizes[3];
+		float tag_dists[3];
+		std::shared_ptr<void *> tag_data_ptr(new void *);
+		file_utility::DataType tag_type;
+		int tag_color_component_number;
+		file_utility::readData(tag_filename_with_path, tag_sizes, tag_dists, tag_data_ptr.get(), &tag_type, &tag_color_component_number);
+		std::cout<<tag_sizes[0]<<"\t"<<tag_sizes[1]<<"\t"<<tag_sizes[2]<<"\n"<<tag_dists[0]<<"\t"<<tag_dists[1]<<"\t"<<tag_dists[2]<<"\n"<<tag_color_component_number<<endl;
+
+		unsigned int count = tag_sizes[0] * tag_sizes[1] * tag_sizes[2];
+		GLenum tag_gl_type;
+		switch (tag_type)
+		{
+		case file_utility::DATRAW_UCHAR:
+			tag_gl_type = GL_UNSIGNED_BYTE;
+			volume_utility::normalize_tag<unsigned char, 256>((unsigned char*)tag_data_ptr.get(), count, tag_color_component_number);
+			break;
+		case file_utility::DATRAW_USHORT:
+			tag_gl_type = GL_UNSIGNED_SHORT;
+			volume_utility::normalize_tag<unsigned short, 65536>((unsigned short*)tag_data_ptr.get(), count, tag_color_component_number);
+			break;
+		default:
+			std::cerr<<"Unsupported data type in "<<filename<<endl;
+		}
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glGenTextures(1, &transfer_texture);
+		glBindTexture(GL_TEXTURE_3D, transfer_texture);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+		glTexImage3D(GL_TEXTURE_3D, 0, tag_color_component_number, tag_sizes[0], tag_sizes[1], tag_sizes[2], 0, GL_LUMINANCE, tag_gl_type, tag_data_ptr.get());
+	}
 }
 
 /// free the data pointer before exit
@@ -1118,7 +1201,8 @@ void initialize()
 	//manipulator.setPanActivate(GLUT_LEFT_BUTTON, GLUT_ACTIVE_SHIFT);
 
 	// read volume data file
-	read_volume_file(volume_filename);
+	//read_volume_file(volume_filename);
+	read_volume_file_with_tag(volume_filename);
 
 	// init shaders
 	setShaders();

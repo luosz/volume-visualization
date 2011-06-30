@@ -122,7 +122,7 @@ namespace volume_utility
 			// get the raw file path and filename
 			//std::cout<<"VolumeReader::readVolFile - get the raw file path and filename"<<std::endl;
 			char str[MAX_STR_SIZE];
-			filename_utility::get_raw_filename_from_dat_filename(s, rawFilename, str);
+			filename_utility::get_path_from_other_filename(s, rawFilename, str);
 			Volume::readData(str);
 
 			if(strcmp(format, "UCHAR") == 0)

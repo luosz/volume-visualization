@@ -1610,11 +1610,18 @@ void display()
 	if(data_ptr && button_generate_histogram)
 	{
 		button_generate_histogram = false;
-		unsigned int count = sizes[0]*sizes[1]*sizes[2];
-		if (gl_type == GL_UNSIGNED_SHORT)
-			render_histograms<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_omponent_number);
-		else
+		unsigned int count = sizes[0] * sizes[1] * sizes[2];
+		switch(gl_type)
+		{
+		case GL_UNSIGNED_BYTE:
 			render_histograms<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number);
+			break;
+		case GL_UNSIGNED_SHORT:
+			render_histograms<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_omponent_number);
+			break;
+		default:
+			std::cerr<<"Unsupported data type in the volume data."<<endl;
+		}
 	}
 
 	// cluster

@@ -87,6 +87,7 @@
     <ClInclude Include="..\my_raycasting\textfile.h" />
     <ClInclude Include="..\my_raycasting\VolumeReader.h" />
     <ClInclude Include="..\my_raycasting\volume_utility.h" />
+    <ClInclude Include="reader_tag.h" />
     <ClInclude Include="tag.h" />
   </ItemGroup>
   <ItemGroup>

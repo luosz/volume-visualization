@@ -30,18 +30,18 @@ namespace filename_utility
 		return p;
 	}
 
-	/// get raw filename from the .dat file
-	void get_raw_filename_from_dat_filename(const char *dat_filename, const char *raw_filename, char *dest_str_buffer)
+	/// get path from other filename
+	void get_path_from_other_filename(const char *filename_with_path, const char *filename_without_path, char *dest_str_buffer)
 	{
 		// get the raw file path and filename
-		strcpy(dest_str_buffer, dat_filename);
+		strcpy(dest_str_buffer, filename_with_path);
 		const char *p = get_file_path_separator_position(dest_str_buffer);
 		if (NULL == p)
 		{
-			strcpy(dest_str_buffer, raw_filename);
+			strcpy(dest_str_buffer, filename_without_path);
 		}else
 		{
-			strcpy((char *)(p) + 1, raw_filename);
+			strcpy((char *)(p) + 1, filename_without_path);
 		}
 	}
 
