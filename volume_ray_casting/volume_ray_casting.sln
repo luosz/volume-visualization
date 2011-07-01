@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raycasting_with_tags", "ray
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raycasting_tutorial", "raycasting_tutorial\raycasting_tutorial.vcxproj", "{58D0475A-0CA6-4851-B0A9-E03F627FED1C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tag", "tag\tag.vcxproj", "{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{58D0475A-0CA6-4851-B0A9-E03F627FED1C}.Release|Win32.ActiveCfg = Release|Win32
 		{58D0475A-0CA6-4851-B0A9-E03F627FED1C}.Release|Win32.Build.0 = Release|Win32
 		{58D0475A-0CA6-4851-B0A9-E03F627FED1C}.Release|x64.ActiveCfg = Release|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Debug|Win32.Build.0 = Debug|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Debug|x64.ActiveCfg = Debug|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Release|Any CPU.ActiveCfg = Release|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Release|Win32.ActiveCfg = Release|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Release|Win32.Build.0 = Release|Win32
+		{1C057CD2-1B9B-4D63-98F1-ED0AE88E652E}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
