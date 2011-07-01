@@ -65,7 +65,10 @@ GLuint final_image;
 
 /// the volume texture from files
 GLuint volume_texture_from_file;
-GLuint transfer_texture, transfer_texture2;
+GLuint transfer_texture;
+
+// texture for segmentation tags
+GLuint tag_texture;
 
 /// for shaders
 const float STEPSIZE_MAX = 1.0/4.0;
@@ -75,11 +78,11 @@ float stepsize = 1.0/100.0;
 
 /// GLSL shaders
 GLuint v,f,p;
-//float lpos[4] = {1,0.5,1,0};
 
 GLuint loc_stepsize;
 GLuint loc_volume;
-GLuint loc_transfer_texture, loc_transfer_texture2;
+GLuint loc_transfer_texture;
+GLuint loc_tag_texture;
 const float LUMINANCE_MAX = 100;
 const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
@@ -129,6 +132,7 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_NONE,
 	TRANSFER_FUNCTION_2D,
 	TRANSFER_FUNCTION_BEN,
+	TRANSFER_FUNCTION_TAG,
 	TRANSFER_FUNCTION_COUNT
 };
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
@@ -162,7 +166,7 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Tags"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -458,6 +462,7 @@ void setShaders()
 	//loc_cluster_texture =  add_texture_uniform(p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
 	//loc_importance_texture =  add_texture_uniform(p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
 	//loc_transfer_texture2 = add_texture_uniform(p, "transfer_texture2", 8, GL_TEXTURE_3D, transfer_texture2);
+	loc_tag_texture =  add_texture_uniform(p, "tag_texture", 6, GL_TEXTURE_3D, tag_texture);
 
 	// disable the shader program
 	glUseProgram(0);
@@ -1041,15 +1046,13 @@ void read_volume_file_with_tag(char* filename)
 	{
 		char tag_filename_with_path[MAX_STR_SIZE];
 		filename_utility::get_path_from_other_filename(filename, tag_filename, tag_filename_with_path);
-		std::cout<<"tag\t"<<tag_filename<<endl;
-		std::cout<<"tag\t"<<tag_filename_with_path<<endl;
+		std::cout<<"TaggedFileName: "<<tag_filename_with_path<<endl;
 		int tag_sizes[3];
 		float tag_dists[3];
-		std::shared_ptr<void *> tag_data_ptr(new void *);
+		void ** tag_data_ptr = new void *;
 		file_utility::DataType tag_type;
 		int tag_color_component_number;
-		file_utility::readData(tag_filename_with_path, tag_sizes, tag_dists, tag_data_ptr.get(), &tag_type, &tag_color_component_number);
-		std::cout<<tag_sizes[0]<<"\t"<<tag_sizes[1]<<"\t"<<tag_sizes[2]<<"\n"<<tag_dists[0]<<"\t"<<tag_dists[1]<<"\t"<<tag_dists[2]<<"\n"<<tag_color_component_number<<endl;
+		file_utility::readData(tag_filename_with_path, tag_sizes, tag_dists, tag_data_ptr, &tag_type, &tag_color_component_number);
 
 		unsigned int count = tag_sizes[0] * tag_sizes[1] * tag_sizes[2];
 		GLenum tag_gl_type;
@@ -1057,26 +1060,33 @@ void read_volume_file_with_tag(char* filename)
 		{
 		case file_utility::DATRAW_UCHAR:
 			tag_gl_type = GL_UNSIGNED_BYTE;
-			volume_utility::normalize_tag<unsigned char, 256>((unsigned char*)tag_data_ptr.get(), count, tag_color_component_number);
+			volume_utility::normalize_volume<unsigned char, 256>((unsigned char*)*tag_data_ptr, count, tag_color_component_number);
 			break;
 		case file_utility::DATRAW_USHORT:
 			tag_gl_type = GL_UNSIGNED_SHORT;
-			volume_utility::normalize_tag<unsigned short, 65536>((unsigned short*)tag_data_ptr.get(), count, tag_color_component_number);
+			volume_utility::normalize_volume<unsigned short, 65536>((unsigned short*)*tag_data_ptr, count, tag_color_component_number);
 			break;
 		default:
 			std::cerr<<"Unsupported data type in "<<filename<<endl;
 		}
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glGenTextures(1, &transfer_texture);
-		glBindTexture(GL_TEXTURE_3D, transfer_texture);
+		glGenTextures(1, &tag_texture);
+		glBindTexture(GL_TEXTURE_3D, tag_texture);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-		glTexImage3D(GL_TEXTURE_3D, 0, tag_color_component_number, tag_sizes[0], tag_sizes[1], tag_sizes[2], 0, GL_LUMINANCE, tag_gl_type, tag_data_ptr.get());
+		glTexImage3D(GL_TEXTURE_3D, 0, tag_color_component_number, tag_sizes[0], tag_sizes[1], tag_sizes[2], 0, GL_LUMINANCE, tag_gl_type, *tag_data_ptr);
+
+		if (tag_data_ptr)
+		{
+			free(*tag_data_ptr);
+			delete tag_data_ptr;
+			tag_data_ptr = NULL;
+		}
 	}
 }
 
