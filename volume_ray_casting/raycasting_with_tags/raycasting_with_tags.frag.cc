@@ -9,6 +9,9 @@ uniform sampler2D transfer_function_2D;
 // volume data and transfer functions
 uniform sampler3D volume_texture, transfer_texture;
 
+// volume data for segmentation tags
+uniform sampler3D tag_texture;
+
 // stepsize and luminance of the raycasting process
 uniform float stepsize, luminance;
 
@@ -82,6 +85,12 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		case 2:
 			// Ben transfer function
 			color_sample = texture3D(transfer_texture, ray);
+			break;
+
+		case 3:
+			// Segmentation tags with simple 2D transfer function
+			color_sample = texture3D(tag_texture, ray);
+			color_sample = mask.xxxw * texture2D(transfer_function_2D, color_sample.xy) + mask.wwwx * sum3(color_sample);
 			break;
 
 		default:

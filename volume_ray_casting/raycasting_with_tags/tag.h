@@ -12,7 +12,7 @@ namespace volume_utility
 {
 	/// normalize labels in the label volume
 	template <class T, int TYPE_SIZE>
-	void normalize_tag(T *data, const unsigned int count, const unsigned int components)
+	void normalize_volume(T *data, const unsigned int count, const unsigned int components)
 	{
 		for (unsigned int j=0; j<components; j++)
 		{
@@ -20,7 +20,10 @@ namespace volume_utility
 			for (unsigned int i=0; i<count; i++)
 			{
 				unsigned int index = i * components + j;
-				data_set.insert(data[index]);
+				if (data_set.find(data[index]) == data_set.end())
+				{
+					data_set.insert(data[index]);
+				}
 			}
 
 			double increment = TYPE_SIZE / (double)data_set.size();
