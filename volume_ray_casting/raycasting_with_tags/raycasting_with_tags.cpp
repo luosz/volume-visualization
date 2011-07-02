@@ -636,6 +636,30 @@ void key_release(unsigned char key, int x, int y)
 	case 'v':
 		button_lock_viewpoint = !button_lock_viewpoint;
 		break;
+	case 'i':
+		// image to render
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			render_option = (render_option - 1 + RENDER_COUNT) % RENDER_COUNT;
+		}else
+		{
+			render_option = (render_option + 1) % RENDER_COUNT;
+		}
+		break;
+	case 'u':
+		// turn UI on/off
+		ui_on = !ui_on;
+		break;
+	case 't':
+		// transfer function
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			transfer_function_option = (transfer_function_option - 1 + TRANSFER_FUNCTION_COUNT) % TRANSFER_FUNCTION_COUNT;
+		}else
+		{
+			transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
+		}
+		break;
 	}
 }
 
