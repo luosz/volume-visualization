@@ -405,7 +405,15 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	float delta_dir_len = length(delta_dir);
 	vec3 ray = frontPos;
 	float length_acc = 0.;
+
+	// color sample
 	vec4 color_sample;
+
+	// alpha sample
+	float alpha_sample;
+
+	// accumulated alpha value
+	float alpha_acc = 0.;
 
 	// black or white background
 	vec4 col_acc = vec4(0, 0, 0, 0);
@@ -436,7 +444,9 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 	for(int i = 0; i < sample_number; i++)
 	{
+		// increase the length
 		length_acc += delta_dir_len;
+
 		if(length_acc > clip)
 		{
 			// transfer functions
@@ -658,35 +668,31 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				color_sample = texture3D(volume_texture, ray);
 			}
 
+			/************************************************************************/
 			// color blending
-			/************************************************************************/
-			// version 1
-			//alpha_sample = color_sample.a * stepsize;
-			//alpha_acc += alpha_sample;
-			////col_acc += (1.0 - alpha_acc) * color_sample * stepsize;
+			// version 1, originate from the GPU raycasting tutorial by Peter Trier jan 2007
 
-			// black or white background
-			//col_acc += (1.0 - alpha_acc) * color_sample * alpha_sample * luminance;
-			////col_acc -= (1.0 - alpha_acc) * color_sample * alpha_sample * luminance;
-			/************************************************************************/
+			// get the alpha sample value
+			alpha_sample = color_sample.a * stepsize;
 
-			/************************************************************************/
-			// version 2, behave the same as version 1, but uses fewer variables
-			//color_sample.a = color_sample.a * stepsize;
-			//col_acc.a += color_sample.a;
-			//col_acc.rgb += (1.0 - col_acc.a) * color_sample.rgb * color_sample.a * luminance;
+			// calculate the accumulated color by stepsize
+			col_acc += (1.0 - alpha_acc) * color_sample * alpha_sample;
+
+			// calculate the accumulated alpha value
+			alpha_acc += alpha_sample;
 			/************************************************************************/
 
 			/************************************************************************/
-			// version 3, uses mix() in GLSL to interpolate the colors
+			// version 2, uses mix() in GLSL to interpolate the colors
+			// It is just a beta version
 			// Accumulate RGB : acc.rgb = voxelColor.rgb*voxelColor.a + (1.0 - voxelColor.a)*acc.rgb;
 			//acc.rgb = mix(acc.rgb, voxelColor.rgb, voxelColor.a)*LightIntensity;
 			// Accumulate Opacity: acc.a = acc.a + (1.0 - acc.a)*voxelColor.a;
 			//acc.a = mix(voxelColor.a, 1.0, acc.a);
 
-			color_sample.a = color_sample.a * stepsize;
-			col_acc.rgb = mix(col_acc.rgb, color_sample.rgb, color_sample.a);
-			col_acc.a = mix(color_sample.a, 1.0, col_acc.a);
+			//color_sample.a = color_sample.a * stepsize;
+			//col_acc.rgb = mix(col_acc.rgb, color_sample.rgb, color_sample.a);
+			//col_acc.a = mix(color_sample.a, 1.0, col_acc.a);
 			/************************************************************************/
 
 			/************************************************************************/
@@ -908,8 +914,12 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 		} // if(length_acc > clip)
 
+		// the ray position vector
 		ray += delta_dir;
-		if(length_acc >= len || col_acc.a >= 1.0) break; // terminate if opacity > 1 or the ray is outside the volume
+
+		// terminate if opacity > 1 or the ray is outside the volume
+		if(length_acc >= len || col_acc.a >= 1.0)
+			break;
 	}
 
 	// set the luminance of the ray

@@ -53,8 +53,8 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	// color sample 
 	vec4 color_sample;
 
-	//// alpha sample
-	//vec4 alpha_sample;
+	// alpha sample
+	float alpha_sample;
 
 	// initial accumulated color
 	vec4 col_acc = vec4(0,0,0,0);
@@ -89,8 +89,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 		case 3:
 			// Segmentation tags with simple 2D transfer function
-			color_sample = texture3D(tag_texture, ray);
-			color_sample = mask.xxxw * texture2D(transfer_function_2D, color_sample.xy) + mask.wwwx * sum3(color_sample);
+			color_sample = mask.xxxw * texture2D(transfer_function_2D, texture3D(tag_texture, ray).xy) + mask.wwwx * texture3D(volume_texture, ray).wzyx;
 			break;
 
 		default:
@@ -98,12 +97,14 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			color_sample = texture3D(volume_texture, ray);
 		}
 
+		// get the alpha sample value
+		alpha_sample = color_sample.a * stepsize;
+
 		// calculate the accumulated color by stepsize
-		col_acc += (1.0 - alpha_acc) * color_sample * stepsize;
+		col_acc += (1.0 - alpha_acc) * color_sample * alpha_sample;
 
 		// calculate the accumulated alpha value
-		alpha_acc += color_sample.a * stepsize;
-		//////////////////////////////////////////////////////////////////////////
+		alpha_acc += alpha_sample;
 
 		// the ray position vector
 		ray += delta_dir;
