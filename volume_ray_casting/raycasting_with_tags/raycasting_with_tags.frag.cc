@@ -18,12 +18,20 @@ uniform float stepsize, luminance;
 // for choosing a transfer function
 uniform int transfer_function_option;
 
+// size of the volume data
+uniform vec3 sizes;
+
 // the current position of the ray
 varying vec4 position;
 
 float sum3(vec4 c)
 {
 	return c.x + c.y + c.z;
+}
+
+float sum4(vec4 c)
+{
+	return c.x + c.y + c.z + c.w;
 }
 
 // the direct volume rendering process
@@ -65,6 +73,12 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 	// a mask for vector operations
 	const vec4 mask = vec4(1, 0, 0, 0);
 
+	// offset for sobel operator
+	vec4 e = vec4(vec3(-1, 1, 0)/sizes, 0);
+
+	// for Sobel operator
+	vec4 g_x, g_y, g_z;
+
 	// the loop for ray casting
 	for(int i = 0; i < count; i++)
 	{
@@ -89,7 +103,97 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 		case 3:
 			// Segmentation tags with simple 2D transfer function
-			color_sample = mask.xxxw * texture2D(transfer_function_2D, texture3D(tag_texture, ray).xy) + mask.wwwx * texture3D(volume_texture, ray).wzyx;
+			color_sample = mask.xxxw * texture2D(transfer_function_2D, texture3D(tag_texture, ray).xy) + mask.wwwx * sum3(texture3D(volume_texture, ray));
+			break;
+
+		case 4:
+			// Sobel 3D operator
+			g_x = abs(
+				4.0 * (texture3D(volume_texture, ray+e.yww)-texture3D(volume_texture, ray+e.xww))
+				+ 2.0 * (texture3D(volume_texture, ray+e.yxw)-texture3D(volume_texture, ray+e.xxw))
+				+ 2.0 * (texture3D(volume_texture, ray+e.yyw)-texture3D(volume_texture, ray+e.xyw)) 
+				+ 2.0 * (texture3D(volume_texture, ray+e.ywx)-texture3D(volume_texture, ray+e.xwx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.ywy)-texture3D(volume_texture, ray+e.xwy))
+				+ (texture3D(volume_texture, ray+e.yxx)-texture3D(volume_texture, ray+e.xxx))
+				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.xyy)) 
+				+ (texture3D(volume_texture, ray+e.yyx)-texture3D(volume_texture, ray+e.xyx))
+				+ (texture3D(volume_texture, ray+e.yxy)-texture3D(volume_texture, ray+e.xxy))
+				);
+
+			g_y = abs(
+				4.0 * (texture3D(volume_texture, ray+e.wyw)-texture3D(volume_texture, ray+e.wxw))
+				+ 2.0 * (texture3D(volume_texture, ray+e.xyw)-texture3D(volume_texture, ray+e.xxw)) 
+				+ 2.0 * (texture3D(volume_texture, ray+e.yyw)-texture3D(volume_texture, ray+e.yxw))
+				+ 2.0 * (texture3D(volume_texture, ray+e.wyx)-texture3D(volume_texture, ray+e.wxx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.wyy)-texture3D(volume_texture, ray+e.wxy))
+				+ (texture3D(volume_texture, ray+e.xyx)-texture3D(volume_texture, ray+e.xxx)) 
+				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.yxy))
+				+ (texture3D(volume_texture, ray+e.yyx)-texture3D(volume_texture, ray+e.yxx))
+				+ (texture3D(volume_texture, ray+e.xyy)-texture3D(volume_texture, ray+e.xxy))
+				);
+
+			g_z = abs(
+				4.0 * (texture3D(volume_texture, ray+e.wwy)-texture3D(volume_texture, ray+e.wwx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.xwy)-texture3D(volume_texture, ray+e.xwx)) 
+				+ 2.0 * (texture3D(volume_texture, ray+e.ywy)-texture3D(volume_texture, ray+e.ywx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.wxy)-texture3D(volume_texture, ray+e.wxx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.wyy)-texture3D(volume_texture, ray+e.wyx))
+				+ (texture3D(volume_texture, ray+e.xxy)-texture3D(volume_texture, ray+e.xxx)) 
+				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.yyx))
+				+ (texture3D(volume_texture, ray+e.yxy)-texture3D(volume_texture, ray+e.yxx))
+				+ (texture3D(volume_texture, ray+e.xyy)-texture3D(volume_texture, ray+e.xyx))
+				);
+
+			color_sample
+				= mask.xwww * g_x
+				+ mask.wxww * g_y
+				+ mask.wwxw * g_z
+				+ mask.wwwx * (g_x.x + g_y.y + g_z.z);
+			break;
+
+		case 5:
+			// Sobel 3D operator
+			g_x = abs(
+				4.0 * (texture3D(volume_texture, ray+e.yww)-texture3D(volume_texture, ray+e.xww))
+				+ 2.0 * (texture3D(volume_texture, ray+e.yxw)-texture3D(volume_texture, ray+e.xxw))
+				+ 2.0 * (texture3D(volume_texture, ray+e.yyw)-texture3D(volume_texture, ray+e.xyw)) 
+				+ 2.0 * (texture3D(volume_texture, ray+e.ywx)-texture3D(volume_texture, ray+e.xwx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.ywy)-texture3D(volume_texture, ray+e.xwy))
+				+ (texture3D(volume_texture, ray+e.yxx)-texture3D(volume_texture, ray+e.xxx))
+				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.xyy)) 
+				+ (texture3D(volume_texture, ray+e.yyx)-texture3D(volume_texture, ray+e.xyx))
+				+ (texture3D(volume_texture, ray+e.yxy)-texture3D(volume_texture, ray+e.xxy))
+				);
+
+			g_y = abs(
+				4.0 * (texture3D(volume_texture, ray+e.wyw)-texture3D(volume_texture, ray+e.wxw))
+				+ 2.0 * (texture3D(volume_texture, ray+e.xyw)-texture3D(volume_texture, ray+e.xxw)) 
+				+ 2.0 * (texture3D(volume_texture, ray+e.yyw)-texture3D(volume_texture, ray+e.yxw))
+				+ 2.0 * (texture3D(volume_texture, ray+e.wyx)-texture3D(volume_texture, ray+e.wxx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.wyy)-texture3D(volume_texture, ray+e.wxy))
+				+ (texture3D(volume_texture, ray+e.xyx)-texture3D(volume_texture, ray+e.xxx)) 
+				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.yxy))
+				+ (texture3D(volume_texture, ray+e.yyx)-texture3D(volume_texture, ray+e.yxx))
+				+ (texture3D(volume_texture, ray+e.xyy)-texture3D(volume_texture, ray+e.xxy))
+				);
+
+			g_z = abs(
+				4.0 * (texture3D(volume_texture, ray+e.wwy)-texture3D(volume_texture, ray+e.wwx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.xwy)-texture3D(volume_texture, ray+e.xwx)) 
+				+ 2.0 * (texture3D(volume_texture, ray+e.ywy)-texture3D(volume_texture, ray+e.ywx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.wxy)-texture3D(volume_texture, ray+e.wxx))
+				+ 2.0 * (texture3D(volume_texture, ray+e.wyy)-texture3D(volume_texture, ray+e.wyx))
+				+ (texture3D(volume_texture, ray+e.xxy)-texture3D(volume_texture, ray+e.xxx)) 
+				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.yyx))
+				+ (texture3D(volume_texture, ray+e.yxy)-texture3D(volume_texture, ray+e.yxx))
+				+ (texture3D(volume_texture, ray+e.xyy)-texture3D(volume_texture, ray+e.xyx))
+				);
+
+			color_sample
+				= mask.xwww * g_x
+				+ mask.wxww * g_y
+				+ mask.wwxw * g_z
+				+ mask.wwwx * sum3(texture3D(volume_texture, ray));
 			break;
 
 		default:

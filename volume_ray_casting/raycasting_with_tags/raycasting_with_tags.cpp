@@ -83,12 +83,12 @@ GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture;
 GLuint loc_tag_texture;
-const float LUMINANCE_MAX = 100;
+const float LUMINANCE_MAX = 200;
 const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
 float luminance = 1;
 GLuint loc_luminance;
-//GLuint loc_sizes;
+GLuint loc_sizes;
 
 /// for UI widgets
 bool ui_on = true;
@@ -133,6 +133,8 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_2D,
 	TRANSFER_FUNCTION_BEN,
 	TRANSFER_FUNCTION_TAG,
+	TRANSFER_FUNCTION_SOBEL_3D,
+	TRANSFER_FUNCTION_SOBEL_3D_SCALAR,
 	TRANSFER_FUNCTION_COUNT
 };
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
@@ -166,7 +168,7 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Tags"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Tags", "Sobel 3D", "Sobel 3D scalar"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -443,7 +445,7 @@ void setShaders()
 	//loc_peeling_option = glGetUniformLocation(p, "peeling_option");
 	loc_transfer_function_option = glGetUniformLocation(p, "transfer_function_option");
 	loc_luminance = glGetUniformLocation(p, "luminance");
-	//loc_sizes = glGetUniformLocation(p, "sizes");
+	loc_sizes = glGetUniformLocation(p, "sizes");
 	//loc_clip = glGetUniformLocation(p, "clip");
 	//loc_slope_threshold = glGetUniformLocation(p, "slope_threshold");
 	//loc_cluster_interval = glGetUniformLocation(p, "cluster_interval");
@@ -877,7 +879,7 @@ void raycasting_pass()
 	//glUniform1f(loc_threshold_low, threshold_low);
 	glUniform1f(loc_luminance, luminance);
 	//glUniform1f(loc_clip, clip);
-	//glUniform3f(loc_sizes, sizes[0], sizes[1], sizes[2]);
+	glUniform3f(loc_sizes, sizes[0], sizes[1], sizes[2]);
 	//glUniform1f(loc_cluster_interval, cluster_interval);
 	//glUniform1f(loc_scalar_min_normalized, scalar_min_normalized);
 	//glUniform1f(loc_scalar_max_normalized, scalar_max_normalized);

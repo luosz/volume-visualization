@@ -33,10 +33,10 @@ namespace volume_utility
 			for (std::set<T>::iterator i=data_set.begin(); i!=data_set.end(); i++)
 			{
 				data_map[*i] = (T)sum;
-				std::cout<<(int)*i<<","<<(int)data_map[*i]<<","<<sum<<" ";
+				//std::cout<<(int)*i<<","<<(int)data_map[*i]<<","<<sum<<" ";
 				sum += increment;
 			}
-			std::cout<<std::endl;
+			//std::cout<<std::endl;
 
 			for (unsigned int i=0; i<count; i++)
 			{
