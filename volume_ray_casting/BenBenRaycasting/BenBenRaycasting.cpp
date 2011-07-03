@@ -917,7 +917,7 @@ void raycasting_pass()
 	//////////////////////////////////////////////////////////////////////////
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	drawQuads(1.0,1.0, 1.0);
+	drawQuads(1.0, 1.0, 1.0);
 	glDisable(GL_CULL_FACE);
 	//cgGLDisableProfile(vertexProfile);
 	//cgGLDisableProfile(fragmentProfile);
