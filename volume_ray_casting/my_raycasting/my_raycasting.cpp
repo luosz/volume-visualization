@@ -160,7 +160,7 @@ GLuint v,f,p;
 GLuint loc_stepsize;
 GLuint loc_volume;
 GLuint loc_transfer_texture, loc_transfer_texture2;
-const float LUMINANCE_MAX = 100;
+const float LUMINANCE_MAX = 200;
 const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
 float luminance = 1;
