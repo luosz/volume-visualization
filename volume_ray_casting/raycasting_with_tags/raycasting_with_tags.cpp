@@ -40,6 +40,8 @@ GLenum gl_type;
 int sizes[3];
 int color_component_number;
 
+GLuint loc_sizes;
+
 /// buffers, textures
 GLuint renderbuffer; 
 GLuint framebuffer; 
@@ -88,7 +90,6 @@ const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
 float luminance = 1;
 GLuint loc_luminance;
-GLuint loc_sizes;
 
 /// for UI widgets
 bool ui_on = true;
@@ -139,6 +140,20 @@ enum TransferFunctionOption
 };
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
 GLuint loc_transfer_function_option;
+
+// for lighting
+float fSpecularPower = 25;
+float fvLightPosition[3] = {-100, 100, 100};
+float fvEyePosition[3] = {0, 0, 100};
+float fvAmbient[4] = {0.368627, 0.368421, 0.368421, 1.0};
+float fvSpecular[4] = {0.886275, 0.885003, 0.885003, 1.0};
+float fvDiffuse[4] = {0.490196, 0.488722, 0.488722, 1.0};
+GLuint loc_fSpecularPower;
+GLuint loc_fvLightPosition;
+GLuint loc_fvEyePosition;
+GLuint loc_fvAmbient;
+GLuint loc_fvSpecular;
+GLuint loc_fvDiffuse;
 
 /************************************************************************/
 /*	for ui widgets                                                      */
@@ -454,6 +469,14 @@ void setShaders()
 	//loc_scalar_max_normalized = glGetUniformLocation(p, "scalar_max_normalized");
 	//loc_alpha_opacity = glGetUniformLocation(p, "alpha_opacity");
 	//loc_fusion_factor = glGetUniformLocation(p, "fusion_factor");
+
+	// for lighting
+	loc_fSpecularPower = glGetUniformLocation(p, "fSpecularPower");
+	loc_fvLightPosition = glGetUniformLocation(p, "fvLightPosition");
+	loc_fvEyePosition = glGetUniformLocation(p, "fvEyePosition");
+	loc_fvAmbient = glGetUniformLocation(p, "fvAmbient");
+	loc_fvSpecular = glGetUniformLocation(p, "fvSpecular");
+	loc_fvDiffuse = glGetUniformLocation(p, "fvDiffuse");
 
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
@@ -890,6 +913,14 @@ void raycasting_pass()
 	//glUniform1i(loc_peeling_option, peeling_option);
 	glUniform1i(loc_transfer_function_option, transfer_function_option);
 	//glUniform1i(loc_peeling_layer, peeling_layer_int);
+
+	// for lighting
+	glUniform1f(loc_fSpecularPower, fSpecularPower);
+	glUniform3fv(loc_fvLightPosition, 1, fvLightPosition);
+	glUniform3fv(loc_fvEyePosition, 1, fvEyePosition);
+	glUniform4fv(loc_fvAmbient, 1, fvAmbient);
+	glUniform4fv(loc_fvSpecular, 1, fvSpecular);
+	glUniform4fv(loc_fvDiffuse, 1, fvDiffuse);
 
 	if(button_generate_Ben_transfer_function)
 	{

@@ -24,6 +24,16 @@ uniform vec3 sizes;
 // the current position of the ray
 varying vec4 position;
 
+// for lighting
+uniform vec4 fvAmbient;
+uniform vec4 fvSpecular;
+uniform vec4 fvDiffuse;
+uniform float fSpecularPower;
+
+varying vec3 ViewDirection;
+varying vec3 LightDirection;
+varying vec3 Normal;
+
 float sum3(vec4 c)
 {
 	return c.x + c.y + c.z;
@@ -253,6 +263,22 @@ void main(void)
 		discard;
 	} else {
 		//fragCoords are lying inside the boundingbox
-		gl_FragColor = directRendering(frontPos, backPos);
+		//gl_FragColor = directRendering(frontPos, backPos);
+		vec4  fvBaseColor      = directRendering(frontPos, backPos);
+
+		// for lighting
+		vec3  fvLightDirection = normalize( LightDirection );
+		vec3  fvNormal         = normalize( Normal );
+		float fNDotL           = dot( fvNormal, fvLightDirection ); 
+
+		vec3  fvReflection     = normalize( ( ( 2.0 * fvNormal ) * fNDotL ) - fvLightDirection ); 
+		vec3  fvViewDirection  = normalize( ViewDirection );
+		float fRDotV           = max( 0.0, dot( fvReflection, fvViewDirection ) );
+
+		vec4  fvTotalAmbient   = fvAmbient * fvBaseColor; 
+		vec4  fvTotalDiffuse   = fvDiffuse * fNDotL * fvBaseColor; 
+		vec4  fvTotalSpecular  = fvSpecular * ( pow( fRDotV, fSpecularPower ) );
+
+		gl_FragColor = ( fvTotalAmbient + fvTotalDiffuse + fvTotalSpecular );
 	}
 }
