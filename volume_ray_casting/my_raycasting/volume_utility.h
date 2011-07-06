@@ -322,12 +322,6 @@ namespace volume_utility
 #endif
 	}
 
-	/// get a 1D index from a 3D index
-	unsigned int get_index(const int i, const int j, const int k, const int *sizes)
-	{
-		return (i * sizes[1] + j) * sizes[0] + k;
-	}
-
 	/// calculate the gradients and the second derivatives
 	void generate_gradient(const int *sizes, const unsigned int count, const unsigned int components, const vector<float> &scalar_value, vector<nv::vec3f> &gradient, vector<float> &gradient_magnitude, float &max_gradient_magnitude, vector<nv::vec3f> &second_derivative, vector<float> &second_derivative_magnitude, float &max_second_derivative_magnitude)
 	{
@@ -379,6 +373,12 @@ namespace volume_utility
 				}
 			}
 		}
+	}
+
+	/// get a 1D index from a 3D index
+	unsigned int get_index(const int i, const int j, const int k, const int *sizes)
+	{
+		return (i * sizes[1] + j) * sizes[0] + k;
 	}
 
 	/// generate average and variation for scalar values
@@ -445,6 +445,73 @@ namespace volume_utility
 		}
 	}
 
+	/// gradient estimation by Sobel 3D operator
+	void estimate_gradient(unsigned short *gradient_data, const int *sizes, const unsigned int count, const unsigned int components, const vector<float> &scalar_value, vector<nv::vec3f> &gradient)
+	{
+		unsigned int index;
+		int boundary[3] = {sizes[0]-1, sizes[1]-1, sizes[2]-1};
+		int width = sizes[0], height = sizes[1], depth = sizes[2];
+
+		for (int i=0; i<depth; i++)
+		{
+			for (int j=0; j<height; j++)
+			{
+				for (int k=0; k<width; k++)
+				{
+					index = get_index(i, j, k, sizes);
+					if (k==0 || j==0 || i==0 || k==boundary[0] || j==boundary[1] || i==boundary[2])
+					{
+						gradient[index] =  0;
+					}else
+					{
+						gradient[index].x
+							= 4.0 * (scalar_value[get_index(i+1, j, k, sizes)] - scalar_value[get_index(i-1, j, k, sizes)])
+							+ 2.0 * (scalar_value[get_index(i+1, j-1, k, sizes)] - scalar_value[get_index(i-1, j-1, k, sizes)])
+							+ 2.0 * (scalar_value[get_index(i+1, j+1, k, sizes)] - scalar_value[get_index(i-1, j+1, k, sizes)])
+							+ 2.0 * (scalar_value[get_index(i+1, j, k-1, sizes)] - scalar_value[get_index(i-1, j, k-1, sizes)])
+							+ 2.0 * (scalar_value[get_index(i+1, j, k+1, sizes)] - scalar_value[get_index(i-1, j, k+1, sizes)])
+							+ (scalar_value[get_index(i+1, j-1, k-1, sizes)] - scalar_value[get_index(i-1, j-1, k-1, sizes)])
+							+ (scalar_value[get_index(i+1, j+1, k+1, sizes)] - scalar_value[get_index(i-1, j+1, k+1, sizes)])
+							+ (scalar_value[get_index(i+1, j+1, k-1, sizes)] - scalar_value[get_index(i-1, j+1, k-1, sizes)])
+							+ (scalar_value[get_index(i+1, j-1, k+1, sizes)] - scalar_value[get_index(i-1, j-1, k+1, sizes)]);
+
+						gradient[index].y
+							= 4.0 * (scalar_value[get_index(i, j+1, k, sizes)] - scalar_value[get_index(i, j-1, k, sizes)])
+							+ 2.0 * (scalar_value[get_index(i-1, j+1, k, sizes)] - scalar_value[get_index(i-1, j-1, k, sizes)])
+							+ 2.0 * (scalar_value[get_index(i+1, j+1, k, sizes)] - scalar_value[get_index(1+1, j-1, k, sizes)])
+							+ 2.0 * (scalar_value[get_index(i, j+1, k-1, sizes)] - scalar_value[get_index(i, j-1, k-1, sizes)])
+							+ 2.0 * (scalar_value[get_index(i, j+1, k+1, sizes)] - scalar_value[get_index(i, j-1, k+1, sizes)])
+							+ (scalar_value[get_index(i-1, j+1, k-1, sizes)] - scalar_value[get_index(i-1, j-1, k-1, sizes)])
+							+ (scalar_value[get_index(i+1, j+1, k+1, sizes)] - scalar_value[get_index(1+1, j-1, k+1, sizes)])
+							+ (scalar_value[get_index(i+1, j+1, k-1, sizes)] - scalar_value[get_index(i+1, j-1, k-1, sizes)])
+							+ (scalar_value[get_index(i-1, j+1, k+1, sizes)] - scalar_value[get_index(i-1, j-1, k+1, sizes)]);
+
+						gradient[index].z
+							= 4.0 * (scalar_value[get_index(i, j, k+1, sizes)] - scalar_value[get_index(i, j, k-1, sizes)])
+							+ 2.0 * (scalar_value[get_index(i-1, j, k+1, sizes)] - scalar_value[get_index(i-1, j, k-1, sizes)])
+							+ 2.0 * (scalar_value[get_index(i+1, j, k+1, sizes)] - scalar_value[get_index(i+1, j, k-1, sizes)])
+							+ 2.0 * (scalar_value[get_index(i, j-1, k+1, sizes)] - scalar_value[get_index(i, j-1, k-1, sizes)])
+							+ 2.0 * (scalar_value[get_index(i, j+1, k+1, sizes)] - scalar_value[get_index(i, j+1, k-1, sizes)])
+							+ (scalar_value[get_index(i-1, j-1, k+1, sizes)] - scalar_value[get_index(i-1, j-1, k-1, sizes)])
+							+ (scalar_value[get_index(i+1, j+1, k+1, sizes)] - scalar_value[get_index(i+1, j+1, k-1, sizes)])
+							+ (scalar_value[get_index(i+1, j-1, k+1, sizes)] - scalar_value[get_index(i+1, j-1, k-1, sizes)])
+							+ (scalar_value[get_index(i-1, j+1, k+1, sizes)] - scalar_value[get_index(i-1, j+1, k-1, sizes)]);
+
+						gradient[index] = nv::normalize(gradient[index]);
+					}
+				}
+			}
+		}
+
+		for (unsigned int i=0; i<count; i++)
+		{
+			nv::vec3f g = gradient[i];
+			unsigned int j = i * 3;
+			gradient_data[j]   = (unsigned short)(g.x * 65535);
+			gradient_data[j+1] = (unsigned short)(g.y * 65535);
+			gradient_data[j+2] = (unsigned short)(g.z * 65535);
+		}
+	}
 }
 
 #endif // volume_utility_h
