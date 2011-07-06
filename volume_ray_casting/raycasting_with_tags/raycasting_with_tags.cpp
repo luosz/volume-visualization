@@ -3,8 +3,8 @@
 */
 
 /*
-  Simple Demo for GLSL
-  www.lighthouse3d.com
+Simple Demo for GLSL
+www.lighthouse3d.com
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +25,7 @@ using namespace std;
 #include "../my_raycasting/VolumeReader.h"
 #include "../my_raycasting/textfile.h"
 #include "../my_raycasting/filename_utility.h"
+#include "../my_raycasting/volume_utility.h"
 #include "reader_tag.h"
 #include "tag.h"
 
@@ -68,6 +69,7 @@ GLuint final_image;
 /// the volume texture from files
 GLuint volume_texture_from_file;
 GLuint transfer_texture;
+GLuint gradient_texture;
 
 // texture for segmentation tags
 GLuint tag_texture;
@@ -82,8 +84,9 @@ float stepsize = 1.0/100.0;
 GLuint v,f,p;
 
 GLuint loc_stepsize;
-GLuint loc_volume;
+GLuint loc_volume_texture_from_file;
 GLuint loc_transfer_texture;
+GLuint loc_gradient_texture;
 GLuint loc_tag_texture;
 const float LUMINANCE_MAX = 200;
 const float LUMINANCE_MIN = 1;
@@ -343,55 +346,55 @@ void passiveMotion(int x, int y) {
 
 int printOglError(char *file, int line)
 {
-    //
-    // Returns 1 if an OpenGL error occurred, 0 otherwise.
-    //
-    GLenum glErr;
-    int    retCode = 0;
+	//
+	// Returns 1 if an OpenGL error occurred, 0 otherwise.
+	//
+	GLenum glErr;
+	int    retCode = 0;
 
-    glErr = glGetError();
-    while (glErr != GL_NO_ERROR)
-    {
-        printf("glError in file %s @ line %d: %s\n", file, line, gluErrorString(glErr));
-        retCode = 1;
-        glErr = glGetError();
-    }
-    return retCode;
+	glErr = glGetError();
+	while (glErr != GL_NO_ERROR)
+	{
+		printf("glError in file %s @ line %d: %s\n", file, line, gluErrorString(glErr));
+		retCode = 1;
+		glErr = glGetError();
+	}
+	return retCode;
 }
 
 
 void printShaderInfoLog(GLuint obj)
 {
-    int infologLength = 0;
-    int charsWritten  = 0;
-    char *infoLog;
+	int infologLength = 0;
+	int charsWritten  = 0;
+	char *infoLog;
 
-    glGetShaderiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
+	glGetShaderiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
 
-    if (infologLength > 0)
-    {
-        infoLog = (char *)malloc(infologLength);
-        glGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
-        printf("%s\n",infoLog);
-        free(infoLog);
-    }
+	if (infologLength > 0)
+	{
+		infoLog = (char *)malloc(infologLength);
+		glGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
+		printf("%s\n",infoLog);
+		free(infoLog);
+	}
 }
 
 void printProgramInfoLog(GLuint obj)
 {
-    int infologLength = 0;
-    int charsWritten  = 0;
-    char *infoLog;
+	int infologLength = 0;
+	int charsWritten  = 0;
+	char *infoLog;
 
-    glGetProgramiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
+	glGetProgramiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
 
-    if (infologLength > 0)
-    {
-        infoLog = (char *)malloc(infologLength);
-        glGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
-        printf("%s\n",infoLog);
-        free(infoLog);
-    }
+	if (infologLength > 0)
+	{
+		infoLog = (char *)malloc(infologLength);
+		glGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
+		printf("%s\n",infoLog);
+		free(infoLog);
+	}
 }
 
 /// Sets a uniform texture parameter
@@ -421,36 +424,36 @@ void set_texture_uniform(GLuint location, GLuint program, const char* name, int 
 /// load shaders from files and set shaders
 void setShaders()
 {
-    char *vs = NULL,*fs = NULL;
+	char *vs = NULL,*fs = NULL;
 
-    v = glCreateShader(GL_VERTEX_SHADER);
-    f = glCreateShader(GL_FRAGMENT_SHADER);
+	v = glCreateShader(GL_VERTEX_SHADER);
+	f = glCreateShader(GL_FRAGMENT_SHADER);
 
-    vs = file_utility::textFileRead("simple_vertex.vert.cc");
-    fs = file_utility::textFileRead("raycasting_with_tags.frag.cc");
+	vs = file_utility::textFileRead("simple_vertex.vert.cc");
+	fs = file_utility::textFileRead("raycasting_with_tags.frag.cc");
 
-    const char * vv = vs;
-    const char * ff = fs;
+	const char * vv = vs;
+	const char * ff = fs;
 
-    glShaderSource(v, 1, &vv,NULL);
-    glShaderSource(f, 1, &ff,NULL);
+	glShaderSource(v, 1, &vv,NULL);
+	glShaderSource(f, 1, &ff,NULL);
 
-    free(vs);
-    free(fs);
+	free(vs);
+	free(fs);
 
-    glCompileShader(v);
-    glCompileShader(f);
+	glCompileShader(v);
+	glCompileShader(f);
 
-    printShaderInfoLog(v);
-    printShaderInfoLog(f);
+	printShaderInfoLog(v);
+	printShaderInfoLog(f);
 
-    p = glCreateProgram();
-    glAttachShader(p,v);
-    glAttachShader(p,f);
+	p = glCreateProgram();
+	glAttachShader(p,v);
+	glAttachShader(p,f);
 
 	// Initial program setup.
-    glLinkProgram(p); // Initial link
-    printProgramInfoLog(p);
+	glLinkProgram(p); // Initial link
+	printProgramInfoLog(p);
 
 	// use the shader program
 	glUseProgram(p);
@@ -481,13 +484,14 @@ void setShaders()
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
 	add_texture_uniform(p, "back", 2, GL_TEXTURE_2D, backface_buffer);
-	loc_volume = add_texture_uniform(p, "volume_texture", 3, GL_TEXTURE_3D, volume_texture_from_file);
+	loc_volume_texture_from_file = add_texture_uniform(p, "volume_texture", 3, GL_TEXTURE_3D, volume_texture_from_file);
 	add_texture_uniform(p, "transfer_function_2D", 4, GL_TEXTURE_2D, transfer_function_2D_buffer);
 	loc_transfer_texture = add_texture_uniform(p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
 	//loc_cluster_texture =  add_texture_uniform(p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
 	//loc_importance_texture =  add_texture_uniform(p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
 	//loc_transfer_texture2 = add_texture_uniform(p, "transfer_texture2", 8, GL_TEXTURE_3D, transfer_texture2);
 	loc_tag_texture =  add_texture_uniform(p, "tag_texture", 6, GL_TEXTURE_3D, tag_texture);
+	loc_gradient_texture =  add_texture_uniform(p, "gradient_texture", 7, GL_TEXTURE_3D, gradient_texture);
 
 	// disable the shader program
 	glUseProgram(0);
@@ -651,10 +655,10 @@ void key_release(unsigned char key, int x, int y)
 	gKeys[key] = false;
 	switch (key)
 	{
-		case 27 :
-			// escape to exit
-			exit(0);
-			break;
+	case 27 :
+		// escape to exit
+		exit(0);
+		break;
 	case 'r':
 		button_auto_rotate = !button_auto_rotate;
 		break;
@@ -1147,6 +1151,32 @@ void read_volume_file_with_tag(char* filename)
 	}
 }
 
+/// estimate gradient texture
+void estimate_gradient_texture()
+{
+	unsigned int count = sizes[0]*sizes[1]*sizes[2];
+	unsigned short *gradient_data = new unsigned short[count * 3];
+
+	vector<float> scalar_value(count); // the scalar data in const T *data
+	vector<nv::vec3f> gradient(count);
+	std::cout<<"Scalar histogram..."<<std::endl;
+
+	if (gl_type == GL_UNSIGNED_SHORT)
+	{
+		unsigned int histogram[65536] = {0};
+		volume_utility::generate_scalar_histogram<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_omponent_number, histogram, scalar_value);
+	}
+	else
+	{
+		unsigned int histogram[256] = {0};
+		volume_utility::generate_scalar_histogram<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number, histogram, scalar_value);
+	}
+
+	volume_utility::estimate_gradient(gradient_data, sizes, count, scalar_value, gradient);
+
+	delete [] gradient_data;
+}
+
 /// free the data pointer before exit
 void finailize()
 {
@@ -1279,19 +1309,19 @@ void initialize()
 int main(int argc, char **argv)
 {
 	// print about information
-    filename_utility::print_about(argc, argv);
+	filename_utility::print_about(argc, argv);
 
 	// get volume filename from arguments or console input
 	filename_utility::get_filename(argc, argv, volume_filename);
 
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-    //glutInitWindowPosition(100,100);
-    glutInitWindowSize(WINDOW_SIZE,WINDOW_SIZE);
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+	//glutInitWindowPosition(100,100);
+	glutInitWindowSize(WINDOW_SIZE,WINDOW_SIZE);
 
-    char str[MAX_STR_SIZE];
-    sprintf(str, "GPU raycasting - %s", volume_filename);
-    glutCreateWindow(str);
+	char str[MAX_STR_SIZE];
+	sprintf(str, "GPU raycasting - %s", volume_filename);
+	glutCreateWindow(str);
 
 	// keyboard
 	glutKeyboardFunc(key_press);
@@ -1303,36 +1333,36 @@ int main(int argc, char **argv)
 	glutMotionFunc(motion);
 	glutPassiveMotionFunc(passiveMotion);
 
-    //glutDisplayFunc(renderScene);
-    //glutIdleFunc(renderScene);
-    //glutReshapeFunc(changeSize);
-    //glutKeyboardFunc(processNormalKeys);
+	//glutDisplayFunc(renderScene);
+	//glutIdleFunc(renderScene);
+	//glutReshapeFunc(changeSize);
+	//glutKeyboardFunc(processNormalKeys);
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle_func);
 	glutReshapeFunc(resize);
 	resize(WINDOW_SIZE,WINDOW_SIZE);
 
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(1.0,1.0,1.0,1.0);
-    glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(1.0,1.0,1.0,1.0);
+	glEnable(GL_CULL_FACE);
 
-    glewInit();
-    if (glewIsSupported("GL_VERSION_2_0"))
-        printf("Ready for OpenGL 2.0\n");
-    else
-    {
-        printf("OpenGL 2.0 not supported\n");
-        exit(1);
-    }
+	glewInit();
+	if (glewIsSupported("GL_VERSION_2_0"))
+		printf("Ready for OpenGL 2.0\n");
+	else
+	{
+		printf("OpenGL 2.0 not supported\n");
+		exit(1);
+	}
 
-    //setShaders();
+	//setShaders();
 	initialize();
 
-    glutMainLoop();
+	glutMainLoop();
 
 	finailize();
 
-    return 0;
+	return 0;
 }
 

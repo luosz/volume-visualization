@@ -446,7 +446,7 @@ namespace volume_utility
 	}
 
 	/// gradient estimation by Sobel 3D operator
-	void estimate_gradient(unsigned short *gradient_data, const int *sizes, const unsigned int count, const unsigned int components, const vector<float> &scalar_value, vector<nv::vec3f> &gradient)
+	void estimate_gradient(unsigned short *gradient_data, const int *sizes, const unsigned int count, const vector<float> &scalar_value, vector<nv::vec3f> &gradient)
 	{
 		unsigned int index;
 		int boundary[3] = {sizes[0]-1, sizes[1]-1, sizes[2]-1};

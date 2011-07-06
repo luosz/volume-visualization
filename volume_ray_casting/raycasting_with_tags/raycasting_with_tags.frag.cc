@@ -7,7 +7,7 @@ uniform sampler2D back, front;
 uniform sampler2D transfer_function_2D;
 
 // volume data and transfer functions
-uniform sampler3D volume_texture, transfer_texture;
+uniform sampler3D volume_texture, transfer_texture, gradient_texture;
 
 // volume data for segmentation tags
 uniform sampler3D tag_texture;
