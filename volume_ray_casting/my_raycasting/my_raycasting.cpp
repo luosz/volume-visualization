@@ -158,7 +158,7 @@ float stepsize = 1.0/100.0;
 GLuint v,f,p;
 
 GLuint loc_stepsize;
-GLuint loc_volume;
+GLuint loc_volume_texture_from_file;
 GLuint loc_transfer_texture, loc_transfer_texture2;
 const float LUMINANCE_MAX = 200;
 const float LUMINANCE_MIN = 1;
@@ -554,7 +554,7 @@ void setShaders() {
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
 	add_texture_uniform(p, "back", 2, GL_TEXTURE_2D, backface_buffer);
-	loc_volume = add_texture_uniform(p, "volume_texture", 3, GL_TEXTURE_3D, volume_texture_from_file);
+	loc_volume_texture_from_file = add_texture_uniform(p, "volume_texture", 3, GL_TEXTURE_3D, volume_texture_from_file);
 	add_texture_uniform(p, "transfer_function_2D", 4, GL_TEXTURE_2D, transfer_function_2D_buffer);
 	loc_transfer_texture = add_texture_uniform(p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
 	loc_cluster_texture =  add_texture_uniform(p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
@@ -1571,9 +1571,9 @@ void raycasting_pass()
 	{
 		button_show_generated_cube_backup = button_show_generated_cube;
 		if(button_show_generated_cube)
-			set_texture_uniform(loc_volume, p, "volume", 3, GL_TEXTURE_3D, volume_texture);
+			set_texture_uniform(loc_volume_texture_from_file, p, "volume", 3, GL_TEXTURE_3D, volume_texture);
 		else
-			set_texture_uniform(loc_volume, p, "volume", 3, GL_TEXTURE_3D, volume_texture_from_file);
+			set_texture_uniform(loc_volume_texture_from_file, p, "volume", 3, GL_TEXTURE_3D, volume_texture_from_file);
 	}
 
 	// draw front faces
