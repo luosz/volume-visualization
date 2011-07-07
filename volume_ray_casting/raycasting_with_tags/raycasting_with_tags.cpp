@@ -15,6 +15,7 @@ www.lighthouse3d.com
 #include <iostream>
 #include <vector>
 #include <limits>
+#include <string>
 using namespace std;
 
 /// NVIDIA OpenGL SDK
@@ -158,9 +159,12 @@ GLuint loc_lighting_option;
 float fSpecularPower = 25;
 float fvLightPosition[3] = {-100, 100, 100};
 float fvEyePosition[3] = {0, 0, 100};
-float fvAmbient[4] = {0.368627, 0.368421, 0.368421, 1.0};
-float fvSpecular[4] = {0.886275, 0.885003, 0.885003, 1.0};
-float fvDiffuse[4] = {0.490196, 0.488722, 0.488722, 1.0};
+//float fvAmbient[4] = {0.368627, 0.368421, 0.368421, 1.0};
+//float fvDiffuse[4] = {0.490196, 0.488722, 0.488722, 1.0};
+//float fvSpecular[4] = {0.886275, 0.885003, 0.885003, 1.0};
+float fvAmbient[4] = {0.768627, 0.768421, 0.568421, 1.0};
+float fvDiffuse[4] = {0.790196, 0.988722, 0.988722, 1.0};
+float fvSpecular[4] = {0.986275, 0.985003, 0.985003, 1.0};
 GLuint loc_fSpecularPower;
 GLuint loc_fvLightPosition;
 GLuint loc_fvEyePosition;
@@ -171,19 +175,31 @@ GLuint loc_fvDiffuse;
 // set the lighting parameters
 void set_lighting_parameters()
 {
-	std::cout<<"Please enter the lighting parameters."<<std::endl;
-	std::cout<<"Specular power (e.g. 25)"<<std::endl;
-	std::cin>>fSpecularPower;
-	std::cout<<"Light position (e.g. -100 100 100)"<<std::endl;
-	std::cin>>fvLightPosition[0]>>fvLightPosition[1]>>fvLightPosition[2];
-	std::cout<<"Eye position (e.g. 0 0 100)"<<std::endl;
-	std::cin>>fvEyePosition[0]>>fvEyePosition[1]>>fvEyePosition[2];
-	std::cout<<"Ambient (e.g. 0.368627 0.368421 0.368421 1.0)"<<std::endl;
-	std::cin>>fvAmbient[0]>>fvAmbient[1]>>fvAmbient[2]>>fvAmbient[3];
-	std::cout<<"Specular (e.g. 0.886275, 0.885003, 0.885003, 1.0)"<<std::endl;
-	std::cin>>fvSpecular[0]>>fvSpecular[1]>>fvSpecular[2]>>fvSpecular[3];
-	std::cout<<"Diffuse (e.g. 0.490196 0.488722 0.488722 1.0)"<<std::endl;
-	std::cin>>fvDiffuse[0]>>fvDiffuse[1]>>fvDiffuse[2]>>fvDiffuse[3];
+	std::cout<<"Lighting parameters:"<<std::endl;
+	std::cout<<"Specular power "<<fSpecularPower<<std::endl;
+	std::cout<<"Light position "<<fvLightPosition[0]<<" "<<fvLightPosition[1]<<" "<<fvLightPosition[2]<<std::endl;
+	std::cout<<"Eye position "<<fvEyePosition[0]<<" "<<fvEyePosition[1]<<" "<<fvEyePosition[2]<<std::endl;
+	std::cout<<"Ambient "<<fvAmbient[0]<<" "<<fvAmbient[1]<<" "<<fvAmbient[2]<<" "<<fvAmbient[3]<<std::endl;
+	std::cout<<"Diffuse "<<fvDiffuse[0]<<" "<<fvDiffuse[1]<<" "<<fvDiffuse[2]<<" "<<fvDiffuse[3]<<std::endl;
+	std::cout<<"Specular "<<fvSpecular[0]<<" "<<fvSpecular[1]<<" "<<fvSpecular[2]<<" "<<fvSpecular[3]<<std::endl;
+	std::cout<<"\nWould you like to set new values for the parameters? y/n"<<std::endl;
+	string s;
+	std::cin>>s;
+	if (s.compare("y") == 0 || s.compare("Y") == 0)
+	{
+		std::cout<<"Specular power (e.g. 25)"<<std::endl;
+		std::cin>>fSpecularPower;
+		std::cout<<"Light position (e.g. -100 100 100)"<<std::endl;
+		std::cin>>fvLightPosition[0]>>fvLightPosition[1]>>fvLightPosition[2];
+		std::cout<<"Eye position (e.g. 0 0 100)"<<std::endl;
+		std::cin>>fvEyePosition[0]>>fvEyePosition[1]>>fvEyePosition[2];
+		std::cout<<"Ambient (e.g. 0.368627 0.368421 0.368421 1.0)"<<std::endl;
+		std::cin>>fvAmbient[0]>>fvAmbient[1]>>fvAmbient[2]>>fvAmbient[3];
+		std::cout<<"Diffuse (e.g. 0.490196 0.488722 0.488722 1.0)"<<std::endl;
+		std::cin>>fvDiffuse[0]>>fvDiffuse[1]>>fvDiffuse[2]>>fvDiffuse[3];
+		std::cout<<"Specular (e.g. 0.886275 0.885003 0.885003 1.0)"<<std::endl;
+		std::cin>>fvSpecular[0]>>fvSpecular[1]>>fvSpecular[2]>>fvSpecular[3];
+	}
 	std::cout<<"Done."<<std::endl;
 }
 
