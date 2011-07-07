@@ -18,6 +18,9 @@ uniform float stepsize, luminance;
 // for choosing a transfer function
 uniform int transfer_function_option;
 
+// enable or disable lighting
+uniform int lighting_option;
+
 // size of the volume data
 uniform vec3 sizes;
 
@@ -163,53 +166,73 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 		case 5:
 			// Sobel 3D operator
-			g_x = abs(
-				4.0 * (texture3D(volume_texture, ray+e.yww)-texture3D(volume_texture, ray+e.xww))
-				+ 2.0 * (texture3D(volume_texture, ray+e.yxw)-texture3D(volume_texture, ray+e.xxw))
-				+ 2.0 * (texture3D(volume_texture, ray+e.yyw)-texture3D(volume_texture, ray+e.xyw)) 
-				+ 2.0 * (texture3D(volume_texture, ray+e.ywx)-texture3D(volume_texture, ray+e.xwx))
-				+ 2.0 * (texture3D(volume_texture, ray+e.ywy)-texture3D(volume_texture, ray+e.xwy))
-				+ (texture3D(volume_texture, ray+e.yxx)-texture3D(volume_texture, ray+e.xxx))
-				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.xyy)) 
-				+ (texture3D(volume_texture, ray+e.yyx)-texture3D(volume_texture, ray+e.xyx))
-				+ (texture3D(volume_texture, ray+e.yxy)-texture3D(volume_texture, ray+e.xxy))
-				);
+			//g_x = abs(
+			//	4.0 * (texture3D(volume_texture, ray+e.yww)-texture3D(volume_texture, ray+e.xww))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.yxw)-texture3D(volume_texture, ray+e.xxw))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.yyw)-texture3D(volume_texture, ray+e.xyw)) 
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.ywx)-texture3D(volume_texture, ray+e.xwx))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.ywy)-texture3D(volume_texture, ray+e.xwy))
+			//	+ (texture3D(volume_texture, ray+e.yxx)-texture3D(volume_texture, ray+e.xxx))
+			//	+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.xyy)) 
+			//	+ (texture3D(volume_texture, ray+e.yyx)-texture3D(volume_texture, ray+e.xyx))
+			//	+ (texture3D(volume_texture, ray+e.yxy)-texture3D(volume_texture, ray+e.xxy))
+			//	);
 
-			g_y = abs(
-				4.0 * (texture3D(volume_texture, ray+e.wyw)-texture3D(volume_texture, ray+e.wxw))
-				+ 2.0 * (texture3D(volume_texture, ray+e.xyw)-texture3D(volume_texture, ray+e.xxw)) 
-				+ 2.0 * (texture3D(volume_texture, ray+e.yyw)-texture3D(volume_texture, ray+e.yxw))
-				+ 2.0 * (texture3D(volume_texture, ray+e.wyx)-texture3D(volume_texture, ray+e.wxx))
-				+ 2.0 * (texture3D(volume_texture, ray+e.wyy)-texture3D(volume_texture, ray+e.wxy))
-				+ (texture3D(volume_texture, ray+e.xyx)-texture3D(volume_texture, ray+e.xxx)) 
-				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.yxy))
-				+ (texture3D(volume_texture, ray+e.yyx)-texture3D(volume_texture, ray+e.yxx))
-				+ (texture3D(volume_texture, ray+e.xyy)-texture3D(volume_texture, ray+e.xxy))
-				);
+			//g_y = abs(
+			//	4.0 * (texture3D(volume_texture, ray+e.wyw)-texture3D(volume_texture, ray+e.wxw))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.xyw)-texture3D(volume_texture, ray+e.xxw)) 
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.yyw)-texture3D(volume_texture, ray+e.yxw))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.wyx)-texture3D(volume_texture, ray+e.wxx))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.wyy)-texture3D(volume_texture, ray+e.wxy))
+			//	+ (texture3D(volume_texture, ray+e.xyx)-texture3D(volume_texture, ray+e.xxx)) 
+			//	+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.yxy))
+			//	+ (texture3D(volume_texture, ray+e.yyx)-texture3D(volume_texture, ray+e.yxx))
+			//	+ (texture3D(volume_texture, ray+e.xyy)-texture3D(volume_texture, ray+e.xxy))
+			//	);
 
-			g_z = abs(
-				4.0 * (texture3D(volume_texture, ray+e.wwy)-texture3D(volume_texture, ray+e.wwx))
-				+ 2.0 * (texture3D(volume_texture, ray+e.xwy)-texture3D(volume_texture, ray+e.xwx)) 
-				+ 2.0 * (texture3D(volume_texture, ray+e.ywy)-texture3D(volume_texture, ray+e.ywx))
-				+ 2.0 * (texture3D(volume_texture, ray+e.wxy)-texture3D(volume_texture, ray+e.wxx))
-				+ 2.0 * (texture3D(volume_texture, ray+e.wyy)-texture3D(volume_texture, ray+e.wyx))
-				+ (texture3D(volume_texture, ray+e.xxy)-texture3D(volume_texture, ray+e.xxx)) 
-				+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.yyx))
-				+ (texture3D(volume_texture, ray+e.yxy)-texture3D(volume_texture, ray+e.yxx))
-				+ (texture3D(volume_texture, ray+e.xyy)-texture3D(volume_texture, ray+e.xyx))
-				);
+			//g_z = abs(
+			//	4.0 * (texture3D(volume_texture, ray+e.wwy)-texture3D(volume_texture, ray+e.wwx))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.xwy)-texture3D(volume_texture, ray+e.xwx)) 
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.ywy)-texture3D(volume_texture, ray+e.ywx))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.wxy)-texture3D(volume_texture, ray+e.wxx))
+			//	+ 2.0 * (texture3D(volume_texture, ray+e.wyy)-texture3D(volume_texture, ray+e.wyx))
+			//	+ (texture3D(volume_texture, ray+e.xxy)-texture3D(volume_texture, ray+e.xxx)) 
+			//	+ (texture3D(volume_texture, ray+e.yyy)-texture3D(volume_texture, ray+e.yyx))
+			//	+ (texture3D(volume_texture, ray+e.yxy)-texture3D(volume_texture, ray+e.yxx))
+			//	+ (texture3D(volume_texture, ray+e.xyy)-texture3D(volume_texture, ray+e.xyx))
+			//	);
 
-			color_sample
-				= mask.xwww * g_x
-				+ mask.wxww * g_y
-				+ mask.wwxw * g_z
-				+ mask.wwwx * sum3(texture3D(volume_texture, ray));
+			color_sample = mask.xxxw * texture3D(gradient_texture, ray) + mask.wwwx * sum3(texture3D(volume_texture, ray));
 			break;
 
 		default:
 			// Raw scalar values without a transfer function
 			color_sample = texture3D(volume_texture, ray);
 		}
+
+		/************************************************************************/
+		/* lighting                                                             */
+		/************************************************************************/
+		if (lighting_option == 1)
+		{
+			vec4  fvBaseColor      = color_sample;
+
+			// for lighting
+			vec3  fvLightDirection = normalize( LightDirection );
+			vec3  fvNormal         = normalize( texture3D(gradient_texture, ray) );
+			float fNDotL           = dot( fvNormal, fvLightDirection ); 
+
+			vec3  fvReflection     = normalize( ( ( 2.0 * fvNormal ) * fNDotL ) - fvLightDirection ); 
+			vec3  fvViewDirection  = normalize( ViewDirection );
+			float fRDotV           = max( 0.0, dot( fvReflection, fvViewDirection ) );
+
+			vec4  fvTotalAmbient   = fvAmbient * fvBaseColor; 
+			vec4  fvTotalDiffuse   = fvDiffuse * fNDotL * fvBaseColor; 
+			vec4  fvTotalSpecular  = fvSpecular * ( pow( fRDotV, fSpecularPower ) );
+
+			color_sample = ( fvTotalAmbient + fvTotalDiffuse + fvTotalSpecular );
+		}
+		/************************************************************************/
 
 		// get the alpha sample value
 		alpha_sample = color_sample.a * stepsize;
@@ -263,22 +286,6 @@ void main(void)
 		discard;
 	} else {
 		//fragCoords are lying inside the boundingbox
-		//gl_FragColor = directRendering(frontPos, backPos);
-		vec4  fvBaseColor      = directRendering(frontPos, backPos);
-
-		// for lighting
-		vec3  fvLightDirection = normalize( LightDirection );
-		vec3  fvNormal         = normalize( Normal );
-		float fNDotL           = dot( fvNormal, fvLightDirection ); 
-
-		vec3  fvReflection     = normalize( ( ( 2.0 * fvNormal ) * fNDotL ) - fvLightDirection ); 
-		vec3  fvViewDirection  = normalize( ViewDirection );
-		float fRDotV           = max( 0.0, dot( fvReflection, fvViewDirection ) );
-
-		vec4  fvTotalAmbient   = fvAmbient * fvBaseColor; 
-		vec4  fvTotalDiffuse   = fvDiffuse * fNDotL * fvBaseColor; 
-		vec4  fvTotalSpecular  = fvSpecular * ( pow( fRDotV, fSpecularPower ) );
-
-		gl_FragColor = ( fvTotalAmbient + fvTotalDiffuse + fvTotalSpecular );
+		gl_FragColor = directRendering(frontPos, backPos);
 	}
 }

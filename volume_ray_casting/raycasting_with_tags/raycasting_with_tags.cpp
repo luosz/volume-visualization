@@ -116,6 +116,7 @@ nv::GlutUIContext ui;
 bool button_auto_rotate = false;
 bool button_lock_viewpoint = false;
 bool button_generate_Ben_transfer_function = false;
+bool button_set_lighting_parameters = false;
 
 /// for output image
 enum RenderOption
@@ -138,11 +139,20 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_BEN,
 	TRANSFER_FUNCTION_TAG,
 	TRANSFER_FUNCTION_SOBEL_3D,
-	TRANSFER_FUNCTION_SOBEL_3D_SCALAR,
+	TRANSFER_FUNCTION_SOBEL_3D_TEXTURE,
 	TRANSFER_FUNCTION_COUNT
 };
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
 GLuint loc_transfer_function_option;
+
+enum LightingOption
+{
+	LIGHTING_DISABLE,
+	LIGHTING_ENABLE,
+	LIGHTING_COUNT
+};
+int lighting_option = LIGHTING_ENABLE;
+GLuint loc_lighting_option;
 
 // for lighting
 float fSpecularPower = 25;
@@ -157,6 +167,25 @@ GLuint loc_fvEyePosition;
 GLuint loc_fvAmbient;
 GLuint loc_fvSpecular;
 GLuint loc_fvDiffuse;
+
+// set the lighting parameters
+void set_lighting_parameters()
+{
+	std::cout<<"Please enter the lighting parameters."<<std::endl;
+	std::cout<<"Specular power (e.g. 25)"<<std::endl;
+	std::cin>>fSpecularPower;
+	std::cout<<"Light position (e.g. -100 100 100)"<<std::endl;
+	std::cin>>fvLightPosition[0]>>fvLightPosition[1]>>fvLightPosition[2];
+	std::cout<<"Eye position (e.g. 0 0 100)"<<std::endl;
+	std::cin>>fvEyePosition[0]>>fvEyePosition[1]>>fvEyePosition[2];
+	std::cout<<"Ambient (e.g. 0.368627 0.368421 0.368421 1.0)"<<std::endl;
+	std::cin>>fvAmbient[0]>>fvAmbient[1]>>fvAmbient[2]>>fvAmbient[3];
+	std::cout<<"Specular (e.g. 0.886275, 0.885003, 0.885003, 1.0)"<<std::endl;
+	std::cin>>fvSpecular[0]>>fvSpecular[1]>>fvSpecular[2]>>fvSpecular[3];
+	std::cout<<"Diffuse (e.g. 0.490196 0.488722 0.488722 1.0)"<<std::endl;
+	std::cin>>fvDiffuse[0]>>fvDiffuse[1]>>fvDiffuse[2]>>fvDiffuse[3];
+	std::cout<<"Done."<<std::endl;
+}
 
 /************************************************************************/
 /*	for ui widgets                                                      */
@@ -186,7 +215,8 @@ void doUI()
 {
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Tags", "Sobel 3D", "Sobel 3D scalar"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Tags", "Sobel 3D", "Sobel 3D texture"};
+	const char *lighting_str[LIGHTING_COUNT] = {"Disable lighting", "Enable lighting"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -207,11 +237,14 @@ void doUI()
 		//ui.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
 		//ui.doButton(none, "Do all", &button_all);
 		//ui.doButton(none, "Load label", &button_load_importance_label);
+		ui.doButton(none, "Set lighting", &button_set_lighting_parameters);
 		ui.endGroup();
 
 		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
 		//ui.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
 		ui.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
+
+		ui.doComboBox(none, LIGHTING_COUNT, lighting_str, &lighting_option);
 
 		//ui.doLineEdit(none, text, MAX_STR_SIZE, &chars_returned);
 
@@ -480,6 +513,7 @@ void setShaders()
 	loc_fvAmbient = glGetUniformLocation(p, "fvAmbient");
 	loc_fvSpecular = glGetUniformLocation(p, "fvSpecular");
 	loc_fvDiffuse = glGetUniformLocation(p, "fvDiffuse");
+	loc_lighting_option = glGetUniformLocation(p, "lighting_option");
 
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
@@ -925,12 +959,21 @@ void raycasting_pass()
 	glUniform4fv(loc_fvAmbient, 1, fvAmbient);
 	glUniform4fv(loc_fvSpecular, 1, fvSpecular);
 	glUniform4fv(loc_fvDiffuse, 1, fvDiffuse);
+	glUniform1i(loc_lighting_option, lighting_option);
 
+	// load the Ben transfer function
 	if(button_generate_Ben_transfer_function)
 	{
 		button_generate_Ben_transfer_function = false;
 		create_transferfunc_Ben();
 		set_texture_uniform(loc_transfer_texture, p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
+	}
+
+	// set lighting parameters
+	if (button_set_lighting_parameters)
+	{
+		button_set_lighting_parameters = false;
+		set_lighting_parameters();
 	}
 
 	//if(button_generate_fusion_transfer_function)
@@ -1152,8 +1195,10 @@ void read_volume_file_with_tag(char* filename)
 }
 
 /// estimate gradient texture
-void estimate_gradient_texture()
+void load_gradient_texture()
 {
+	std::cout<<"Estimate gradient texture..."<<std::endl;
+
 	unsigned int count = sizes[0]*sizes[1]*sizes[2];
 	unsigned short *gradient_data = new unsigned short[count * 3];
 
@@ -1164,15 +1209,26 @@ void estimate_gradient_texture()
 	if (gl_type == GL_UNSIGNED_SHORT)
 	{
 		unsigned int histogram[65536] = {0};
-		volume_utility::generate_scalar_histogram<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_omponent_number, histogram, scalar_value);
+		volume_utility::generate_scalar_histogram<unsigned short, 65536>((unsigned short*)*data_ptr, count, (unsigned int)color_component_number, histogram, scalar_value);
 	}
 	else
 	{
 		unsigned int histogram[256] = {0};
-		volume_utility::generate_scalar_histogram<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number, histogram, scalar_value);
+		volume_utility::generate_scalar_histogram<unsigned char, 256>((unsigned char*)*data_ptr, count, (unsigned int)color_component_number, histogram, scalar_value);
 	}
 
 	volume_utility::estimate_gradient(gradient_data, sizes, count, scalar_value, gradient);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &gradient_texture);
+	glBindTexture(GL_TEXTURE_3D, gradient_texture);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(GL_TEXTURE_3D, 0, 3, sizes[0], sizes[1], sizes[2], 0, GL_RGB, GL_UNSIGNED_SHORT, gradient_data);
 
 	delete [] gradient_data;
 }
@@ -1300,6 +1356,9 @@ void initialize()
 	// read volume data file
 	//read_volume_file(volume_filename);
 	read_volume_file_with_tag(volume_filename);
+
+	// estimate gradients for voxels and load them as a texture
+	load_gradient_texture();
 
 	// init shaders
 	setShaders();

@@ -1,6 +1,7 @@
 /**
  * Simply pass through the provided vertex position.
  */
+
 // for raycasting
 varying vec4 position;
 
@@ -10,7 +11,7 @@ uniform vec3 fvEyePosition;
 
 varying vec3 ViewDirection;
 varying vec3 LightDirection;
-varying vec3 Normal;
+//varying vec3 Normal;
 
 void main() {
     gl_TexCoord[0] = gl_MultiTexCoord0;
@@ -24,5 +25,5 @@ void main() {
 
 	ViewDirection  = fvEyePosition - fvObjectPosition.xyz;
 	LightDirection = fvLightPosition - fvObjectPosition.xyz;
-	Normal         = gl_NormalMatrix * gl_Normal;
+	//Normal         = gl_NormalMatrix * gl_Normal;
 }
