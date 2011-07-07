@@ -35,7 +35,12 @@ uniform float fSpecularPower;
 
 varying vec3 ViewDirection;
 varying vec3 LightDirection;
-varying vec3 Normal;
+//varying vec3 Normal;
+
+//uniform vec3 fvLightPosition;
+//uniform vec3 fvEyePosition;
+//
+//varying vec4 fvObjectPosition;
 
 float sum3(vec4 c)
 {
@@ -215,16 +220,19 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 		/************************************************************************/
 		if (lighting_option == 1)
 		{
-			vec4  fvBaseColor      = color_sample;
+			//vec3 pos = fvObjectPosition.xyz;
+			//vec3 ViewDirection  = fvEyePosition - pos;
+			//vec3 LightDirection = fvLightPosition - pos;
 
-			// for lighting
 			vec3  fvLightDirection = normalize( LightDirection );
-			vec3  fvNormal         = normalize( texture3D(gradient_texture, ray) );
+			vec3  fvNormal         = normalize( texture3D(gradient_texture, ray).xyz );
 			float fNDotL           = dot( fvNormal, fvLightDirection ); 
 
 			vec3  fvReflection     = normalize( ( ( 2.0 * fvNormal ) * fNDotL ) - fvLightDirection ); 
 			vec3  fvViewDirection  = normalize( ViewDirection );
 			float fRDotV           = max( 0.0, dot( fvReflection, fvViewDirection ) );
+
+			vec4  fvBaseColor      = color_sample;
 
 			vec4  fvTotalAmbient   = fvAmbient * fvBaseColor; 
 			vec4  fvTotalDiffuse   = fvDiffuse * fNDotL * fvBaseColor; 
