@@ -461,7 +461,7 @@ namespace volume_utility
 					index = get_index(i, j, k, sizes);
 					if (k==0 || j==0 || i==0 || k==boundary[0] || j==boundary[1] || i==boundary[2])
 					{
-						gradient[index] =  0;
+						gradient[index].x = gradient[index].y = gradient[index].z =  0;
 					}else
 					{
 						gradient[index].x
