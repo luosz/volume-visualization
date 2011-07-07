@@ -235,7 +235,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			vec4  fvTotalDiffuse   = fvDiffuse * fNDotL * fvBaseColor; 
 			vec4  fvTotalSpecular  = fvSpecular * ( pow( fRDotV, fSpecularPower ) );
 
-			color_sample = ( fvTotalAmbient + fvTotalDiffuse + fvTotalSpecular ) * 1.2;
+			color_sample = ( fvTotalAmbient + fvTotalDiffuse + fvTotalSpecular );
 		}
 		/************************************************************************/
 
