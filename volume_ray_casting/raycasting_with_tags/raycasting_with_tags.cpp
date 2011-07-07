@@ -723,6 +723,16 @@ void key_release(unsigned char key, int x, int y)
 			transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
 		}
 		break;
+	case 'l':
+		// transfer function
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			lighting_option = (lighting_option - 1 + LIGHTING_COUNT) % LIGHTING_COUNT;
+		}else
+		{
+			lighting_option = (lighting_option + 1) % LIGHTING_COUNT;
+		}
+		break;
 	}
 }
 
