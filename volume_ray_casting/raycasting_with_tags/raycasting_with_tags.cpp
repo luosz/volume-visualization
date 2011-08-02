@@ -730,7 +730,7 @@ void key_release(unsigned char key, int x, int y)
 		ui_on = !ui_on;
 		break;
 	case 't':
-		// transfer function
+		// transfer function options
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
 			transfer_function_option = (transfer_function_option - 1 + TRANSFER_FUNCTION_COUNT) % TRANSFER_FUNCTION_COUNT;
@@ -740,7 +740,7 @@ void key_release(unsigned char key, int x, int y)
 		}
 		break;
 	case 'l':
-		// transfer function
+		// lighting options
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
 			lighting_option = (lighting_option - 1 + LIGHTING_COUNT) % LIGHTING_COUNT;
