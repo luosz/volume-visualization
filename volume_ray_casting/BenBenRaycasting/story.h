@@ -3,7 +3,7 @@
 
 /**	@page	story	BenBen's Story
 *
-*	BenBen's story is an autobiographic story by Ben (one of the authors of the codes).
+*	You may like to read an autobiographic story by Ben (one of the authors). Here is @ref story.
 *
 *	@section	chapter1	Chapter 1	
 *
