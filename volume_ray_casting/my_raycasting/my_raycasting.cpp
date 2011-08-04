@@ -58,7 +58,7 @@ char volume_filename[MAX_STR_SIZE] = "data\\nucleon.dat";
 void ** data_ptr = NULL;
 GLenum gl_type;
 int sizes[3];
-int color_omponent_number;
+int color_component_number;
 
 /// buffers, textures
 GLuint renderbuffer; 
@@ -86,6 +86,7 @@ GLuint final_image;
 /// the volume texture from files
 GLuint volume_texture_from_file;
 GLuint transfer_texture, transfer_texture2;
+GLuint gradient_texture;
 
 /// for fusion of two transfer functions
 float fusion_factor = 0;
@@ -160,6 +161,7 @@ GLuint v,f,p;
 GLuint loc_stepsize;
 GLuint loc_volume_texture_from_file;
 GLuint loc_transfer_texture, loc_transfer_texture2;
+GLuint loc_gradient_texture;
 const float LUMINANCE_MAX = 200;
 const float LUMINANCE_MIN = 1;
 const float LUMINANCE_INC = 1;
@@ -241,6 +243,7 @@ enum TransferFunctionOption
 	TRANSFER_FUNCTION_2ND_DERIVATIVE,
 	TRANSFER_FUNCTION_SOBEL,
 	TRANSFER_FUNCTION_SOBEL_3D,
+	TRANSFER_FUNCTION_SOBEL_3D_TEXTURE,
 	TRANSFER_FUNCTION_K_MEANS,
 	TRANSFER_FUNCTION_K_MEANS_EQUALIZED,
 	TRANSFER_FUNCTION_K_MEANS_IMPORTANCE,
@@ -284,7 +287,7 @@ void doUI()
 	nv::Rect none;
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
 	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Opacity with importance", "Gradient with importance"};
-	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance", "Sobel 3D importance", "Fusion"};
+	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "Sobel 3D texture", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance", "Sobel 3D importance", "Fusion"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -560,6 +563,9 @@ void setShaders() {
 	loc_cluster_texture =  add_texture_uniform(p, "cluster_texture", 6, GL_TEXTURE_3D, cluster_texture);
 	loc_importance_texture =  add_texture_uniform(p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
 	loc_transfer_texture2 = add_texture_uniform(p, "transfer_texture2", 8, GL_TEXTURE_3D, transfer_texture2);
+
+	// this texture is for saving the precomputed gradients
+	loc_gradient_texture =  add_texture_uniform(p, "gradient_texture", 9, GL_TEXTURE_3D, gradient_texture);
 
 	// disable the shader program
 	glUseProgram(0);
@@ -935,7 +941,7 @@ void cluster(const T *data, const unsigned int count)
 	unsigned char *label_ptr = new unsigned char[count];
 	int k = static_cast<int>(cluster_quantity);
 
-	volume_utility::cluster<T, TYPE_SIZE>(data, count, (unsigned int)color_omponent_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
+	volume_utility::cluster<T, TYPE_SIZE>(data, count, (unsigned int)color_component_number, k, label_ptr, sizes[0], sizes[1], sizes[2]);
 
 	char label_filename[MAX_STR_SIZE];
 	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
@@ -1033,7 +1039,7 @@ void read_volume_file(char* filename)
 	{
 		data_ptr = new void *;
 	}
-	file_utility::readData(filename, sizes, dists, data_ptr, &type, &color_omponent_number);
+	file_utility::readData(filename, sizes, dists, data_ptr, &type, &color_component_number);
 
 	switch (type)
 	{
@@ -1056,9 +1062,48 @@ void read_volume_file(char* filename)
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
-	glTexImage3D(GL_TEXTURE_3D, 0, color_omponent_number, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, gl_type, *data_ptr);
+	glTexImage3D(GL_TEXTURE_3D, 0, color_component_number, sizes[0], sizes[1], sizes[2], 0, GL_LUMINANCE, gl_type, *data_ptr);
 
 	cout << "volume texture created from " << filename << endl;
+}
+
+/// estimate gradient texture
+void load_gradient_texture()
+{
+	std::cout<<"Estimate gradient texture..."<<std::endl;
+
+	unsigned int count = sizes[0]*sizes[1]*sizes[2];
+	unsigned short *gradient_data = new unsigned short[count * 3];
+
+	vector<float> scalar_value(count); // the scalar data in const T *data
+	vector<nv::vec3f> gradient(count);
+	std::cout<<"Scalar histogram..."<<std::endl;
+
+	if (gl_type == GL_UNSIGNED_SHORT)
+	{
+		unsigned int histogram[65536] = {0};
+		volume_utility::generate_scalar_histogram<unsigned short, 65536>((unsigned short*)*data_ptr, count, (unsigned int)color_component_number, histogram, scalar_value);
+	}
+	else
+	{
+		unsigned int histogram[256] = {0};
+		volume_utility::generate_scalar_histogram<unsigned char, 256>((unsigned char*)*data_ptr, count, (unsigned int)color_component_number, histogram, scalar_value);
+	}
+
+	volume_utility::estimate_gradient(gradient_data, sizes, count, scalar_value, gradient);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &gradient_texture);
+	glBindTexture(GL_TEXTURE_3D, gradient_texture);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexImage3D(GL_TEXTURE_3D, 0, 3, sizes[0], sizes[1], sizes[2], 0, GL_RGB, GL_UNSIGNED_SHORT, gradient_data);
+
+	delete [] gradient_data;
 }
 
 /// free the data pointer before exit
@@ -1183,6 +1228,9 @@ void initialize()
 
 	// read volume data file
 	read_volume_file(volume_filename);
+
+	// estimate gradients for voxels and load them as a texture
+	load_gradient_texture();
 
 	// init shaders
 	setShaders();
@@ -1614,10 +1662,10 @@ void display()
 		switch(gl_type)
 		{
 		case GL_UNSIGNED_BYTE:
-			render_histograms<unsigned char, 256>((unsigned char*)*data_ptr, count, color_omponent_number);
+			render_histograms<unsigned char, 256>((unsigned char*)*data_ptr, count, color_component_number);
 			break;
 		case GL_UNSIGNED_SHORT:
-			render_histograms<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_omponent_number);
+			render_histograms<unsigned short, 65536>((unsigned short*)*data_ptr, count, color_component_number);
 			break;
 		default:
 			std::cerr<<"Unsupported data type in the volume data."<<endl;

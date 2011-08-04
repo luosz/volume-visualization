@@ -168,7 +168,8 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 			break;
 
 		case 5:
-			// Sobel 3D operator
+			// Sobel 3D operator with gradients from gradient_texture
+
 			//g_x = abs(
 			//	4.0 * (texture3D(volume_texture, ray+e.yww)-texture3D(volume_texture, ray+e.xww))
 			//	+ 2.0 * (texture3D(volume_texture, ray+e.yxw)-texture3D(volume_texture, ray+e.xxw))

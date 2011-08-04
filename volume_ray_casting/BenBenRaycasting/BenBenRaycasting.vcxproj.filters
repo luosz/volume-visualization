@@ -39,9 +39,6 @@
     <ClInclude Include="..\my_raycasting\VolumeReader.h">
       <Filter>../my_raycasting</Filter>
     </ClInclude>
-    <ClInclude Include="story.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\my_raycasting\textfile.h">
       <Filter>../my_raycasting</Filter>
     </ClInclude>

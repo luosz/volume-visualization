@@ -7,7 +7,7 @@ uniform sampler2D back, front;
 uniform sampler2D transfer_function_2D;
 
 // volume data and 3D transfer functions
-uniform sampler3D volume_texture, transfer_texture, cluster_texture, importance_texture, transfer_texture2;
+uniform sampler3D volume_texture, transfer_texture, cluster_texture, importance_texture, transfer_texture2, gradient_texture;
 
 // fusion factor between 0 and 1
 uniform float fusion_factor;
@@ -17,6 +17,9 @@ uniform float stepsize, luminance, clip;
 
 // for choosing a transfer function
 uniform int transfer_function_option;
+
+// enable or disable lighting
+uniform int lighting_option;
 
 varying vec4 position; // vertex position, pos = gl_Position;
 
@@ -586,18 +589,23 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				break;
 
 			case 7:
+				// Sobel 3D operator with gradients from gradient_texture
+				color_sample = mask.xxxw * texture3D(gradient_texture, ray) + mask.wwwx * sum3(texture3D(volume_texture, ray));
+				break;
+
+			case 8:
 				// k-means
 				color_sample = texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw);
 				break;
 
-			case 8:
+			case 9:
 				// k-means equalized
 				color_sample
 					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
 					+ mask.wwwx * sum3(equalize(texture3D(volume_texture, ray).rgb));
 				break;
 
-			case 9:
+			case 10:
 				// Simple 2D transfer function with importance
 				c = texture3D(volume_texture, ray);
 				c.rgb = equalize(c.rgb);
@@ -606,15 +614,15 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					+ mask.wwwx * sum3(c.rgb) * texture3D(importance_texture, ray).x;
 				break;
 
-			case 10:
+			case 11:
 				// k-means equalized with importance
 				color_sample
 					= mask.xxxw * texture2D(transfer_function_2D, texture3D(cluster_texture, ray).xw)
 					+ mask.wwwx * sum3(equalize(texture3D(volume_texture, ray).rgb)) * texture3D(importance_texture, ray).x;
 				break;
 
-			case 11:
-				// Sobel 3D operator
+			case 12:
+				// Sobel 3D operator with importance
 				g_x = abs(
 					4.0 * (texture3D(volume_texture, ray+e.yww)-texture3D(volume_texture, ray+e.xww))
 					+ 2.0 * (texture3D(volume_texture, ray+e.yxw)-texture3D(volume_texture, ray+e.xxw))
@@ -658,7 +666,7 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 					+ mask.wwwx * texture3D(importance_texture, ray).x * (alpha_opacity > 0.0 ? mix((g_x.x + g_y.y + g_z.z) * 0.125, sum3(equalize(texture3D(volume_texture, ray).rgb)), alpha_opacity) : (g_x.x + g_y.y + g_z.z) * 0.125);
 				break;
 
-			case 12:
+			case 13:
 				// Fusion of two transfer functions
 				color_sample = mix(texture3D(transfer_texture, ray), texture3D(transfer_texture2, ray), fusion_factor);
 				break;
@@ -667,6 +675,34 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 				// Raw scalar values without a transfer function
 				color_sample = texture3D(volume_texture, ray);
 			}
+
+			/************************************************************************/
+			/* lighting                                                             */
+			/************************************************************************/
+			if (lighting_option == 1)
+			{
+				vec3 ViewDirection  = fvEyePosition - ray;
+				vec3 LightDirection = fvLightPosition - ray;
+
+				vec3  fvLightDirection = normalize( LightDirection );
+				vec3  fvNormal         = normalize( texture3D(gradient_texture, ray) ).xyz;
+				float fNDotL           = dot( fvNormal, fvLightDirection ); 
+
+				vec3  fvReflection     = normalize( ( ( 2.0 * fvNormal ) * fNDotL ) - fvLightDirection ); 
+				vec3  fvViewDirection  = normalize( ViewDirection );
+				float fRDotV           = max( 0.0, dot( fvReflection, fvViewDirection ) );
+
+				vec4  fvBaseColor      = color_sample;
+
+				vec4  fvTotalAmbient   = fvAmbient * fvBaseColor; 
+				vec4  fvTotalDiffuse   = fvDiffuse * fNDotL * fvBaseColor; 
+				vec4  fvTotalSpecular  = fvSpecular * ( pow( fRDotV, fSpecularPower ) );
+
+				color_sample = ( fvTotalAmbient + fvTotalDiffuse + fvTotalSpecular );
+			}
+			/************************************************************************/
+
+
 
 			/************************************************************************/
 			// color blending

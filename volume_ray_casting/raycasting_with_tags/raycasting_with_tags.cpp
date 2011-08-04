@@ -541,6 +541,8 @@ void setShaders()
 	//loc_importance_texture =  add_texture_uniform(p, "importance_texture", 7, GL_TEXTURE_3D, importance_texture);
 	//loc_transfer_texture2 = add_texture_uniform(p, "transfer_texture2", 8, GL_TEXTURE_3D, transfer_texture2);
 	loc_tag_texture =  add_texture_uniform(p, "tag_texture", 6, GL_TEXTURE_3D, tag_texture);
+
+	// this texture is for saving the precomputed gradients
 	loc_gradient_texture =  add_texture_uniform(p, "gradient_texture", 7, GL_TEXTURE_3D, gradient_texture);
 
 	// disable the shader program

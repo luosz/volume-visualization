@@ -78,7 +78,6 @@
     <ClInclude Include="..\my_raycasting\VolumeReader.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="k_means.h" />
-    <ClInclude Include="story.h" />
     <ClInclude Include="transfer_function.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Volume.h" />
