@@ -35,6 +35,7 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include <string>
 using namespace std;
 
 /// NVIDIA OpenGL SDK
@@ -205,6 +206,9 @@ bool button_all = false;
 bool button_show_alpha_blending = false;
 bool button_load_importance_label = false;
 
+// to enable or disable lighting
+bool button_set_lighting_parameters = false;
+
 /// for output image
 enum RenderOption
 {
@@ -255,8 +259,65 @@ enum TransferFunctionOption
 int transfer_function_option = TRANSFER_FUNCTION_NONE;
 GLuint loc_transfer_function_option;
 
+enum LightingOption
+{
+	LIGHTING_DISABLE,
+	LIGHTING_ENABLE,
+	LIGHTING_COUNT
+};
+int lighting_option = LIGHTING_ENABLE;
+GLuint loc_lighting_option;
+
+// for lighting
+float fSpecularPower = 25;
+float fvLightPosition[3] = {-100, 100, 100};
+float fvEyePosition[3] = {0, 0, 100};
+//float fvAmbient[4] = {0.368627, 0.368421, 0.368421, 1.0};
+//float fvDiffuse[4] = {0.490196, 0.488722, 0.488722, 1.0};
+//float fvSpecular[4] = {0.886275, 0.885003, 0.885003, 1.0};
+float fvAmbient[4] = {0.768627, 0.768421, 0.568421, 1.0};
+float fvDiffuse[4] = {0.790196, 0.988722, 0.988722, 1.0};
+float fvSpecular[4] = {0.986275, 0.985003, 0.985003, 1.0};
+GLuint loc_fSpecularPower;
+GLuint loc_fvLightPosition;
+GLuint loc_fvEyePosition;
+GLuint loc_fvAmbient;
+GLuint loc_fvSpecular;
+GLuint loc_fvDiffuse;
+
+// set the lighting parameters
+void set_lighting_parameters()
+{
+	std::cout<<"Lighting parameters:"<<std::endl;
+	std::cout<<"Specular power "<<fSpecularPower<<std::endl;
+	std::cout<<"Light position "<<fvLightPosition[0]<<" "<<fvLightPosition[1]<<" "<<fvLightPosition[2]<<std::endl;
+	std::cout<<"Eye position "<<fvEyePosition[0]<<" "<<fvEyePosition[1]<<" "<<fvEyePosition[2]<<std::endl;
+	std::cout<<"Ambient "<<fvAmbient[0]<<" "<<fvAmbient[1]<<" "<<fvAmbient[2]<<" "<<fvAmbient[3]<<std::endl;
+	std::cout<<"Diffuse "<<fvDiffuse[0]<<" "<<fvDiffuse[1]<<" "<<fvDiffuse[2]<<" "<<fvDiffuse[3]<<std::endl;
+	std::cout<<"Specular "<<fvSpecular[0]<<" "<<fvSpecular[1]<<" "<<fvSpecular[2]<<" "<<fvSpecular[3]<<std::endl;
+	std::cout<<"\nWould you like to set new values for the parameters? y/n"<<std::endl;
+	string s;
+	std::cin>>s;
+	if (s.compare("y") == 0 || s.compare("Y") == 0)
+	{
+		std::cout<<"Specular power (e.g. 25)"<<std::endl;
+		std::cin>>fSpecularPower;
+		std::cout<<"Light position (e.g. -100 100 100)"<<std::endl;
+		std::cin>>fvLightPosition[0]>>fvLightPosition[1]>>fvLightPosition[2];
+		std::cout<<"Eye position (e.g. 0 0 100)"<<std::endl;
+		std::cin>>fvEyePosition[0]>>fvEyePosition[1]>>fvEyePosition[2];
+		std::cout<<"Ambient (e.g. 0.368627 0.368421 0.368421 1.0)"<<std::endl;
+		std::cin>>fvAmbient[0]>>fvAmbient[1]>>fvAmbient[2]>>fvAmbient[3];
+		std::cout<<"Diffuse (e.g. 0.490196 0.488722 0.488722 1.0)"<<std::endl;
+		std::cin>>fvDiffuse[0]>>fvDiffuse[1]>>fvDiffuse[2]>>fvDiffuse[3];
+		std::cout<<"Specular (e.g. 0.886275 0.885003 0.885003 1.0)"<<std::endl;
+		std::cin>>fvSpecular[0]>>fvSpecular[1]>>fvSpecular[2]>>fvSpecular[3];
+	}
+	std::cout<<"Done."<<std::endl;
+}
+
 /************************************************************************/
-/// Implementation
+/// for ui widgets
 /************************************************************************/
 
 /// GLUT callback function, for special keys
@@ -288,6 +349,7 @@ void doUI()
 	const char *render_str[RENDER_COUNT] = {"Final image", "Back faces", "Front faces", "2D transfer function", "Histogram", "Gradient"};
 	const char *peeling_str[PEELING_COUNT] = {"No peeling", "Opacity peeling", "Feature peeling", "Peel back layers", "Peel front layers", "Gradient peeling", "Opacity with importance", "Gradient with importance"};
 	const char *transfer_function_str[TRANSFER_FUNCTION_COUNT] = {"No transfer function", "2D", "Ben", "Gradients as colors", "2nd derivative", "Sobel", "Sobel 3D", "Sobel 3D texture", "K-means++", "K-means++ equalized", "2D importance", "K-means++ importance", "Sobel 3D importance", "Fusion"};
+	const char *lighting_str[LIGHTING_COUNT] = {"Disable lighting", "Enable lighting"};
 
 	glDisable(GL_CULL_FACE);
 
@@ -302,17 +364,20 @@ void doUI()
 		ui.doCheckButton(none, "Rotate", &button_auto_rotate);
 		ui.doCheckButton(none, "View lock", &button_lock_viewpoint);
 		ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
-		ui.doButton(none, "Generate histogram", &button_generate_histogram);
+		ui.doButton(none, "Histogram", &button_generate_histogram);
 		ui.doButton(none, "Cluster", &button_cluster);
 		ui.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
 		ui.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
 		ui.doButton(none, "Do all", &button_all);
 		ui.doButton(none, "Load label", &button_load_importance_label);
+		ui.doButton(none, "Lighting", &button_set_lighting_parameters);
 		ui.endGroup();
 
 		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
 		ui.doComboBox(none, PEELING_COUNT, peeling_str, &peeling_option);
 		ui.doComboBox(none, TRANSFER_FUNCTION_COUNT, transfer_function_str, &transfer_function_option);
+
+		ui.doComboBox(none, LIGHTING_COUNT, lighting_str, &lighting_option);
 
 		//ui.doLineEdit(none, text, MAX_STR_SIZE, &chars_returned);
 
@@ -553,6 +618,15 @@ void setShaders() {
 	loc_scalar_max_normalized = glGetUniformLocation(p, "scalar_max_normalized");
 	loc_alpha_opacity = glGetUniformLocation(p, "alpha_opacity");
 	loc_fusion_factor = glGetUniformLocation(p, "fusion_factor");
+
+	// for lighting
+	loc_fSpecularPower = glGetUniformLocation(p, "fSpecularPower");
+	loc_fvLightPosition = glGetUniformLocation(p, "fvLightPosition");
+	loc_fvEyePosition = glGetUniformLocation(p, "fvEyePosition");
+	loc_fvAmbient = glGetUniformLocation(p, "fvAmbient");
+	loc_fvSpecular = glGetUniformLocation(p, "fvSpecular");
+	loc_fvDiffuse = glGetUniformLocation(p, "fvDiffuse");
+	loc_lighting_option = glGetUniformLocation(p, "lighting_option");
 
 	// set textures
 	add_texture_uniform(p, "front", 1, GL_TEXTURE_2D, frontface_buffer);
@@ -1425,6 +1499,16 @@ void key_release(unsigned char key, int x, int y)
 			peeling_option = (peeling_option + 1) % PEELING_COUNT;
 		}
 		break;
+	case 'x':
+		// lighting options
+		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
+		{
+			lighting_option = (lighting_option - 1 + LIGHTING_COUNT) % LIGHTING_COUNT;
+		}else
+		{
+			lighting_option = (lighting_option + 1) % LIGHTING_COUNT;
+		}
+		break;
 		//case 'c':
 		//	std::cout<<chars_returned<<"\t"<<text<<std::endl;
 		//	break;
@@ -1600,6 +1684,15 @@ void raycasting_pass()
 	glUniform1i(loc_transfer_function_option, transfer_function_option);
 	glUniform1i(loc_peeling_layer, peeling_layer_int);
 
+	// for lighting
+	glUniform1f(loc_fSpecularPower, fSpecularPower);
+	glUniform3fv(loc_fvLightPosition, 1, fvLightPosition);
+	glUniform3fv(loc_fvEyePosition, 1, fvEyePosition);
+	glUniform4fv(loc_fvAmbient, 1, fvAmbient);
+	glUniform4fv(loc_fvSpecular, 1, fvSpecular);
+	glUniform4fv(loc_fvDiffuse, 1, fvDiffuse);
+	glUniform1i(loc_lighting_option, lighting_option);
+
 	if(button_generate_Ben_transfer_function)
 	{
 		button_generate_Ben_transfer_function = false;
@@ -1622,6 +1715,13 @@ void raycasting_pass()
 			set_texture_uniform(loc_volume_texture_from_file, p, "volume", 3, GL_TEXTURE_3D, volume_texture);
 		else
 			set_texture_uniform(loc_volume_texture_from_file, p, "volume", 3, GL_TEXTURE_3D, volume_texture_from_file);
+	}
+
+	// set lighting parameters
+	if (button_set_lighting_parameters)
+	{
+		button_set_lighting_parameters = false;
+		set_lighting_parameters();
 	}
 
 	// draw front faces

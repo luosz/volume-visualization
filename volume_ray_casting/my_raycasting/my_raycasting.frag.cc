@@ -23,6 +23,15 @@ uniform int lighting_option;
 
 varying vec4 position; // vertex position, pos = gl_Position;
 
+// for lighting
+uniform vec4 fvAmbient;
+uniform vec4 fvSpecular;
+uniform vec4 fvDiffuse;
+uniform float fSpecularPower;
+
+uniform vec3 fvLightPosition;
+uniform vec3 fvEyePosition;
+
 // for threshold peeling
 uniform int peeling_option;
 uniform float threshold_low, threshold_high;
