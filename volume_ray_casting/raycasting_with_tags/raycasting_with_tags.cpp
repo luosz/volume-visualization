@@ -117,6 +117,8 @@ nv::GlutUIContext ui;
 bool button_auto_rotate = false;
 bool button_lock_viewpoint = false;
 bool button_generate_Ben_transfer_function = false;
+
+// to enable or disable lighting
 bool button_set_lighting_parameters = false;
 
 /// for output image
@@ -247,13 +249,13 @@ void doUI()
 		ui.doCheckButton(none, "Rotate", &button_auto_rotate);
 		ui.doCheckButton(none, "View lock", &button_lock_viewpoint);
 		//ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
-		//ui.doButton(none, "Generate histogram", &button_generate_histogram);
+		//ui.doButton(none, "Histogram", &button_generate_histogram);
 		//ui.doButton(none, "Cluster", &button_cluster);
 		ui.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
 		//ui.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
 		//ui.doButton(none, "Do all", &button_all);
 		//ui.doButton(none, "Load label", &button_load_importance_label);
-		ui.doButton(none, "Set lighting", &button_set_lighting_parameters);
+		ui.doButton(none, "Lighting", &button_set_lighting_parameters);
 		ui.endGroup();
 
 		ui.doComboBox(none, RENDER_COUNT, render_str, &render_option);
@@ -741,7 +743,7 @@ void key_release(unsigned char key, int x, int y)
 			transfer_function_option = (transfer_function_option + 1) % TRANSFER_FUNCTION_COUNT;
 		}
 		break;
-	case 'l':
+	case 'x':
 		// lighting options
 		if (glutGetModifiers() == GLUT_ACTIVE_ALT)
 		{
@@ -997,13 +999,6 @@ void raycasting_pass()
 		set_texture_uniform(loc_transfer_texture, p, "transfer_texture", 5, GL_TEXTURE_3D, transfer_texture);
 	}
 
-	// set lighting parameters
-	if (button_set_lighting_parameters)
-	{
-		button_set_lighting_parameters = false;
-		set_lighting_parameters();
-	}
-
 	//if(button_generate_fusion_transfer_function)
 	//{
 	//	button_generate_fusion_transfer_function = false;
@@ -1020,6 +1015,13 @@ void raycasting_pass()
 	//	else
 	//		set_texture_uniform(loc_volume, p, "volume", 3, GL_TEXTURE_3D, volume_texture_from_file);
 	//}
+
+	// set lighting parameters
+	if (button_set_lighting_parameters)
+	{
+		button_set_lighting_parameters = false;
+		set_lighting_parameters();
+	}
 
 	// draw front faces
 	glEnable(GL_CULL_FACE);
