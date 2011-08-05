@@ -3,8 +3,7 @@
 */
 
 /**	@mainpage GPU Volume Raycasting with Segmentation Tags by Shengzhou Luo (c) 2011
-*	GPU raycasting tutorial made by Peter Trier jan 2007
-*	
+*
 *	This file contains all the elements nessesary to implement a simple 
 *	GPU volume raycaster.
 *	Notice this implementation requires a shader model 3.0 gfxcard.
