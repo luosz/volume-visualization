@@ -197,8 +197,6 @@ namespace volume_utility
 		vector<float> scalar_value(count); // the scalar data in const T *data
 		vector<nv::vec3f> gradient(count);
 		vector<float> gradient_magnitude(count);
-		vector<float> average(count);
-		vector<float> variation(count);
 		vector<nv::vec3f> second_derivative(count);
 		vector<float> second_derivative_magnitude(count);
 		float max_gradient_magnitude, max_second_derivative_magnitude;
@@ -213,33 +211,41 @@ namespace volume_utility
 
 		std::cout<<"Gradients and second derivatives..."<<std::endl;
 		generate_gradient(sizes, count, components, scalar_value, gradient, gradient_magnitude, max_gradient_magnitude, second_derivative, second_derivative_magnitude, max_second_derivative_magnitude);
-		generate_average_variation(sizes, count, components, scalar_value, average, variation);
+
+		//// by Ben for statistical based clustering
+		//vector<float> average(count);
+		//vector<float> variation(count);
+		//generate_average_variation(sizes, count, components, scalar_value, average, variation);
 
 		unsigned char *label_ptr_before_filter = new unsigned char[count];
 
-		// adapt to K_Means_PP_Generic::k_means()
-		//std::vector<nv::vec3f> v(count);
-		std::vector<nv::vec2f> v(count);
+		// wrap for K_Means_PP_Generic::k_means()
+		std::vector<nv::vec3f> v(count);
+		//std::vector<nv::vec2f> v(count);
 		for (unsigned int i=0; i<count; i++)
 		{
-			//v[i].x = scalar_value[i];
-			//v[i].y = gradient_magnitude[i];
-			//v[i].z = second_derivative_magnitude[i];
+			v[i].x = scalar_value[i];
+			v[i].y = gradient_magnitude[i];
+			v[i].z = second_derivative_magnitude[i];
 
 			//v[i].w = scalar_value[i];
 			//v[i].x = gradient[i].x;
 			//v[i].y = gradient[i].y;
 			//v[i].z = gradient[i].z;
 
-			v[i].x = average[i];
-			v[i].y = variation[i];
+			//v[i].x = average[i];
+			//v[i].y = variation[i];
 		}
+
 		// call the clustering routine
 		std::cout<<"Clustering..."<<std::endl;
 
 		//clustering::K_Means_PP_DIY::k_means(count, scalar_value, gradient_magnitude, second_derivative_magnitude, k, label_ptr_before);
-		//clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec3f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec3f>);
-		clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec2f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec2f>);
+		clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec3f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec3f>);
+
+		//// by Ben for statistical based clustering
+		//clustering::K_Means_PP_Generic::k_means(v, k, label_ptr_before_filter, clustering::K_Means_PP_Generic::get_distance<nv::vec2f>, clustering::K_Means_PP_Generic::get_centroid<nv::vec2f>);
+
 		//clustering::Fuzzy_CMeans::k_means(v, k, label_ptr_before_filter);
 
 		//std::ofstream label_file_before("d:/label_before.txt");
@@ -249,7 +255,7 @@ namespace volume_utility
 		//}
 
 		// the bandwagon effect filter
-		std::cout<<"The bandwagon effect filter..."<<std::endl;
+		std::cout<<"Filtering..."<<std::endl;
 		bandwagon_effect_filter(k, label_ptr_before_filter, label_ptr, width, height, depth);
 		delete[] label_ptr_before_filter;
 
