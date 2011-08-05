@@ -1,3 +1,7 @@
+/**	@file
+* a header file for reading volume data with segmentation tags
+*/
+
 #ifndef reader_tag_h
 #define reader_tag_h
 
