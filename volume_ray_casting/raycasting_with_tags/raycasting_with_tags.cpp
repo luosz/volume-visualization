@@ -494,8 +494,8 @@ void setShaders()
 	v = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 
-	vs = file_utility::textFileRead("simple_vertex.vert.cc");
-	fs = file_utility::textFileRead("raycasting_with_tags.frag.cc");
+	vs = file_reader::textFileRead("simple_vertex.vert.cc");
+	fs = file_reader::textFileRead("raycasting_with_tags.frag.cc");
 
 	const char * vv = vs;
 	const char * ff = fs;
@@ -1117,20 +1117,20 @@ void display()
 void read_volume_file(char* filename)
 {
 	float dists[3];
-	file_utility::DataType type;
+	file_reader::DataType type;
 
 	if (!data_ptr)
 	{
 		data_ptr = new void *;
 	}
-	file_utility::readData(filename, sizes, dists, data_ptr, &type, &color_component_number);
+	file_reader::readData(filename, sizes, dists, data_ptr, &type, &color_component_number);
 
 	switch (type)
 	{
-	case file_utility::DATRAW_UCHAR:
+	case file_reader::DATRAW_UCHAR:
 		gl_type = GL_UNSIGNED_BYTE;
 		break;
-	case file_utility::DATRAW_USHORT:
+	case file_reader::DATRAW_USHORT:
 		gl_type = GL_UNSIGNED_SHORT;
 		break;
 	default:
@@ -1155,21 +1155,21 @@ void read_volume_file(char* filename)
 void read_volume_file_with_tag(char* filename)
 {
 	float dists[3];
-	file_utility::DataType type;
+	file_reader::DataType type;
 
 	if (!data_ptr)
 	{
 		data_ptr = new void *;
 	}
 	char tag_filename[MAX_STR_SIZE] = "";
-	file_utility::readData_with_tag(filename, sizes, dists, data_ptr, &type, &color_component_number, tag_filename);
+	file_reader::readData_with_tag(filename, sizes, dists, data_ptr, &type, &color_component_number, tag_filename);
 
 	switch (type)
 	{
-	case file_utility::DATRAW_UCHAR:
+	case file_reader::DATRAW_UCHAR:
 		gl_type = GL_UNSIGNED_BYTE;
 		break;
-	case file_utility::DATRAW_USHORT:
+	case file_reader::DATRAW_USHORT:
 		gl_type = GL_UNSIGNED_SHORT;
 		break;
 	default:
@@ -1198,19 +1198,19 @@ void read_volume_file_with_tag(char* filename)
 		int tag_sizes[3];
 		float tag_dists[3];
 		void ** tag_data_ptr = new void *;
-		file_utility::DataType tag_type;
+		file_reader::DataType tag_type;
 		int tag_color_component_number;
-		file_utility::readData(tag_filename_with_path, tag_sizes, tag_dists, tag_data_ptr, &tag_type, &tag_color_component_number);
+		file_reader::readData(tag_filename_with_path, tag_sizes, tag_dists, tag_data_ptr, &tag_type, &tag_color_component_number);
 
 		unsigned int count = tag_sizes[0] * tag_sizes[1] * tag_sizes[2];
 		GLenum tag_gl_type;
 		switch (tag_type)
 		{
-		case file_utility::DATRAW_UCHAR:
+		case file_reader::DATRAW_UCHAR:
 			tag_gl_type = GL_UNSIGNED_BYTE;
 			volume_utility::normalize_volume<unsigned char, 256>((unsigned char*)*tag_data_ptr, count, tag_color_component_number);
 			break;
-		case file_utility::DATRAW_USHORT:
+		case file_reader::DATRAW_USHORT:
 			tag_gl_type = GL_UNSIGNED_SHORT;
 			volume_utility::normalize_volume<unsigned short, 65536>((unsigned short*)*tag_data_ptr, count, tag_color_component_number);
 			break;

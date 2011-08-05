@@ -580,8 +580,8 @@ void setShaders() {
 	v = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 
-	vs = file_utility::textFileRead("simple_vertex.vert.cc");
-	fs = file_utility::textFileRead("my_raycasting.frag.cc");
+	vs = file_reader::textFileRead("simple_vertex.vert.cc");
+	fs = file_reader::textFileRead("my_raycasting.frag.cc");
 
 	const char * vv = vs;
 	const char * ff = fs;
@@ -1109,20 +1109,20 @@ void render_histograms(const T *data, const unsigned int count, const unsigned i
 void read_volume_file(char* filename) 
 {
 	float dists[3];
-	file_utility::DataType type;
+	file_reader::DataType type;
 
 	if (!data_ptr)
 	{
 		data_ptr = new void *;
 	}
-	file_utility::readData(filename, sizes, dists, data_ptr, &type, &color_component_number);
+	file_reader::readData(filename, sizes, dists, data_ptr, &type, &color_component_number);
 
 	switch (type)
 	{
-	case file_utility::DATRAW_UCHAR:
+	case file_reader::DATRAW_UCHAR:
 		gl_type = GL_UNSIGNED_BYTE;
 		break;
-	case file_utility::DATRAW_USHORT:
+	case file_reader::DATRAW_USHORT:
 		gl_type = GL_UNSIGNED_SHORT;
 		break;
 	default:

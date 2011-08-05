@@ -257,8 +257,8 @@ void setShaders() {
 	v = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 
-	vs = file_utility::textFileRead("simple_vertex.vert.cc");
-	fs = file_utility::textFileRead("BenBenRaycasting.frag.cc");
+	vs = file_reader::textFileRead("simple_vertex.vert.cc");
+	fs = file_reader::textFileRead("BenBenRaycasting.frag.cc");
 
 	const char * vv = vs;
 	const char * ff = fs;

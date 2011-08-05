@@ -7,7 +7,7 @@
 
 #include "../my_raycasting/reader.h"
 
-namespace file_utility
+namespace file_reader
 {
 	/// read volume data with tags
 	void readData_with_tag(char *filename, int *sizes, float *dists, void **data, DataType *type, int *numComponents, char *tag_filename = NULL)

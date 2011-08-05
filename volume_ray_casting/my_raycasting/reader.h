@@ -33,7 +33,7 @@
 /**	@brief	This namespace contains functions that read and write text files
 *	
 */
-namespace file_utility
+namespace file_reader
 {
 	typedef enum {DATRAW_UCHAR, DATRAW_FLOAT, DATRAW_USHORT} DataType;
 

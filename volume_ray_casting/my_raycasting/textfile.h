@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-namespace file_utility
+namespace file_reader
 {
 	char *textFileRead(char *fn);
 	int textFileWrite(char *fn, char *s);
