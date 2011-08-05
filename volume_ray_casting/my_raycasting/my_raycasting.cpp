@@ -14,7 +14,7 @@
 // Notice this implementation requires a shader model 3.0 gfxcard
 // --------------------------------------------------------------------------
 
-/**	@mainpage GPU Raycasting by Shengzhou Luo (c) 2010-2011
+/**	@mainpage GPU Volume Raycasting by Shengzhou Luo (c) 2010-2011
 *	GPU raycasting tutorial made by Peter Trier jan 2007
 *	
 *	This file contains all the elements nessesary to implement a simple 
@@ -26,6 +26,8 @@
 *	
 *	We implemented our approach with OpenGL and GLSL (OpenGL Shading Language) on a personal computer equipped with an AMD Athlon 7750 Dual-Core processor, 4GB memory and a NVIDIA GeForce GT 240 graphics card.
 *	Experiments are conducted on several common datasets that are publicly available on the Volume Library. The original datasets in PVM format are converted into RAW format with the PVM tools distributed with the V^3 (Versatile Volume Viewer) volume rendering package.
+*
+*	Last updated: 2011-8-5
 */
 
 #include <GL/glew.h>

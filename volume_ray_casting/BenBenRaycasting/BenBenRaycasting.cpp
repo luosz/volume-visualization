@@ -14,7 +14,7 @@
 // Notice this implementation requires a shader model 3.0 gfxcard
 // --------------------------------------------------------------------------
 
-/**	@mainpage	GPU Raycasting by Xiao Li (c) 2010-2011
+/**	@mainpage	GPU Volume Raycasting by Xiao Li (c) 2010-2011
 *	GPU raycasting tutorial made by Peter Trier jan 2007
 *	
 *	This file contains all the elements nessesary to implement a simple 
@@ -27,6 +27,8 @@
 *	The program is implemented using OpenGL and GLSL (OpenGL Shading Language). Properties such as average, variation and local entropy of each voxel are pre-computed because they are constants during the rendering process and a higher frame rate could be reached.
 *	The program is run on a personal computer (AMD Athlon 7750 Dual-Core Processor, 4G memory) equipped with NVIDIA GeForce GT 240 graphics card. Several common datasets that are publicly available on the The Volume Library is tested.
 *	The original datasets in pvm format are converted into raw format with the pvm tools distributed with the V^3 (Versatile Volume Viewer) volume rendering package.
+*
+*	Last updated: 2011-8-5
 */
 
 #include <windows.h>
