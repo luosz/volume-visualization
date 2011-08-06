@@ -202,9 +202,9 @@ bool button_auto_rotate = false;
 bool button_lock_viewpoint = false;
 bool button_generate_histogram = false;
 bool button_cluster = false;
+bool button_load_cluster_from_file = false;
 bool button_generate_Ben_transfer_function = false;
 bool button_generate_fusion_transfer_function = false;
-bool button_all = false;
 bool button_show_alpha_blending = false;
 bool button_load_importance_label = false;
 
@@ -368,10 +368,10 @@ void doUI()
 		ui.doCheckButton(none, "Alpha blend", &button_show_alpha_blending);
 		ui.doButton(none, "Histogram", &button_generate_histogram);
 		ui.doButton(none, "Cluster", &button_cluster);
+		ui.doButton(none, "from file", &button_load_cluster_from_file);
 		ui.doButton(none, "Ben TF", &button_generate_Ben_transfer_function);
-		ui.doButton(none, "Fusion TF", &button_generate_fusion_transfer_function);
-		ui.doButton(none, "Do all", &button_all);
-		ui.doButton(none, "Load label", &button_load_importance_label);
+		ui.doButton(none, "Fusion", &button_generate_fusion_transfer_function);
+		ui.doButton(none, "Importance", &button_load_importance_label);
 		ui.doButton(none, "Lighting", &button_set_lighting_parameters);
 		ui.endGroup();
 
@@ -957,8 +957,11 @@ void load_importance_label(const unsigned int count)
 	int k = static_cast<int>(cluster_quantity);
 	unsigned char *replacement = new unsigned char[k];
 
+	// get the filename of cluster labels
 	char label_filename[MAX_STR_SIZE];
 	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
+
+	// get the filename of replaced labels
 	char label_filename_replaced[MAX_STR_SIZE];
 	sprintf(label_filename_replaced, "%s.%d.replaced.txt", volume_filename, k);
 
@@ -969,6 +972,7 @@ void load_importance_label(const unsigned int count)
 		replacement[i] = volume_utility::char_to_number(replacement[i]);
 	}
 
+	// read labels from file
 	std::cout<<"Read labels from file "<<label_filename<<std::endl;
 	std::ifstream label_file(label_filename);
 	if (label_file.bad())
@@ -976,7 +980,6 @@ void load_importance_label(const unsigned int count)
 		std::cout<<"Failed to open file "<<label_filename<<std::endl;
 		return;
 	}
-
 	for (unsigned int i=0; i<count; i++)
 	{
 		label_file>>label_ptr[i];
@@ -985,6 +988,7 @@ void load_importance_label(const unsigned int count)
 	}
 	label_file.close();
 
+	// write replaced labels to file
 	std::cout<<"Write replaced labels to file "<<label_filename_replaced<<std::endl;
 	std::ofstream label_file_replaced(label_filename_replaced);
 	if (label_file_replaced.bad())
@@ -998,13 +1002,16 @@ void load_importance_label(const unsigned int count)
 	}
 	label_file_replaced.close();
 
+	// shift labels from range 0..7 or 0..f to 0..255
 	std::cout<<"Shifting labels..."<<std::endl;
-	volume_utility::shift_labels(static_cast<int>(cluster_quantity), count, label_ptr);
-	volume_utility::shift_labels(static_cast<int>(cluster_quantity), count, label_ptr_replaced);
-	std::cout<<"Importance labels are loaded"<<std::endl<<std::endl;
+	volume_utility::shift_labels(k, count, label_ptr);
+	volume_utility::shift_labels(k, count, label_ptr_replaced);
 
+	// load the labels as texture
 	load_importance_label_texture(label_ptr, loc_cluster_texture, p, "cluster_texture", 6, cluster_texture);
 	load_importance_label_texture(label_ptr_replaced, loc_importance_texture, p, "importance_texture", 7, importance_texture);
+
+	std::cout<<"Importance labels are loaded"<<std::endl<<std::endl;
 
 	delete [] label_ptr_replaced;
 	delete [] label_ptr;
@@ -1030,13 +1037,52 @@ void cluster(const T *data, const unsigned int count)
 	}
 	label_file.close();
 
+	// shift labels from range 0..7 or 0..f to 0..255
 	std::cout<<"Shifting labels..."<<std::endl;
 	volume_utility::shift_labels(k, count, label_ptr);
 
+	// load the labels as texture
 	load_importance_label_texture(label_ptr, loc_cluster_texture, p, "cluster_texture", 6, cluster_texture);
 	load_importance_label_texture(label_ptr, loc_importance_texture, p, "importance_texture", 7, importance_texture);
 
 	std::cout<<"Clustering finished."<<std::endl;
+
+	delete [] label_ptr;
+}
+
+/// read cluster labels from file
+void load_cluster_labels_from_file(const unsigned int count)
+{
+	unsigned char *label_ptr = new unsigned char[count];
+	int k = static_cast<int>(cluster_quantity);
+
+	// get the filename of cluster labels
+	char label_filename[MAX_STR_SIZE];
+	sprintf(label_filename, "%s.%d.txt", volume_filename, k);
+
+	std::cout<<"Read labels from file "<<label_filename<<std::endl;
+	std::ifstream label_file(label_filename);
+	if (label_file.bad())
+	{
+		std::cout<<"Failed to open file "<<label_filename<<std::endl;
+		return;
+	}
+	for (unsigned int i=0; i<count; i++)
+	{
+		label_file>>label_ptr[i];
+		label_ptr[i] = volume_utility::char_to_number(label_ptr[i]);
+	}
+	label_file.close();
+
+	// shift labels from range 0..7 or 0..f to 0..255
+	std::cout<<"Shifting labels..."<<std::endl;
+	volume_utility::shift_labels(k, count, label_ptr);
+
+	// load the labels as texture
+	load_importance_label_texture(label_ptr, loc_cluster_texture, p, "cluster_texture", 6, cluster_texture);
+	load_importance_label_texture(label_ptr, loc_importance_texture, p, "importance_texture", 7, importance_texture);
+
+	std::cout<<"Cluster labels loaded from file."<<std::endl;
 
 	delete [] label_ptr;
 }
@@ -1746,16 +1792,6 @@ void display()
 	enable_renderbuffers();
 	render_transfer_function_2D();
 
-	// do it all
-	if(data_ptr && button_all)
-	{
-		button_all = false;
-		button_generate_histogram = true;
-		button_cluster = true;
-		//button_generate_Ben_transfer_function = true;
-		button_generate_fusion_transfer_function = true;
-	}
-
 	// render the histogram
 	if(data_ptr && button_generate_histogram)
 	{
@@ -1783,6 +1819,14 @@ void display()
 			cluster<unsigned short, 65536>((unsigned short*)*data_ptr, count);
 		else
 			cluster<unsigned char, 256>((unsigned char*)*data_ptr, count);
+	}
+
+	// read cluster labels from file
+	if (data_ptr && button_load_cluster_from_file)
+	{
+		button_load_cluster_from_file = false;
+		unsigned int count = sizes[0]*sizes[1]*sizes[2];
+		load_cluster_labels_from_file(count);
 	}
 
 	// load importance label
