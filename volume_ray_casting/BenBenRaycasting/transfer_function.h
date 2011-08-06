@@ -1113,8 +1113,4 @@ void setTransferfunc9(color_opacity *& tf, Volume & volume)
 					}	
 }
 
-
-
-
-
 #endif // TRANSFER_FUNCTION_H
