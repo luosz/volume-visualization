@@ -183,5 +183,4 @@ Vector3 reflect(const Vector3& in, const Vector3& normal)
   return in - normal * (2 * dot(in, normal));
 }
 
-
 #endif
