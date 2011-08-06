@@ -1036,11 +1036,11 @@ void NormalTest()
 							//		cout<<"w = "<<w<<endl;
 							if(w - 0.894 < 0)     
 								// 0.923 0.935
-								cout<<"Not comply to normal distribution"<<endl;
+								cout<<"Not comply with the normal distribution assumption"<<endl;
 							else
 							{
 								count++;
-								cout<<"Comply to normal distribution"<<endl<<endl<<endl;
+								cout<<"Comply with the normal distribution assumption"<<endl<<endl<<endl;
 							}
 
 			}
