@@ -1244,11 +1244,11 @@ void Volume::NormalDistributionTest()
 					//			cout<<"w = "<<w<<endl;
 							if(w - 0.935 < 0)     
 							;	// 0.923 0.935
-				//						cout<<"It's not a normal distribution."<<endl;
+				//						cout<<"Not comply with the normal distribution assumption"<<endl;
 							else
 							{
 								number++;
-				//				cout<<"It's a normal distribution."<<endl;
+				//				cout<<"Comply with the normal distribution assumption"<<endl;
 							}
 			}
 			cout<<float(number) /  float(getCount());
