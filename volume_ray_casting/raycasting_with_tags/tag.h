@@ -29,14 +29,16 @@ namespace volume_utility
 			double increment = TYPE_SIZE / (double)data_set.size();
 			double sum = 0;
 
+			std::cout<<"Tags:"<<std::endl;
 			std::map<T, T> data_map;
 			for (std::set<T>::iterator i=data_set.begin(); i!=data_set.end(); i++)
 			{
 				data_map[*i] = (T)sum;
 				//std::cout<<(int)*i<<","<<(int)data_map[*i]<<","<<sum<<" ";
+				std::cout<<(int)*i<<"\t";
 				sum += increment;
 			}
-			//std::cout<<std::endl;
+			std::cout<<std::endl;
 
 			for (unsigned int i=0; i<count; i++)
 			{
