@@ -119,7 +119,15 @@ vec4 directRendering(vec3 frontPos, vec3 backPos)
 
 		case 3:
 			// Segmentation tags with simple 2D transfer function
-			color_sample = mask.xxxw * texture2D(transfer_function_2D, texture3D(tag_texture, ray).xy) + mask.wwwx * sum3(texture3D(volume_texture, ray));
+			vec4 tag = texture3D(tag_texture, ray);
+			if (tag.x > 1e-4)
+			{
+				color_sample = mask.xxxw * texture2D(transfer_function_2D, tag.xy) + mask.wwwx * sum3(texture3D(volume_texture, ray));
+			}
+			else
+			{
+				color_sample = texture3D(volume_texture, ray);
+			}
 			break;
 
 		case 4:
