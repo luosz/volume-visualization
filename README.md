@@ -5,6 +5,8 @@ GPU Volume Raycasting and Transfer Functions Generation
 
 This is a GPU ray-casting renderer with various features, including transfer functions, peeling, and importance driven rendering. We implemented our approach with OpenGL and GLSL (OpenGL Shading Language) on a personal computer equipped with an AMD Athlon 7750 Dual-Core processor, 4GB memory and a NVIDIA GeForce GT 240 graphics card. Experiments are conducted on several common datasets that are publicly available on the Volume Library. The original datasets in PVM format are converted into RAW format with the PVM tools distributed with the V^3 (Versatile Volume Viewer) volume rendering package.
 
+======
+
 Papers related to this project:
 
 Shengzhou Luo, Xiao Li, Jianhuang Wu, and Xin Ma, "Importance-driven volume rendering and gradient peeling," in International Conference on Computer Graphics Theory and Applications (GRAPP), Vilamoura, Portugal, 2011, pp. 211-214, poster presentation. https://www.scss.tcd.ie/~luos/siat/GRAPP_2011_53_CR.pdf
@@ -15,11 +17,15 @@ Xiao Li, Shengzhou Luo, Jianhuang Wu, and Xin Ma, "Gradient vector and local dis
 
 Xiao Li, Jianhuang Wu, Shengzhou Luo, and Xin Ma, "Boundary emphasis transfer function generation based on HSL color space," in International Conference on Graphic and Image Processing (ICGIP), Manila, Philippines, 2010, pp. 46-50. https://www.scss.tcd.ie/~luos/siat/xiao_li_icgip_2010.pdf
 
+======
+
 Screenshots are available at http://lsz0.wordpress.com/2010/09/07/a-volume-renderer-with-classification-peeling-and-boundary-emphasizing-2010/
 
 Recent changes to this project can be found at https://bitbucket.org/lsz/volume-visualization.
 
 If you are looking for a simple volume rendering program, check out our VTK and Qt based volume renderer at https://bitbucket.org/lsz/volume-renderer
+
+======
 
 BenBen's Story
 
