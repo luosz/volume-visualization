@@ -29,4 +29,4 @@ If you are looking for a simple volume rendering program, check out our VTK and 
 
 BenBen's Story
 
-You might interest in an autobiographic story by Ben (an author of this project). The story is regarded as a unique satire fable which reflects the people in a some kind of advanced institute (as it is claimed to be) located in a remote village that is somehow in a mess of utilitarianism which urge them to concern with matters of consequences that one never knows if it is actually important or not and important to what if it is important. Here is the [story](../../wiki/Story).
+You might interest in an autobiographic story by Ben (an author of this project). The story is regarded as a unique satire fable which reflects the people in a some kind of advanced institute (as it is claimed to be) located in a remote village that is somehow in a mess of utilitarianism which urge them to concern with matters of consequences that one never knows if it is actually important or not and important to what if it is important. [Here is the story](../../wiki/Story).
