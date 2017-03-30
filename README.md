@@ -9,13 +9,13 @@ This is a GPU ray-casting renderer with various features, including transfer fun
 
 Papers related to this project:
 
-Shengzhou Luo, Xiao Li, Jianhuang Wu, and Xin Ma, "Importance-driven volume rendering and gradient peeling," in International Conference on Computer Graphics Theory and Applications (GRAPP), Vilamoura, Portugal, 2011, pp. 211-214, poster presentation. https://www.scss.tcd.ie/~luos/siat/GRAPP_2011_53_CR.pdf
+Shengzhou Luo, Xiao Li, Jianhuang Wu, and Xin Ma, "Importance-driven volume rendering and gradient peeling," in International Conference on Computer Graphics Theory and Applications (GRAPP), Vilamoura, Portugal, 2011, pp. 211-214, poster presentation. https://www.scss.tcd.ie/~sluo/siat/GRAPP_2011_53_CR.pdf
 
-Shengzhou Luo, Jianhuang Wu, Xiao Li, and Xin Ma, "Orientation visualizing transfer function for volume rendering," in Proceedings of International Conference on Bioscience, Biochemistry and Bioinformatics (ICBBB), Singapore, 2011, pp. 88-92. https://www.scss.tcd.ie/~luos/siat/rp021_ICBBB2011-X00034.pdf
+Shengzhou Luo, Jianhuang Wu, Xiao Li, and Xin Ma, "Orientation visualizing transfer function for volume rendering," in Proceedings of International Conference on Bioscience, Biochemistry and Bioinformatics (ICBBB), Singapore, 2011, pp. 88-92. https://www.scss.tcd.ie/~sluo/siat/rp021_ICBBB2011-X00034.pdf
 
-Xiao Li, Shengzhou Luo, Jianhuang Wu, and Xin Ma, "Gradient vector and local distribution based volume visualization," in IEEE International Conference on Complex Medical Engineering (CME), Harbin, China, 2011, pp. 317-322. https://www.scss.tcd.ie/~luos/siat/xiao_li_cme_2011.pdf
+Xiao Li, Shengzhou Luo, Jianhuang Wu, and Xin Ma, "Gradient vector and local distribution based volume visualization," in IEEE International Conference on Complex Medical Engineering (CME), Harbin, China, 2011, pp. 317-322. https://www.scss.tcd.ie/~sluo/siat/xiao_li_cme_2011.pdf
 
-Xiao Li, Jianhuang Wu, Shengzhou Luo, and Xin Ma, "Boundary emphasis transfer function generation based on HSL color space," in International Conference on Graphic and Image Processing (ICGIP), Manila, Philippines, 2010, pp. 46-50. https://www.scss.tcd.ie/~luos/siat/xiao_li_icgip_2010.pdf
+Xiao Li, Jianhuang Wu, Shengzhou Luo, and Xin Ma, "Boundary emphasis transfer function generation based on HSL color space," in International Conference on Graphic and Image Processing (ICGIP), Manila, Philippines, 2010, pp. 46-50. https://www.scss.tcd.ie/~sluo/siat/xiao_li_icgip_2010.pdf
 
 ======
 
