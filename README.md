@@ -5,9 +5,18 @@ GPU Volume Raycasting and Transfer Functions Generation
 
 This is a GPU ray-casting renderer with various features, including transfer functions, peeling, and importance driven rendering. We implemented our approach with OpenGL and GLSL (OpenGL Shading Language) on a personal computer equipped with an AMD Athlon 7750 Dual-Core processor, 4GB memory and a NVIDIA GeForce GT 240 graphics card. Experiments are conducted on several common datasets that are publicly available on the Volume Library. The original datasets in PVM format are converted into RAW format with the PVM tools distributed with the V^3 (Versatile Volume Viewer) volume rendering package.
 
+## Examples
+### Before and after applying the proposed techniques to the foot data set
+![Before](foot_before.png)
+![After](foot_after.png)
+
+### Before and after applying the proposed techniques to the vismale data set
+![Before](vismale_before.png)
+![After](vismale_after.png)
+
 ======
 
-Papers related to this project:
+## Papers related to this project:
 
 Shengzhou Luo, Xiao Li, Jianhuang Wu, and Xin Ma, "Importance-driven volume rendering and gradient peeling," in International Conference on Computer Graphics Theory and Applications (GRAPP), Vilamoura, Portugal, 2011, pp. 211-214, poster presentation. https://www.scss.tcd.ie/~sluo/siat/GRAPP_2011_53_CR.pdf
 
