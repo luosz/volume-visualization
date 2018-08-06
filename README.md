@@ -11,7 +11,7 @@ This is a GPU ray-casting renderer with various features, including transfer fun
 ![After](foot_after.png)
 
 ### Before and after applying the proposed techniques to the vismale data set
-![Before](vismale_before.png)
+![Before](vismale_before.png =299x)
 ![After](vismale_after.png)
 
 ======
